@@ -1,0 +1,18 @@
+export const SUPPORTED_COUNTRIES = [
+  { value: 'Chile', label: '🇨🇱 Chile' },
+  { value: 'Argentina', label: '🇦🇷 Argentina' },
+  { value: 'Colombia', label: '🇨🇴 Colombia' },
+  { value: 'México', label: '🇲🇽 México' },
+  { value: 'Perú', label: '🇵🇪 Perú' },
+  { value: 'Uruguay', label: '🇺🇾 Uruguay' },
+  { value: 'Ecuador', label: '🇪🇨 Ecuador' },
+  { value: 'Venezuela', label: '🇻🇪 Venezuela' },
+  { value: 'Brasil', label: '🇧🇷 Brasil' },
+  { value: 'España', label: '🇪🇸 España' },
+  { value: 'Francia', label: '🇫🇷 Francia' },
+  { value: 'Alemania', label: '🇩🇪 Alemania' },
+  { value: 'Italia', label: '🇮🇹 Italia' },
+  { value: 'Reino Unido', label: '🇬🇧 Reino Unido' },
+  { value: 'Estados Unidos', label: '🇺🇸 Estados Unidos' },
+  { value: 'Canadá', label: '🇨🇦 Canadá' },
+]
