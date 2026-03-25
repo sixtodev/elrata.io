@@ -75,4 +75,4 @@ lib/
 
 ## Licencia
 
-**Todos los derechos reservados.** Este código se publica de forma abierta para fines de visualización y educativos. No se otorga permiso para usar, copiar, modificar o distribuir este software.
+**Todos los derechos reservados.** Este código se publica de forma abierta para fines de visualización y educativos. **Todos los derechos reservados.** Este código se publica de forma abierta para fines de visualización y educativos. No se otorga permiso distribuir o comercializar este software.
