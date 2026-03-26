@@ -1,10 +1,15 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import Image from 'next/image'
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { m } from 'motion/react'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
+
+const HeroCanvas = dynamic(() => import('./hero-scene/HeroCanvas'), {
+  ssr: false,
+  loading: () => null,
+})
 
 const stats = [
   { num: '+16', label: 'países' },
@@ -51,50 +56,32 @@ const rataVariants = {
 
 export function Hero() {
   const { open } = useSearchDrawer()
-  const [videoReady, setVideoReady] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const [showCanvas, setShowCanvas] = useState(false)
+
+  useEffect(() => {
+    // Defer Three.js loading until after LCP paint
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(() => setShowCanvas(true), { timeout: 1500 })
+      return () => cancelIdleCallback(id)
+    } else {
+      const id = setTimeout(() => setShowCanvas(true), 100)
+      return () => clearTimeout(id)
+    }
+  }, [])
 
   const totalWords = titleTokens.filter(t => !t.isLineBreak).length
   const strikeThroughDelay = 0.3 + totalWords * 0.12 + 0.3
 
   return (
     <section
-      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-20 relative text-center overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-20 relative text-center overflow-hidden bg-background"
     >
-      {/* Static background image — loads fast via Next.js Image with priority */}
-      <Image
-        src="/images/hero-bg2.webp"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-        style={{ objectPosition: '35% center' }}
-      />
-
-      {/* Hero background video — fades in smoothly once loaded */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        onCanPlayThrough={() => setVideoReady(true)}
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-        style={{
-          objectPosition: '35% center',
-          opacity: videoReady ? 1 : 0,
-        }}
-      >
-        <source src="/out/hero.mp4" type="video/mp4" />
-      </video>
-
-      {/* Dark overlay for readability */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'rgba(10, 10, 10, 0)' }}
-      />
+      {/* Three.js interactive scene — deferred to not block LCP */}
+      {showCanvas && (
+        <div className="absolute inset-0 z-0">
+          <HeroCanvas />
+        </div>
+      )}
 
       {/* Heading — word-by-word stagger */}
       <m.h1
@@ -117,6 +104,7 @@ export function Hero() {
               <m.span
                 key={token.text}
                 variants={wordVariants}
+
                 transition={{ duration: 0.4, ease: 'easeOut' as const }}
                 className={`relative inline-block ${token.className ?? ''}`}
               >
@@ -135,6 +123,7 @@ export function Hero() {
             <m.span
               key={token.text}
               variants={isRata ? rataVariants : wordVariants}
+
               transition={isRata ? undefined : { duration: 0.4, ease: 'easeOut' as const }}
               className={`inline-block ${token.className ?? ''}`}
             >

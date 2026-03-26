@@ -73,7 +73,9 @@ export default function RootLayout({
       lang="es"
       className={`${openSans.variable} ${inter.variable} ${geistMono.variable}`}
     >
-      <head />
+      <head>
+        <link rel="preload" href="/fonts/Maghfirea.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-screen antialiased">
         {/* CSS-only loader — server-rendered, only visible on slow networks (400ms delay) */}
         <div id="page-loader">

@@ -56,7 +56,6 @@ export function Navbar() {
         href="#"
         className="font-[family-name:var(--font-title)] text-[22px] text-foreground flex items-center gap-2 no-underline"
       >
-        <img src="/icons/rata.webp" alt="ElRata" className="w-14 h-14 object-contain" />
         El<span className="text-green">Rata</span>.io
       </a>
 
