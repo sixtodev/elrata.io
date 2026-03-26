@@ -1,16 +1,6 @@
-'use client'
-
-import { m } from 'motion/react'
-
 export function Footer() {
   return (
-    <m.footer
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-      className="border-t border-border py-8 px-6 text-center text-muted text-[13px] relative z-10"
-    >
+    <footer className="border-t border-border py-8 px-6 text-center text-muted text-[13px] relative z-10">
       <p className="mb-3">
         🐀 <strong className="text-foreground">ElRata.io</strong> — Busca como rata, compra como rey
       </p>
@@ -25,6 +15,6 @@ export function Footer() {
       <p className="mt-2 text-[11px]" style={{ fontStyle: 'italic' }}>
         Nombre inspirado por las ofertas de trabajo ratas que el midu muestra en sus directos xD
       </p>
-    </m.footer>
+    </footer>
   )
 }

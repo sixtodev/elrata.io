@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -73,7 +74,7 @@ export default function LoginPage() {
     >
       <div style={{ width: '100%', maxWidth: '420px' }}>
         {/* Logo */}
-        <a
+        <Link
           href="/"
           style={{
             display: 'block',
@@ -86,7 +87,7 @@ export default function LoginPage() {
           }}
         >
           🐀 El<span style={{ color: '#c4ef16' }}>Rata</span>.io
-        </a>
+        </Link>
 
         {/* Card */}
         <div
@@ -322,7 +323,7 @@ export default function LoginPage() {
 
         {/* Back to landing */}
         <p style={{ textAlign: 'center', marginTop: '20px' }}>
-          <a
+          <Link
             href="/"
             style={{
               color: '#6b7280',
@@ -331,7 +332,7 @@ export default function LoginPage() {
             }}
           >
             ← Volver al inicio
-          </a>
+          </Link>
         </p>
       </div>
     </div>

@@ -71,10 +71,17 @@ export default function RootLayout({
   return (
     <html
       lang="es"
+      data-scroll-behavior="smooth"
       className={`${openSans.variable} ${inter.variable} ${geistMono.variable}`}
     >
       <head>
-        <link rel="preload" href="/fonts/Maghfirea.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+        <script dangerouslySetInnerHTML={{ __html: `
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              registrations.forEach(function(r) { r.unregister(); });
+            });
+          }
+        ` }} />
       </head>
       <body className="min-h-screen antialiased">
         {/* CSS-only loader — server-rendered, only visible on slow networks (400ms delay) */}

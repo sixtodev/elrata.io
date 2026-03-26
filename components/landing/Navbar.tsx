@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { m, AnimatePresence } from 'motion/react'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
@@ -52,12 +53,12 @@ export function Navbar() {
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-8 h-20 bg-background/85 backdrop-blur-xl border-b border-border"
     >
-      <a
-        href="#"
+      <Link
+        href="/"
         className="font-[family-name:var(--font-title)] text-[22px] text-foreground flex items-center gap-2 no-underline"
       >
         El<span className="text-green">Rata</span>.io
-      </a>
+      </Link>
 
       {/* Desktop nav */}
       <ul className="hidden md:flex items-center gap-7 list-none">
@@ -80,9 +81,9 @@ export function Navbar() {
         {user ? (
           <>
             <li>
-              <a href="/dashboard" className="nav-link text-foreground text-sm hover:text-green transition-colors no-underline">
+              <Link href="/dashboard" className="nav-link text-foreground text-sm hover:text-green transition-colors no-underline">
                 Dashboard
-              </a>
+              </Link>
             </li>
             <li className="relative">
               <button
@@ -117,9 +118,9 @@ export function Navbar() {
           </>
         ) : (
           <li>
-            <a href="/login" className="nav-link text-foreground text-sm hover:text-green transition-colors no-underline">
+            <Link href="/login" className="nav-link text-foreground text-sm hover:text-green transition-colors no-underline">
               Login
-            </a>
+            </Link>
           </li>
         )}
 
@@ -170,9 +171,9 @@ export function Navbar() {
 
             {user ? (
               <>
-                <a href="/dashboard" className="text-foreground hover:text-green transition-colors no-underline min-h-11 flex items-center">
+                <Link href="/dashboard" className="text-foreground hover:text-green transition-colors no-underline min-h-11 flex items-center">
                   Dashboard
-                </a>
+                </Link>
                 <div className="flex items-center gap-2.5 text-muted text-[13px]">
                   <div className="w-7 h-7 rounded-full bg-green text-black flex items-center justify-center text-xs font-semibold shrink-0">
                     {userInitial}
@@ -187,9 +188,9 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <a href="/login" className="text-foreground hover:text-green transition-colors no-underline min-h-11 flex items-center font-medium">
+              <Link href="/login" className="text-foreground hover:text-green transition-colors no-underline min-h-11 flex items-center font-medium">
                 Iniciar sesión
-              </a>
+              </Link>
             )}
 
             <Button onClick={() => { open(); setMobileOpen(false); }}>

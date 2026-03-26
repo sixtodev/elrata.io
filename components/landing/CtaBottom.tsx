@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { m } from 'motion/react'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
@@ -9,10 +10,8 @@ export function CtaBottom() {
 
   return (
     <section className="text-center py-12 px-6 bg-[radial-gradient(ellipse_at_center,rgba(196,239,22,0.08)_0%,transparent_70%)] relative z-10" style={{ backgroundImage: 'linear-gradient(rgba(196,239,22,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(196,239,22,0.04) 1px, transparent 1px)', backgroundSize: '60px 60px' }}>
-      <m.img
-        src="/icons/rata.webp"
-        alt="Rata"
-        className="w-48 h-48 mx-auto mb-2 object-contain"
+      <m.div
+        className="w-48 h-48 mx-auto mb-2 relative"
         animate={{
           y: [0, -12, 0],
           rotate: [0, 3, -3, 0],
@@ -22,7 +21,9 @@ export function CtaBottom() {
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-      />
+      >
+        <Image src="/icons/rata.webp" alt="Rata" fill className="object-contain" />
+      </m.div>
       <m.h2
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

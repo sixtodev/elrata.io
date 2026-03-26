@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { m, useInView } from 'motion/react'
 import { useRef } from 'react'
 import { useSearchDrawer } from './SearchDrawerContext'
@@ -142,7 +143,7 @@ export function Pricing() {
               ))}
             </ul>
             {plan.featured ? (
-              <a
+              <Link
                 href="/login"
                 style={{
                   display: 'block',
@@ -154,7 +155,7 @@ export function Pricing() {
                 <Button variant="primary" className="w-full">
                   {plan.cta}
                 </Button>
-              </a>
+              </Link>
             ) : (
               <Button
                 variant="secondary"
