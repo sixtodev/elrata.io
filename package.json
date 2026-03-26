@@ -19,7 +19,6 @@
     "@supabase/supabase-js": "^2.99.3",
     "cheerio": "^1.2.0",
     "clsx": "^2.1.1",
-    "crawlee": "^3.16.0",
     "lord-icon-element": "^4.1.2",
     "lottie-web": "^5.13.0",
     "motion": "^12.38.0",

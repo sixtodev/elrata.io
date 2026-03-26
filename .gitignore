@@ -29,8 +29,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files — NEVER commit secrets
-.env*
-.env.example
+.env
+.env.local
+.env.*.local
 
 # vercel
 .vercel
@@ -56,6 +57,3 @@ ELRATA_PLAN_V2.md
 # prototype files
 elrata-landing.html
 
-# docker (optional, remove if you want to share)
-.dockerignore
-Dockerfile

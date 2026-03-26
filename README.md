@@ -31,7 +31,7 @@ El nombre "rata" se usa con orgullo — ser rata es ser inteligente con tu plata
 | Base de datos | Supabase (PostgreSQL + Auth) |
 | IA | Round-robin entre Groq, Cerebras y OpenRouter |
 | Búsqueda web | Cadena de fallback: Serper, SerpAPI, Google Custom Search |
-| Scraping | Cheerio, Crawlee |
+| Scraping | Cheerio (HTML parsing) + MercadoLibre API oficial |
 | Email | Resend |
 | Validación | Zod 4 |
 | Componentes UI | Radix UI (Dialog, Select, Label) |
@@ -56,8 +56,10 @@ components/
 lib/
   ai/                 Proveedores de IA y analizador (round-robin)
   search/             Motor de búsqueda web (cadena de fallback)
-  crawlers/           Scrapers (MercadoLibre API, web crawlers)
-  scraper/            Extracción de datos de páginas
+  crawlers/
+    apis/             MercadoLibre API oficial (OAuth2)
+    generic.ts        Scraper genérico (Cheerio) para cualquier URL
+    index.ts          Router: API ML + tiendas por país + URLs del usuario
   supabase/           Cliente y servidor de Supabase
   email/              Envío de emails con Resend
   validators/         Schemas de validación con Zod
@@ -66,12 +68,28 @@ lib/
 ## Cómo funciona (resumen técnico)
 
 1. El usuario ingresa un producto, ciudad y país
-2. El sistema busca en la web usando una cadena de fallback (Serper > SerpAPI > Google CSE)
-3. Los resultados se scrapean para extraer precios y detalles
-4. Un modelo de IA analiza los resultados y genera una recomendación
-5. Se muestra una tabla comparativa con precios, tiendas y links directos
-6. El usuario puede guardar la búsqueda, crear alertas y organizar en carpetas
-7. Un cron job monitorea las alertas cada hora y envía emails cuando el precio baja
+2. El sistema busca en paralelo:
+   - **MercadoLibre API** (si hay token OAuth2) — datos JSON directos
+   - **Scraper genérico (Cheerio)** — Falabella, Sodimac, PCFactory, Paris y más según el país
+   - **Web Search** (Serper > SerpAPI > Google CSE) — resultados de Google
+3. Paginación dinámica: si la primera página tiene suficientes resultados, busca páginas 2 y 3
+4. Se deduplican y ordenan por precio
+5. Un modelo de IA analiza los resultados y genera una recomendación
+6. Se muestra una tabla comparativa con precios, tiendas y links directos
+7. El usuario puede guardar la búsqueda, crear alertas y organizar en carpetas
+8. Un cron job monitorea las alertas cada hora y envía emails cuando el precio baja
+
+### Tiendas por país
+
+| País | Tiendas |
+|------|---------|
+| Chile | MercadoLibre, Falabella, Sodimac, PCFactory, Paris |
+| Colombia | MercadoLibre, Falabella, Éxito |
+| Perú | MercadoLibre, Falabella |
+| México | MercadoLibre, Liverpool, Coppel |
+| Argentina | MercadoLibre, Frávega, Garbarino |
+
+Los usuarios pueden agregar URLs de tiendas adicionales desde su perfil.
 
 ## Licencia
 
