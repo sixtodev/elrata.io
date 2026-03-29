@@ -43,7 +43,7 @@ export function mergeAndSort(
   return filtered
 }
 
-function extractNumericPrice(price: string): number {
+export function extractNumericPrice(price: string): number {
   const cleaned = price.replace(/[^0-9.,]/g, '')
 
   if (cleaned.includes('.') && cleaned.includes(',')) {

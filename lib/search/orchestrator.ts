@@ -115,7 +115,9 @@ function getCountryCode(country: string): string {
     'estados unidos': 'US', usa: 'US', canada: 'CA',
     espana: 'ES', spain: 'ES', brasil: 'BR', brazil: 'BR',
   }
-  return map[country.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')] || 'US'
+  const code = map[country.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')]
+  if (!code) console.warn(`[orchestrator] Unknown country "${country}", defaulting to US`)
+  return code || 'US'
 }
 
 function getCurrencyForCountry(cc: string): string {

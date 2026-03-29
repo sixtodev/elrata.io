@@ -44,8 +44,8 @@ export function ResultsSection() {
       }, 100)
 
       // Trigger AI analysis
-      const purpose = (results as unknown as Record<string, unknown>)._purpose as string || ''
-      const budget = (results as unknown as Record<string, unknown>)._budget as string || undefined
+      const purpose = results.query.purpose || ''
+      const budget = results.query.budget
 
       if (results.results.length > 0 && purpose) {
         setAnalyzingAI(true)

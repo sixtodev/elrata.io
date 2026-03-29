@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans, Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { HideLoader } from "@/components/HideLoader";
 
@@ -74,16 +75,14 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${openSans.variable} ${inter.variable} ${geistMono.variable}`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: `
+      <body className="min-h-screen antialiased">
+        <Script id="sw-unregister" strategy="beforeInteractive">{`
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
               registrations.forEach(function(r) { r.unregister(); });
             });
           }
-        ` }} />
-      </head>
-      <body className="min-h-screen antialiased">
+        `}</Script>
         {/* CSS-only loader — server-rendered, only visible on slow networks (400ms delay) */}
         <div id="page-loader">
           <img src="/icons/rata.webp" alt="" width={96} height={96} />

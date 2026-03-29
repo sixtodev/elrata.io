@@ -7,6 +7,8 @@ export interface SearchQuery {
   country: string
   purpose: string
   model?: AIProvider
+  budget?: string
+  source?: 'all' | 'mercadolibre' | 'web'
   categories?: string[]
   store_ids?: string[]
 }

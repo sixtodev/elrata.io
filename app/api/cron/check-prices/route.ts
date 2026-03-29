@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { runSearch } from '@/lib/ai'
 import { sendPriceAlert } from '@/lib/email/resend'
+import { extractNumericPrice } from '@/lib/search/merger'
 import type { SearchResult } from '@/types/search'
 
 interface AlertRow {
@@ -23,10 +24,11 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient()
   const results = { checked: 0, triggered: 0, errors: 0 }
 
-  const { data: alerts, error } = await supabase
+  const { data, error } = await supabase
     .from('price_alerts')
     .select('*, user:user_id(email)')
-    .eq('status', 'active') as unknown as { data: AlertRow[] | null; error: { message: string } | null }
+    .eq('status', 'active')
+  const alerts = data as AlertRow[] | null
 
   if (error) {
     console.error('[cron] Error fetching alerts:', error)
@@ -42,14 +44,14 @@ export async function GET(req: NextRequest) {
 
       if (lowestPrice.numericPrice === Infinity) continue
 
-      await (supabase.from('price_history') as unknown as { insert: (data: Record<string, unknown>) => Promise<unknown> }).insert({
+      await supabase.from('price_history').insert({
         alert_id: alert.id,
         price: lowestPrice.numericPrice,
         store: lowestPrice.store,
         url: lowestPrice.url,
       })
 
-      await (supabase.from('price_alerts') as unknown as { update: (data: Record<string, unknown>) => { eq: (col: string, val: string) => Promise<unknown> } }).update({
+      await supabase.from('price_alerts').update({
         last_price: lowestPrice.numericPrice,
         last_checked_at: new Date().toISOString(),
       }).eq('id', alert.id)
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
           url: lowestPrice.url || '#',
         })
 
-        await (supabase.from('price_alerts') as unknown as { update: (data: Record<string, unknown>) => { eq: (col: string, val: string) => Promise<unknown> } }).update({
+        await supabase.from('price_alerts').update({
           status: 'triggered',
           notified_at: new Date().toISOString(),
         }).eq('id', alert.id)
@@ -90,9 +92,9 @@ function parseLowestPrice(results: SearchResult[]) {
   const withPrices = results
     .map((r) => ({
       ...r,
-      numericPrice: parseFloat(r.price.replace(/[^0-9.]/g, '')),
+      numericPrice: extractNumericPrice(r.price),
     }))
-    .filter((r) => !isNaN(r.numericPrice))
+    .filter((r) => isFinite(r.numericPrice))
     .sort((a, b) => a.numericPrice - b.numericPrice)
 
   return withPrices[0] ?? { numericPrice: Infinity, store: '', url: '' }
