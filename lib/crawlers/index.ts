@@ -39,7 +39,8 @@ export async function runCrawlers(
   query: SearchQuery
 ): Promise<SearchResult[]> {
   const cc = getCountryCode(query.country)
-  const product = `${query.product}${query.brand ? ` ${query.brand}` : ''}`
+  // query.product already includes brand (added by buildQuery in the UI)
+  const product = query.product
   const currency = CURRENCIES[cc] || 'USD'
 
   console.log(`[crawlers] Starting for "${product}" in ${cc}`)

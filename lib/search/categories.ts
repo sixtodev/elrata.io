@@ -102,15 +102,12 @@ export const SEARCH_CATEGORIES: SearchCategory[] = [
       ]},
     ],
     buildQuery: (product, brand, fields) => {
+      // Keep query lean for text-based search APIs (ML, web).
+      // Specs like RAM/storage are too specific — ML returns 0 results with them.
+      // The AI analysis step handles spec-based recommendations from broad results.
       const parts = [product]
       if (brand) parts.push(brand)
       if (fields.type) parts.push(fields.type)
-      if (fields.ram) parts.push(fields.ram)
-      if (fields.storage) parts.push(fields.storage)
-      if (fields.processor) parts.push(fields.processor)
-      if (fields.screen) parts.push(fields.screen)
-      if (fields.resolution) parts.push(fields.resolution)
-      if (fields.refresh) parts.push(fields.refresh)
       return parts.join(' ')
     },
   },
@@ -145,8 +142,6 @@ export const SEARCH_CATEGORIES: SearchCategory[] = [
     buildQuery: (product, brand, fields) => {
       const parts = [product]
       if (brand) parts.push(brand)
-      if (fields.storage) parts.push(fields.storage)
-      if (fields.ram) parts.push(`${fields.ram} RAM`)
       if (fields.condition) parts.push(fields.condition)
       return parts.join(' ')
     },
