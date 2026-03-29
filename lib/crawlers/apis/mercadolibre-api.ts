@@ -1,4 +1,5 @@
 import type { SearchResult } from '@/types/search'
+import { createServiceClient } from '@/lib/supabase/server'
 
 /**
  * MercadoLibre API oficial.
@@ -27,10 +28,61 @@ const CURRENCIES: Record<string, string> = {
   PE: 'PEN', UY: 'UYU', EC: 'USD', VE: 'VES',
 }
 
+/**
+ * Carga tokens de ML desde Supabase si no están en process.env.
+ * Llamado una sola vez por request cuando falta el token.
+ */
+async function loadMLTokensFromDB(): Promise<void> {
+  try {
+    const supabase = createServiceClient()
+    const { data } = await supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'ml_tokens')
+      .single()
+
+    if (data?.value) {
+      const tokens = data.value as { access_token?: string; refresh_token?: string }
+      if (tokens.access_token) process.env.ML_ACCESS_TOKEN = tokens.access_token
+      if (tokens.refresh_token) process.env.ML_REFRESH_TOKEN = tokens.refresh_token
+      console.log('[ml-api] Tokens loaded from Supabase')
+    }
+  } catch (error) {
+    console.error('[ml-api] Failed to load tokens from DB:', error)
+  }
+}
+
+/**
+ * Persiste tokens de ML en Supabase para sobrevivir restarts.
+ */
+async function persistMLTokensToDB(accessToken: string, refreshToken?: string): Promise<void> {
+  try {
+    const supabase = createServiceClient()
+    await supabase.from('app_settings').upsert(
+      {
+        key: 'ml_tokens',
+        value: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          updated_at: new Date().toISOString(),
+        },
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'key' }
+    )
+  } catch (error) {
+    console.error('[ml-api] Failed to persist tokens to DB:', error)
+  }
+}
+
 export async function searchMercadoLibreAPI(
   product: string,
   countryCode: string
 ): Promise<SearchResult[]> {
+  if (!process.env.ML_ACCESS_TOKEN) {
+    await loadMLTokensFromDB()
+  }
+
   const token = process.env.ML_ACCESS_TOKEN
   if (!token) {
     console.log('[ml-api] ML_ACCESS_TOKEN not set, skipping')
@@ -110,12 +162,12 @@ async function refreshMLToken(): Promise<void> {
 
     if (res.ok) {
       const data = await res.json()
-      // In production, save this to a database or env
       process.env.ML_ACCESS_TOKEN = data.access_token
       if (data.refresh_token) {
         process.env.ML_REFRESH_TOKEN = data.refresh_token
       }
-      console.log('[ml-api] Token refreshed successfully')
+      await persistMLTokensToDB(data.access_token, data.refresh_token)
+      console.log('[ml-api] Token refreshed and persisted successfully')
     }
   } catch (error) {
     console.error('[ml-api] Token refresh failed:', error)
