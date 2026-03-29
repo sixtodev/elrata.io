@@ -1,3 +1,8 @@
+// Countries where MercadoLibre operates
+export const ML_COUNTRIES = new Set([
+  'Chile', 'Argentina', 'Colombia', 'México', 'Perú', 'Uruguay', 'Ecuador', 'Venezuela',
+])
+
 export const SUPPORTED_COUNTRIES = [
   { value: 'Chile', label: '🇨🇱 Chile' },
   { value: 'Argentina', label: '🇦🇷 Argentina' },

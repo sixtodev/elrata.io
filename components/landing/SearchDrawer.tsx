@@ -6,16 +6,10 @@ import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/search/categories'
-import { SUPPORTED_COUNTRIES } from '@/lib/search/countries'
+import { SUPPORTED_COUNTRIES, ML_COUNTRIES } from '@/lib/search/countries'
 import type { CategoryField } from '@/lib/search/categories'
 
-type SearchSource = 'all' | 'mercadolibre' | 'web'
-
-const sources: { id: SearchSource; label: string; icon: string }[] = [
-  { id: 'all', label: 'Todos', icon: '' },
-  { id: 'mercadolibre', label: 'MercadoLibre', icon: '' },
-  { id: 'web', label: 'Web general', icon: '' },
-]
+type SearchSource = 'all' | 'mercadolibre'
 
 export function SearchDrawer() {
   const { isOpen, close, setResults } = useSearchDrawer()
@@ -268,7 +262,7 @@ export function SearchDrawer() {
           Buscar en
         </label>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {sources.map((s) => (
+          {([{ id: 'all', label: 'Completa' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
             <button
               key={s.id}
               onClick={() => setSelectedSource(s.id)}
@@ -284,7 +278,7 @@ export function SearchDrawer() {
                 color: selectedSource === s.id ? '#c4ef16' : '#6b7280',
               }}
             >
-              {s.icon} {s.label}
+              {s.label}
             </button>
           ))}
         </div>

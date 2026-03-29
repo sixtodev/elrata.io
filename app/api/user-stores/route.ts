@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { userStoreSchema } from '@/lib/validators/user-store.schema'
+import { userStoreSchema, patchUserStoreSchema } from '@/lib/validators/user-store.schema'
 import { zodValidationError } from '@/lib/api/errors'
 
 export async function GET() {
@@ -32,17 +32,13 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const result = userStoreSchema.safeParse(body)
-    if (!result.success) {
-      return zodValidationError(result.error)
-    }
+    if (!result.success) return zodValidationError(result.error)
 
     const { url, name } = result.data
 
     // Normalize to HTTPS — http:// URLs are intentionally upgraded.
-    // cleanUrl (no protocol) is used as display name fallback; fullUrl is what gets stored.
     const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/+$/, '')
     const fullUrl = `https://${cleanUrl}`
-
     const storeName = name || cleanUrl
 
     const { data, error } = await supabase
@@ -59,6 +55,46 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('[user-stores] POST error:', error)
     return NextResponse.json({ error: 'Failed to save custom URL' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const supabase = await createServerSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+    if (!z.uuid().safeParse(id).success) {
+      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+    }
+
+    const body = await req.json()
+    const result = patchUserStoreSchema.safeParse(body)
+    if (!result.success) return zodValidationError(result.error)
+
+    const updates: Record<string, string> = {}
+    if (result.data.name) updates.name = result.data.name
+    if (result.data.url) {
+      const cleanUrl = result.data.url.replace(/^https?:\/\//, '').replace(/\/+$/, '')
+      updates.url = `https://${cleanUrl}`
+    }
+
+    const { data, error } = await supabase
+      .from('user_custom_urls')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return NextResponse.json(data)
+  } catch (error: unknown) {
+    console.error('[user-stores] PATCH error:', error)
+    return NextResponse.json({ error: 'Failed to update custom URL' }, { status: 500 })
   }
 }
 

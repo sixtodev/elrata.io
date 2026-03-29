@@ -9,17 +9,21 @@ import { Badge } from '@/components/ui/Badge'
 import { SaveToFolderModal } from '@/components/results/SaveToFolderModal'
 import { SetPriceAlertModal } from '@/components/results/SetPriceAlertModal'
 import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/search/categories'
-import { SUPPORTED_COUNTRIES } from '@/lib/search/countries'
+import { SUPPORTED_COUNTRIES, ML_COUNTRIES } from '@/lib/search/countries'
 import type { CategoryField } from '@/lib/search/categories'
 import type { SearchResult, SearchResponse } from '@/types/search'
 
-type SearchSource = 'all' | 'mercadolibre' | 'web'
+type SearchSource = 'all' | 'mercadolibre'
 
-const sourceOptions: { id: SearchSource; label: string; icon: string }[] = [
-  { id: 'all', label: 'Todos', icon: '' },
-  { id: 'mercadolibre', label: 'MercadoLibre', icon: '' },
-  { id: 'web', label: 'Web general', icon: '' },
-]
+function extractStoreName(url: string): string {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '')
+    const base = hostname.split('.')[0]
+    return base.charAt(0).toUpperCase() + base.slice(1)
+  } catch {
+    return url
+  }
+}
 
 interface AIAnalysis {
   summary: string
@@ -52,6 +56,8 @@ export function DashboardSearch() {
   const [savedUrls, setSavedUrls] = useState<SavedUrl[]>([])
   const [urlsLoaded, setUrlsLoaded] = useState(false)
   const [savingUrl, setSavingUrl] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', url: '' })
 
   // Results state
   const [results, setResults] = useState<SearchResponse | null>(null)
@@ -87,10 +93,11 @@ export function DashboardSearch() {
     setSavingUrl(true)
     try {
       const clean = customUrl.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '')
+      const fullUrl = `https://${clean}`
       const res = await fetch('/api/user-stores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: `https://${clean}`, name: clean }),
+        body: JSON.stringify({ url: fullUrl, name: extractStoreName(fullUrl) }),
       })
       if (res.ok) {
         const data = await res.json()
@@ -107,9 +114,26 @@ export function DashboardSearch() {
     } catch { /* ignore */ }
   }
 
+  const handleEditUrl = async (id: string) => {
+    try {
+      const res = await fetch(`/api/user-stores?id=${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editForm.name || undefined,
+          url: editForm.url ? `https://${editForm.url.replace(/^https?:\/\//, '').replace(/\/+$/, '')}` : undefined,
+        }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setSavedUrls((prev) => prev.map((u) => u.id === id ? updated : u))
+      }
+    } catch { /* ignore */ }
+    setEditingId(null)
+  }
+
   const handleSelectSavedUrl = (url: string) => {
     setCustomUrl(url)
-    setSource('all') // Will use custom URL
   }
 
   const cat = getCategoryById(category)
@@ -282,10 +306,10 @@ export function DashboardSearch() {
         <div style={{ marginBottom: '12px' }}>
           <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>Buscar en</label>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {sourceOptions.map((s) => (
-              <button key={s.id} onClick={() => { setSource(s.id); setCustomUrl('') }}
-                style={{ border: source === s.id && !customUrl ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: source === s.id && !customUrl ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: source === s.id && !customUrl ? '#c4ef16' : '#6b7280' }}>
-                {s.icon} {s.label}
+            {([{ id: 'all', label: 'Completa' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
+              <button key={s.id} onClick={() => setSource(s.id)}
+                style={{ border: source === s.id ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: source === s.id ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: source === s.id ? '#c4ef16' : '#6b7280' }}>
+                {s.label}
               </button>
             ))}
           </div>
@@ -320,30 +344,52 @@ export function DashboardSearch() {
 
           {/* Saved URLs */}
           {savedUrls.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
               {savedUrls.map((u) => (
-                <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  <button
-                    onClick={() => handleSelectSavedUrl(u.url)}
-                    style={{
-                      background: customUrl === u.url ? 'rgba(196,239,22,0.1)' : '#1a1a1e',
-                      border: customUrl === u.url ? '1px solid #c4ef16' : '1px solid #2a2a2a',
-                      borderRadius: '6px 0 0 6px',
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                      color: customUrl === u.url ? '#c4ef16' : '#6b7280',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {u.name}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteUrl(u.id)}
-                    style={{ background: '#1a1a1e', border: '1px solid #2a2a2a', borderLeft: 'none', borderRadius: '0 6px 6px 0', padding: '4px 6px', fontSize: '10px', color: '#6b7280', cursor: 'pointer' }}
-                    title="Eliminar"
-                  >
-                    ✕
-                  </button>
+                <div key={u.id}>
+                  {editingId === u.id ? (
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input
+                        type="text"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                        placeholder="Nombre"
+                        style={{ flex: '0 0 110px', background: '#1a1a1e', border: '1px solid #c4ef16', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', color: '#fefeff', outline: 'none' }}
+                      />
+                      <input
+                        type="text"
+                        value={editForm.url}
+                        onChange={(e) => setEditForm((f) => ({ ...f, url: e.target.value }))}
+                        placeholder="URL"
+                        style={{ flex: 1, minWidth: '120px', background: '#1a1a1e', border: '1px solid #c4ef16', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', color: '#fefeff', outline: 'none' }}
+                      />
+                      <button onClick={() => handleEditUrl(u.id)} style={{ background: '#c4ef16', color: '#000', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>OK</button>
+                      <button onClick={() => setEditingId(null)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', color: '#6b7280', cursor: 'pointer' }}>Cancelar</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0' }}>
+                      <button
+                        onClick={() => handleSelectSavedUrl(u.url)}
+                        style={{ background: customUrl === u.url ? 'rgba(196,239,22,0.1)' : '#1a1a1e', border: customUrl === u.url ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '6px 0 0 6px', padding: '4px 8px', fontSize: '11px', color: customUrl === u.url ? '#c4ef16' : '#6b7280', cursor: 'pointer' }}
+                      >
+                        {extractStoreName(u.url)}
+                      </button>
+                      <button
+                        onClick={() => { setEditingId(u.id); setEditForm({ name: u.name, url: u.url.replace(/^https?:\/\//, '') }) }}
+                        style={{ background: '#1a1a1e', border: '1px solid #2a2a2a', borderLeft: 'none', padding: '4px 6px', fontSize: '10px', color: '#6b7280', cursor: 'pointer' }}
+                        title="Editar"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUrl(u.id)}
+                        style={{ background: '#1a1a1e', border: '1px solid #2a2a2a', borderLeft: 'none', borderRadius: '0 6px 6px 0', padding: '4px 6px', fontSize: '10px', color: '#6b7280', cursor: 'pointer' }}
+                        title="Eliminar"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
