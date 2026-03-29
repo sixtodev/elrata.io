@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useMouseTracker } from './useMouseTracker'
@@ -36,8 +36,12 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
 
   const { mouse, mouseSpeed } = useMouseTracker()
 
-  // Rat body geometry — elongated oval with pointed snout
-  const bodyGeometry = useMemo(() => {
+  const bodyGeometryRef = useRef<THREE.BufferGeometry | null>(null)
+  const tailGeometryRef = useRef<THREE.TubeGeometry | null>(null)
+  const whiskerGeometriesRef = useRef<THREE.TubeGeometry[]>([])
+
+  // Rat body geometry — created once, stable across re-renders
+  if (!bodyGeometryRef.current) {
     const geo = new THREE.SphereGeometry(1.8, 24, 24)
     const pos = geo.getAttribute('position')
     const positions = pos.array as Float32Array
@@ -85,11 +89,11 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
     }
 
     geo.computeVertexNormals()
-    return geo
-  }, [])
+    bodyGeometryRef.current = geo
+  }
 
-  // Tail — long curving S-shape behind the body
-  const tailGeometry = useMemo(() => {
+  // Tail — created once
+  if (!tailGeometryRef.current) {
     const curve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, -0.2, -2.8),
       new THREE.Vector3(-0.6, 0.3, -4.0),
@@ -98,12 +102,11 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
       new THREE.Vector3(0.2, 2.0, -7.0),
       new THREE.Vector3(-0.1, 2.5, -7.6),
     ])
-    return new THREE.TubeGeometry(curve, 20, 0.08, 6, false)
-  }, [])
+    tailGeometryRef.current = new THREE.TubeGeometry(curve, 20, 0.08, 6, false)
+  }
 
-  // Whisker geometries — thin lines from snout
-  const whiskerGeometries = useMemo(() => {
-    const whiskers: THREE.TubeGeometry[] = []
+  // Whisker geometries — created once
+  if (whiskerGeometriesRef.current.length === 0) {
     const whiskerDefs = [
       // Left whiskers
       { start: [-0.3, 0.1, 3.2], end: [-2.0, 0.3, 3.8] },
@@ -124,9 +127,16 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
         ),
         new THREE.Vector3(...(w.end as [number, number, number])),
       ])
-      whiskers.push(new THREE.TubeGeometry(curve, 8, 0.02, 4, false))
+      whiskerGeometriesRef.current.push(new THREE.TubeGeometry(curve, 8, 0.02, 4, false))
     }
-    return whiskers
+  }
+
+  useEffect(() => {
+    return () => {
+      bodyGeometryRef.current?.dispose()
+      tailGeometryRef.current?.dispose()
+      for (const geo of whiskerGeometriesRef.current) geo.dispose()
+    }
   }, [])
 
   useFrame((_, delta) => {
@@ -207,7 +217,7 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
   return (
     <group ref={groupRef}>
       {/* Body */}
-      <mesh ref={bodyRef} geometry={bodyGeometry}>
+      <mesh ref={bodyRef} geometry={bodyGeometryRef.current!}>
         <meshStandardMaterial
           ref={bodyMatRef}
           color={0x0f1a0f}
@@ -265,7 +275,7 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
       </mesh>
 
       {/* Tail — long S-curve */}
-      <mesh geometry={tailGeometry}>
+      <mesh geometry={tailGeometryRef.current!}>
         <meshStandardMaterial
           color={0x0f1a0f}
           emissive={GREEN}
@@ -277,7 +287,7 @@ export function RataCharacter({ ratPositionRef }: RataCharacterProps) {
       </mesh>
 
       {/* Whiskers */}
-      {whiskerGeometries.map((geo, i) => (
+      {whiskerGeometriesRef.current.map((geo, i) => (
         <mesh key={`whisker-${i}`} geometry={geo}>
           <meshBasicMaterial color={GREEN} transparent opacity={0.4} />
         </mesh>

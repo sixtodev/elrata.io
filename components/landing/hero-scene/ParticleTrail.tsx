@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useMouseTracker } from './useMouseTracker'
@@ -37,31 +37,41 @@ export function ParticleTrail({ ratPositionRef, coinTexture }: ParticleTrailProp
   )
 
   const lastSpawnTime = useRef(0)
+  const spriteMaterials = useRef<THREE.SpriteMaterial[]>([])
 
-  // Create sprite pool on mount
+  useEffect(() => {
+    if (!groupRef.current) return
+    const group = groupRef.current
+
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+      const mat = new THREE.SpriteMaterial({
+        map: coinTexture,
+        transparent: true,
+        opacity: 0,
+        depthTest: true,
+        depthWrite: false,
+      })
+      spriteMaterials.current.push(mat)
+      const sprite = new THREE.Sprite(mat)
+      sprite.scale.set(0, 0, 1)
+      sprite.visible = false
+      group.add(sprite)
+      particles.current[i].sprite = sprite
+    }
+
+    return () => {
+      for (const mat of spriteMaterials.current) {
+        mat.dispose()
+      }
+      spriteMaterials.current = []
+    }
+  }, [coinTexture])
+
   useFrame((state) => {
     if (!groupRef.current || !ratPositionRef.current) return
 
     const group = groupRef.current
     const t = state.clock.getElapsedTime()
-
-    // Initialize sprites if needed
-    if (group.children.length === 0) {
-      for (let i = 0; i < MAX_PARTICLES; i++) {
-        const mat = new THREE.SpriteMaterial({
-          map: coinTexture,
-          transparent: true,
-          opacity: 0,
-          depthTest: true,
-          depthWrite: false,
-        })
-        const sprite = new THREE.Sprite(mat)
-        sprite.scale.set(0, 0, 1)
-        sprite.visible = false
-        group.add(sprite)
-        particles.current[i].sprite = sprite
-      }
-    }
 
     const pos = ratPositionRef.current
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useRef, useMemo } from 'react'
+import { Suspense, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { AdaptiveDpr } from '@react-three/drei'
 import * as THREE from 'three'
@@ -13,7 +13,13 @@ import { createMoneyBagTexture } from './moneyBagTexture'
 
 function HeroScene() {
   const ratPositionRef = useRef(new THREE.Vector3(0, 0, 0))
-  const coinTexture = useMemo(() => createMoneyBagTexture(), [])
+  const coinTexture = createMoneyBagTexture()
+
+  useEffect(() => {
+    return () => {
+      coinTexture.dispose()
+    }
+  }, [])
 
   return (
     <>

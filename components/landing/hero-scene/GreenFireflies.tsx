@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -19,40 +19,65 @@ interface GreenFirefliesProps {
   coinTexture: THREE.CanvasTexture
 }
 
+function createBagData(): BagData[] {
+  return Array.from({ length: BAG_COUNT }, () => ({
+    position: new THREE.Vector3(
+      (Math.random() - 0.5) * 50,
+      (Math.random() - 0.5) * 30,
+      (Math.random() - 0.5) * 15 - 5
+    ),
+    velocity: new THREE.Vector3(
+      (Math.random() - 0.5) * BAG_SPEED,
+      (Math.random() - 0.5) * BAG_SPEED,
+      (Math.random() - 0.5) * BAG_SPEED * 0.5
+    ),
+    phase: Math.random() * Math.PI * 2,
+    pulseSpeed: 1.5 + Math.random() * 2,
+    scale: 1.2 + Math.random() * 1.5,
+  }))
+}
+
 export function GreenFireflies({ coinTexture }: GreenFirefliesProps) {
   const groupRef = useRef<THREE.Group>(null)
+  const baseMaterialRef = useRef<THREE.SpriteMaterial | null>(null)
+  const clonedMaterialsRef = useRef<THREE.SpriteMaterial[]>([])
+  const bagDataRef = useRef<BagData[]>([])
 
-  const spriteMaterial = useMemo(() => {
-    return new THREE.SpriteMaterial({
+  // Initialize bag data once — stable across re-renders
+  if (bagDataRef.current.length === 0) {
+    bagDataRef.current = createBagData()
+  }
+
+  // Create/recreate materials only when coinTexture changes
+  if (baseMaterialRef.current === null || baseMaterialRef.current.map !== coinTexture) {
+    for (const mat of clonedMaterialsRef.current) mat.dispose()
+    baseMaterialRef.current?.dispose()
+
+    baseMaterialRef.current = new THREE.SpriteMaterial({
       map: coinTexture,
       transparent: true,
       opacity: 0.7,
       depthTest: true,
       depthWrite: false,
     })
-  }, [coinTexture])
+    clonedMaterialsRef.current = Array.from({ length: BAG_COUNT }, () =>
+      baseMaterialRef.current!.clone()
+    )
+  }
 
-  const bagData = useMemo<BagData[]>(() => {
-    return Array.from({ length: BAG_COUNT }, () => ({
-      position: new THREE.Vector3(
-        (Math.random() - 0.5) * 50,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 15 - 5
-      ),
-      velocity: new THREE.Vector3(
-        (Math.random() - 0.5) * BAG_SPEED,
-        (Math.random() - 0.5) * BAG_SPEED,
-        (Math.random() - 0.5) * BAG_SPEED * 0.5
-      ),
-      phase: Math.random() * Math.PI * 2,
-      pulseSpeed: 1.5 + Math.random() * 2,
-      scale: 1.2 + Math.random() * 1.5,
-    }))
+  useEffect(() => {
+    return () => {
+      for (const mat of clonedMaterialsRef.current) mat.dispose()
+      baseMaterialRef.current?.dispose()
+      clonedMaterialsRef.current = []
+      baseMaterialRef.current = null
+    }
   }, [])
 
   useFrame(() => {
     if (!groupRef.current) return
     const t = performance.now() * 0.001
+    const bagData = bagDataRef.current
 
     groupRef.current.children.forEach((sprite, i) => {
       const data = bagData[i]
@@ -85,12 +110,12 @@ export function GreenFireflies({ coinTexture }: GreenFirefliesProps) {
 
   return (
     <group ref={groupRef}>
-      {bagData.map((data, i) => (
+      {bagDataRef.current.map((data, i) => (
         <sprite
           key={i}
           position={data.position.toArray()}
           scale={[data.scale, data.scale, 1]}
-          material={spriteMaterial.clone()}
+          material={clonedMaterialsRef.current[i]}
         />
       ))}
     </group>
