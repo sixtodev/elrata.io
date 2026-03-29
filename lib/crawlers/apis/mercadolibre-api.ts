@@ -29,8 +29,8 @@ const CURRENCIES: Record<string, string> = {
 }
 
 /**
- * Carga tokens de ML desde Supabase si no están en process.env.
- * Llamado una sola vez por request cuando falta el token.
+ * Carga tokens de ML desde Supabase. Si no hay tokens almacenados,
+ * intenta generar uno nuevo via client_credentials (si hay credenciales).
  */
 async function loadMLTokensFromDB(): Promise<void> {
   try {
@@ -46,10 +46,14 @@ async function loadMLTokensFromDB(): Promise<void> {
       if (tokens.access_token) process.env.ML_ACCESS_TOKEN = tokens.access_token
       if (tokens.refresh_token) process.env.ML_REFRESH_TOKEN = tokens.refresh_token
       console.log('[ml-api] Tokens loaded from Supabase')
+      return
     }
   } catch (error) {
     console.error('[ml-api] Failed to load tokens from DB:', error)
   }
+
+  // No hay tokens en DB — intentar generar uno con client_credentials
+  await requestClientCredentialsToken()
 }
 
 /**
@@ -143,8 +147,48 @@ async function refreshMLToken(): Promise<void> {
   const clientSecret = process.env.ML_CLIENT_SECRET
   const refreshToken = process.env.ML_REFRESH_TOKEN
 
-  if (!clientId || !clientSecret || !refreshToken) {
-    console.error('[ml-api] Missing ML_CLIENT_ID, ML_CLIENT_SECRET, or ML_REFRESH_TOKEN')
+  if (!clientId || !clientSecret) {
+    console.error('[ml-api] Missing ML_CLIENT_ID or ML_CLIENT_SECRET')
+    return
+  }
+
+  // Prefer refresh_token flow, fall back to client_credentials
+  if (refreshToken) {
+    try {
+      const res = await fetch('https://api.mercadolibre.com/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          client_id: clientId,
+          client_secret: clientSecret,
+          refresh_token: refreshToken,
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        process.env.ML_ACCESS_TOKEN = data.access_token
+        if (data.refresh_token) process.env.ML_REFRESH_TOKEN = data.refresh_token
+        await persistMLTokensToDB(data.access_token, data.refresh_token)
+        console.log('[ml-api] Token refreshed via refresh_token')
+        return
+      }
+    } catch (error) {
+      console.error('[ml-api] refresh_token flow failed:', error)
+    }
+  }
+
+  // Fallback: client_credentials (app-level, no user scope)
+  await requestClientCredentialsToken()
+}
+
+async function requestClientCredentialsToken(): Promise<void> {
+  const clientId = process.env.ML_CLIENT_ID
+  const clientSecret = process.env.ML_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    console.log('[ml-api] No ML_CLIENT_ID/ML_CLIENT_SECRET configured, skipping')
     return
   }
 
@@ -153,24 +197,23 @@ async function refreshMLToken(): Promise<void> {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        grant_type: 'refresh_token',
+        grant_type: 'client_credentials',
         client_id: clientId,
         client_secret: clientSecret,
-        refresh_token: refreshToken,
       }),
     })
 
     if (res.ok) {
       const data = await res.json()
       process.env.ML_ACCESS_TOKEN = data.access_token
-      if (data.refresh_token) {
-        process.env.ML_REFRESH_TOKEN = data.refresh_token
-      }
-      await persistMLTokensToDB(data.access_token, data.refresh_token)
-      console.log('[ml-api] Token refreshed and persisted successfully')
+      await persistMLTokensToDB(data.access_token)
+      console.log('[ml-api] Token obtained via client_credentials')
+    } else {
+      const err = await res.json().catch(() => ({}))
+      console.error('[ml-api] client_credentials failed:', res.status, err)
     }
   } catch (error) {
-    console.error('[ml-api] Token refresh failed:', error)
+    console.error('[ml-api] client_credentials request failed:', error)
   }
 }
 
