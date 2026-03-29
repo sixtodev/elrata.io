@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState } from 'react'
 import type { SearchResponse } from '@/types/search'
 
 interface SearchDrawerContextType {
@@ -29,9 +29,9 @@ export function SearchDrawerProvider({
   const [isOpen, setIsOpen] = useState(false)
   const [results, setResults] = useState<SearchResponse | null>(null)
 
-  const open = useCallback(() => setIsOpen(true), [])
-  const close = useCallback(() => setIsOpen(false), [])
-  const clearResults = useCallback(() => setResults(null), [])
+  const open = () => setIsOpen(true)
+  const close = () => setIsOpen(false)
+  const clearResults = () => setResults(null)
 
   return (
     <SearchDrawerContext value={{ isOpen, open, close, results, setResults, clearResults }}>

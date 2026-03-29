@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 
 interface DrawerProps {
@@ -11,14 +11,13 @@ interface DrawerProps {
 }
 
 export function Drawer({ open, onClose, children, className }: DrawerProps) {
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    },
-    [onClose]
-  )
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current()
+    }
     if (open) {
       document.addEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'hidden'
@@ -27,12 +26,13 @@ export function Drawer({ open, onClose, children, className }: DrawerProps) {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = ''
     }
-  }, [open, handleKeyDown])
+  }, [open])
 
   return (
     <>
       {/* Overlay */}
       <div
+        aria-hidden="true"
         className={cn(
           'fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] transition-opacity duration-300',
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -42,6 +42,9 @@ export function Drawer({ open, onClose, children, className }: DrawerProps) {
 
       {/* Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Panel de búsqueda"
         style={{
           position: 'fixed',
           top: '50%',
