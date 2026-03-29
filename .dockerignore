@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env*
+!.env.example
+node_modules
+.next
+.atl
+.claude
+README.md
+*.md
+!AGENTS.md
+supabase-*.sql
