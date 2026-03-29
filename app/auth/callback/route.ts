@@ -10,6 +10,13 @@ export async function GET(request: NextRequest) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin
+  // Traefik sets x-forwarded-host to the public domain — use it to avoid
+  // redirecting to the internal container address (localhost:3000).
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const forwardedProto = request.headers.get('x-forwarded-proto') ?? 'https'
+  const origin = forwardedHost
+    ? `${forwardedProto}://${forwardedHost}`
+    : (process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin)
+
   return NextResponse.redirect(new URL('/dashboard', origin))
 }
