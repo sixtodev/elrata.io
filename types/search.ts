@@ -11,6 +11,8 @@ export interface SearchQuery {
   source?: 'all' | 'mercadolibre' | 'web'
   categories?: string[]
   store_ids?: string[]
+  /** Category-specific filters (ram, storage, processor, type, etc.) */
+  specs?: Record<string, string>
 }
 
 export interface SearchResult {

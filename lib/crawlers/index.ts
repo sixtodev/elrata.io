@@ -51,7 +51,7 @@ export async function runCrawlers(
   const mlCountries = ['CL', 'CO', 'MX', 'AR', 'PE', 'UY', 'EC', 'VE']
   if (mlCountries.includes(cc)) {
     tasks.push(
-      import('./apis/mercadolibre-api').then(m => m.searchMercadoLibreAPI(product, cc))
+      import('./apis/mercadolibre-api').then(m => m.searchMercadoLibreAPI(product, cc, query.budget))
     )
   }
 

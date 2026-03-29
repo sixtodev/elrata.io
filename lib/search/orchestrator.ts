@@ -15,13 +15,30 @@ import { mergeAndSort } from './merger'
 export async function orchestrateSearch(
   query: SearchQuery & { source?: string; budget?: string; custom_url?: string }
 ): Promise<{ results: SearchResult[]; sources: string[] }> {
-  const product = `${query.product}${query.brand ? ` ${query.brand}` : ''}`
   const source = query.source || 'all'
   const budget = query.budget
   const customUrl = query.custom_url
+  const specs = query.specs || {}
   const sources: string[] = []
 
-  console.log(`[orchestrator] "${product}" in ${query.city}, ${query.country} [source=${source}]${customUrl ? ` [url=${customUrl}]` : ''}`)
+  // Lean query for ML API (text search): product + brand + type only
+  const mlParts = [query.product, query.brand]
+  if (specs.type && !query.product.toLowerCase().includes(specs.type.toLowerCase())) {
+    mlParts.push(specs.type)
+  }
+  const mlProduct = mlParts.filter(Boolean).join(' ')
+
+  // Full query for web search: add specs that appear in product titles
+  const webParts = [query.product, query.brand]
+  if (specs.type) webParts.push(specs.type)
+  if (specs.ram) webParts.push(specs.ram)
+  if (specs.storage) webParts.push(specs.storage)
+  if (specs.processor) webParts.push(specs.processor)
+  if (specs.platform) webParts.push(specs.platform)
+  if (specs.engine) webParts.push(specs.engine)
+  const webProduct = webParts.filter(Boolean).join(' ')
+
+  console.log(`[orchestrator] ML:"${mlProduct}" WEB:"${webProduct}" in ${query.city}, ${query.country} [source=${source}]${customUrl ? ` [url=${customUrl}]` : ''}`)
 
   const tasks: Promise<{ results: SearchResult[]; name: string }>[] = []
 
@@ -33,7 +50,7 @@ export async function orchestrateSearch(
           const { scrapeGenericUrl } = await import('@/lib/crawlers/generic')
           const cc = getCountryCode(query.country)
           const currency = getCurrencyForCountry(cc)
-          const results = await scrapeGenericUrl(customUrl, product, currency)
+          const results = await scrapeGenericUrl(customUrl, webProduct, currency)
           const label = new URL(customUrl).hostname.replace(/^www\./, '')
           return { results, name: label }
         } catch (error) {
@@ -44,13 +61,14 @@ export async function orchestrateSearch(
     )
   }
 
-  // ── CRAWLEE (MercadoLibre, Falabella) ──
+  // ── CRAWLEE (MercadoLibre + country stores) ──
   if (source === 'all' || source === 'mercadolibre') {
     tasks.push(
       (async () => {
         try {
           const { runCrawlers } = await import('@/lib/crawlers')
-          const results = await runCrawlers(query)
+          // Pass lean query for ML API text search
+          const results = await runCrawlers({ ...query, product: mlProduct })
           return { results, name: 'Crawlee' }
         } catch (error) {
           console.error('[orchestrator] Crawlee failed:', error)
@@ -66,7 +84,8 @@ export async function orchestrateSearch(
       (async () => {
         try {
           const { searchWeb } = await import('./web')
-          const results = await searchWeb(product, query.country, query.city, budget)
+          // Pass full query with specs for better web search precision
+          const results = await searchWeb(webProduct, query.country, query.city, budget)
           return { results, name: 'Web Search' }
         } catch (error) {
           console.error('[orchestrator] Web search failed:', error)
@@ -90,7 +109,7 @@ export async function orchestrateSearch(
     }
   }
 
-  const merged = mergeAndSort(allResults, query.brand || undefined)
+  const merged = mergeAndSort(allResults, query.brand || undefined, specs, budget)
   console.log(`[orchestrator] ✓ ${merged.length} results from [${sources.join(', ')}]`)
 
   return { results: merged.slice(0, 20), sources }

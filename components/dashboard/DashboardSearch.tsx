@@ -150,22 +150,24 @@ export function DashboardSearch() {
     setAnalysis(null)
 
     const brand = brandRef.current?.value.trim() || ''
-    const optimizedQuery = cat.buildQuery(product, brand, catFields)
     const purpose = purposeRef.current?.value.trim() || 'Uso general'
     const budget = budgetRef.current?.value.trim() || undefined
+    // Send raw product + specs separately — server builds different queries per source
+    const activeSpecs = Object.fromEntries(Object.entries(catFields).filter(([, v]) => v))
 
     try {
       const res = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          product: optimizedQuery,
+          product,
           brand: brand || undefined,
           city,
           country,
           purpose,
           budget,
           source,
+          specs: Object.keys(activeSpecs).length > 0 ? activeSpecs : undefined,
           custom_url: customUrl.trim() || undefined,
         }),
       })

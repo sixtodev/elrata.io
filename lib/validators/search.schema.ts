@@ -9,6 +9,7 @@ export const searchSchema = z.object({
   model: z.enum(['claude-sonnet-4-6', 'gpt-4o', 'gemini-2.5-pro']).optional(),
   budget: z.string().max(50).optional(),
   source: z.enum(['all', 'mercadolibre', 'web']).optional(),
+  specs: z.record(z.string(), z.string()).optional(),
 })
 
 export type SearchSchemaInput = z.infer<typeof searchSchema>

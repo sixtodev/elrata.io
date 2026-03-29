@@ -58,22 +58,23 @@ export function SearchDrawer() {
     setSearchError('')
     setLoading(true)
 
-    // Build optimized query using category fields
     const brand = brandRef.current?.value.trim() || ''
-    const optimizedQuery = category.buildQuery(product, brand, categoryFields)
+    // Send raw product + specs separately — server builds different queries per source
+    const activeSpecs = Object.fromEntries(Object.entries(categoryFields).filter(([, v]) => v))
 
     try {
       const res = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          product: optimizedQuery,
+          product,
           brand: brand || undefined,
           city,
           country,
           purpose: purposeRef.current?.value.trim() || 'Uso general',
           budget: budgetRef.current?.value.trim() || undefined,
           source: selectedSource,
+          specs: Object.keys(activeSpecs).length > 0 ? activeSpecs : undefined,
         }),
       })
 

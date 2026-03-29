@@ -81,7 +81,8 @@ async function persistMLTokensToDB(accessToken: string, refreshToken?: string): 
 
 export async function searchMercadoLibreAPI(
   product: string,
-  countryCode: string
+  countryCode: string,
+  budget?: string
 ): Promise<SearchResult[]> {
   if (!process.env.ML_ACCESS_TOKEN) {
     await loadMLTokensFromDB()
@@ -99,7 +100,9 @@ export async function searchMercadoLibreAPI(
   const currency = CURRENCIES[countryCode] || 'USD'
 
   try {
-    const url = `https://api.mercadolibre.com/sites/${siteId}/search?q=${encodeURIComponent(product)}&limit=15`
+    const priceMax = budget ? parsebudgetToNumber(budget) : null
+    const priceParam = priceMax ? `&price_max=${Math.round(priceMax * 1.15)}` : ''
+    const url = `https://api.mercadolibre.com/sites/${siteId}/search?q=${encodeURIComponent(product)}&limit=20${priceParam}`
 
     const res = await fetch(url, {
       headers: {
@@ -215,6 +218,23 @@ async function requestClientCredentialsToken(): Promise<void> {
   } catch (error) {
     console.error('[ml-api] client_credentials request failed:', error)
   }
+}
+
+function parsebudgetToNumber(budget: string): number | null {
+  const cleaned = budget.replace(/[^0-9.,]/g, '')
+  if (!cleaned) return null
+  // Handle thousands separator (dot in CLP: $1.500.000 → 1500000)
+  const dots = (cleaned.match(/\./g) || []).length
+  const commas = (cleaned.match(/,/g) || []).length
+  let num: number
+  if (dots > 1) {
+    num = parseFloat(cleaned.replace(/\./g, ''))
+  } else if (commas > 0 && dots === 0) {
+    num = parseFloat(cleaned.replace(/,/g, ''))
+  } else {
+    num = parseFloat(cleaned.replace(/,/g, ''))
+  }
+  return isFinite(num) && num > 0 ? num : null
 }
 
 interface MLItem {

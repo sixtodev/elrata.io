@@ -14,7 +14,7 @@ El nombre "rata" se usa con orgullo — ser rata es ser inteligente con tu plata
 
 - Busca productos en tiendas reales de tu ciudad y país
 - Compara precios en una tabla con nombre, precio, tienda y link directo
-- Analiza resultados con múltiples modelos de IA (round-robin entre proveedores)
+- Analiza resultados con múltiples modelos de IA 
 - Permite guardar búsquedas organizadas en carpetas
 - Crea alertas de precio que monitorean cada hora y te notifican por email
 - Muestra historial de precios para ver tendencias
@@ -71,7 +71,7 @@ Tablas Supabase: folders, searches, price_alerts, price_history, user_stores, st
 
 El proyecto se deployea en un VPS con [Dokploy](https://dokploy.com) usando **Nixpacks** como build system. Nixpacks detecta automáticamente Next.js y no requiere Dockerfile.
 
-El cron job de alertas se configura en Dokploy con el schedule `0 * * * *` llamando a `/api/cron/check-prices` con el header `x-cron-secret`.
+
 
 ## Cómo funciona (resumen técnico)
 
@@ -101,4 +101,4 @@ Los usuarios pueden agregar URLs de tiendas adicionales desde su perfil.
 
 ## Licencia
 
- **Todos los derechos reservados.** Este código se publica de forma abierta para fines de visualización y educativos. No se otorga permiso distribuir o comercializar este software.
+ Este código se publica de forma abierta para fines de visualización y educativos. No se otorga permiso distribuir o comercializar este software.
