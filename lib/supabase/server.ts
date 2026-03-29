@@ -28,11 +28,14 @@ export async function createServerSupabaseClient() {
   )
 }
 
-let _serviceClient: ReturnType<typeof createClient> | null = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _serviceClient: ReturnType<typeof createClient<any>> | null = null
 
-export function createServiceClient() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createServiceClient(): ReturnType<typeof createClient<any>> {
   if (!_serviceClient) {
-    _serviceClient = createClient(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    _serviceClient = createClient<any>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )

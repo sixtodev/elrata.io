@@ -19,11 +19,12 @@ export interface AppSettingsDatabase {
         Row: { key: string; value: Json; updated_at: string }
         Insert: { key: string; value: Json; updated_at?: string }
         Update: { key?: string; value?: Json; updated_at?: string }
+        Relationships: []
       }
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
-    CompositeTypes: Record<string, never>
+    Views: { [key: string]: never }
+    Functions: { [key: string]: never }
+    Enums: { [key: string]: never }
+    CompositeTypes: { [key: string]: never }
   }
 }
