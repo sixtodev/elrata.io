@@ -57,13 +57,21 @@ lib/
   ai/                 Proveedores de IA y analizador (round-robin)
   search/             Motor de búsqueda web (cadena de fallback)
   crawlers/
-    apis/             MercadoLibre API oficial (OAuth2)
+    apis/             MercadoLibre API oficial (OAuth2, token app-level)
     generic.ts        Scraper genérico (Cheerio) para cualquier URL
     index.ts          Router: API ML + tiendas por país + URLs del usuario
   supabase/           Cliente y servidor de Supabase
   email/              Envío de emails con Resend
   validators/         Schemas de validación con Zod
+
+Tablas Supabase: folders, searches, price_alerts, price_history, user_stores, stores_catalog, store_categories, app_settings (tokens ML)
 ```
+
+## Deploy
+
+El proyecto se deployea en un VPS con [Dokploy](https://dokploy.com) usando **Nixpacks** como build system. Nixpacks detecta automáticamente Next.js y no requiere Dockerfile.
+
+El cron job de alertas se configura en Dokploy con el schedule `0 * * * *` llamando a `/api/cron/check-prices` con el header `x-cron-secret`.
 
 ## Cómo funciona (resumen técnico)
 
