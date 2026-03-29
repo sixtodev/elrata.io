@@ -90,7 +90,7 @@ export function DashboardSearch() {
       const res = await fetch('/api/user-stores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: clean, name: clean }),
+        body: JSON.stringify({ url: `https://${clean}`, name: clean }),
       })
       if (res.ok) {
         const data = await res.json()
