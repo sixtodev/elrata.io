@@ -46,32 +46,12 @@ export async function runCrawlers(
 
   const tasks: Promise<SearchResult[]>[] = []
 
-  // MercadoLibre — API oficial si hay token
+  // MercadoLibre — API oficial (carga token desde Supabase si no está en env)
   const mlCountries = ['CL', 'CO', 'MX', 'AR', 'PE', 'UY', 'EC', 'VE']
   if (mlCountries.includes(cc)) {
-    if (process.env.ML_ACCESS_TOKEN) {
-      tasks.push(
-        import('./apis/mercadolibre-api').then(m => m.searchMercadoLibreAPI(product, cc))
-      )
-    } else {
-      // Fallback: scraper genérico en MercadoLibre
-      const mlDomains: Record<string, string> = {
-        CL: 'https://listado.mercadolibre.cl',
-        CO: 'https://listado.mercadolibre.com.co',
-        MX: 'https://listado.mercadolibre.com.mx',
-        AR: 'https://listado.mercadolibre.com.ar',
-        PE: 'https://listado.mercadolibre.com.pe',
-        UY: 'https://listado.mercadolibre.com.uy',
-        EC: 'https://listado.mercadolibre.com.ec',
-        VE: 'https://listado.mercadolibre.com.ve',
-      }
-      const mlUrl = mlDomains[cc]
-      if (mlUrl) {
-        tasks.push(
-          import('./generic').then(m => m.scrapeGenericUrl(mlUrl, product, currency))
-        )
-      }
-    }
+    tasks.push(
+      import('./apis/mercadolibre-api').then(m => m.searchMercadoLibreAPI(product, cc))
+    )
   }
 
   // Other stores for this country — all through generic scraper

@@ -166,26 +166,9 @@ function parseGenericPage(
     }
   }
 
-  // Strategy 3: Brute force — find any element with price pattern near a link
-  if (results.length === 0) {
-    const bodyText = $('body').text()
-    const priceRegex = /[\$€£]\s*[\d.,]+/g
-    const prices = bodyText.match(priceRegex)
-
-    if (prices && prices.length > 0) {
-      results.push({
-        name: `Resultados de "${product}" en ${storeName}`,
-        price: `${prices.length} precios encontrados`,
-        currency,
-        store: storeName,
-        url: searchUrl,
-        availability: 'unknown',
-        source: 'crawlee',
-        scraper_type: 'crawlee_generic',
-        notes: `Rango: ${prices[0]} — ${prices[prices.length - 1]}`,
-      })
-    }
-  }
+  // Strategy 3: Brute force — intentionally disabled.
+  // Returning a single fake "X precios encontrados" entry is misleading (no real name, no product URL).
+  // If strategies 1 and 2 fail, we return nothing rather than garbage.
 
   return results
 }
