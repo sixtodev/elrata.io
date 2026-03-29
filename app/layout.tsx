@@ -23,6 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://elrata.io'),
   title: "ElRata.io — Busca como rata, compra como rey",
   description:
     "Compara precios de cualquier producto en tu ciudad y país con IA. Guarda búsquedas, crea alertas de precio y recibe notificaciones cuando baje. Funciona en +16 países con múltiples modelos de IA.",
