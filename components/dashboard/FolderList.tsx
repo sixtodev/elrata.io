@@ -13,7 +13,7 @@ export function FolderList({ folders, searchCounts = {} }: FolderListProps) {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
         gap: '20px',
       }}
     >

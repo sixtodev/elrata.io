@@ -3,6 +3,7 @@ import { searchSchema } from '@/lib/validators/search.schema'
 import { runSearch } from '@/lib/ai'
 import { checkFreeSearchLimit } from '@/lib/search/rate-limit'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { zodValidationError } from '@/lib/api/errors'
 import type { SearchResponse } from '@/types/search'
 
 export async function POST(req: NextRequest) {
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const result = searchSchema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+      return zodValidationError(result.error)
     }
     const parsed = result.data
 

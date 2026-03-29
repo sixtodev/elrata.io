@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { AlertCard } from './AlertCard'
+import { Spinner } from '@/components/ui/Spinner'
 import type { PriceAlert, AlertStatus } from '@/types/alert'
 
 interface AlertListProps {
@@ -18,16 +19,26 @@ const tabs: { key: AlertStatus | 'all'; label: string }[] = [
 export function AlertList({ initialAlerts }: AlertListProps) {
   const [alerts, setAlerts] = useState<PriceAlert[]>(initialAlerts)
   const [activeTab, setActiveTab] = useState<AlertStatus | 'all'>('all')
+  const [refreshing, setRefreshing] = useState(false)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
 
   const refreshAlerts = async () => {
+    setRefreshing(true)
+    setRefreshError(null)
     try {
       const res = await fetch('/api/alerts')
       if (res.ok) {
         const data = await res.json()
-        setAlerts(data)
+        if (Array.isArray(data)) {
+          setAlerts(data)
+        }
+      } else {
+        setRefreshError('No se pudieron actualizar las alertas.')
       }
     } catch {
-      // silently fail
+      setRefreshError('Error de conexión al actualizar alertas.')
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -45,6 +56,20 @@ export function AlertList({ initialAlerts }: AlertListProps) {
 
   return (
     <div>
+      {/* Refresh indicator */}
+      {refreshing && (
+        <div className="flex justify-end mb-2">
+          <Spinner size="sm" />
+        </div>
+      )}
+
+      {/* Refresh error */}
+      {refreshError && (
+        <div className="mb-3 text-sm text-red-500">
+          {refreshError}
+        </div>
+      )}
+
       {/* Tabs */}
       <div
         style={{

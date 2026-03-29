@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { updateAlert, deleteAlert } from '@/lib/supabase/queries/alerts'
-
-const patchAlertSchema = z.object({
-  status: z.enum(['active', 'paused', 'triggered']).optional(),
-  target_price: z.number().positive().optional(),
-}).strict()
+import { zodValidationError } from '@/lib/api/errors'
+import { patchAlertSchema } from '@/lib/validators/alert.schema'
 
 export async function PATCH(
   req: NextRequest,
@@ -24,6 +21,10 @@ export async function PATCH(
 
     const { id } = await params
 
+    if (!z.uuid().safeParse(id).success) {
+      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+    }
+
     // Verify ownership
     const { data: alert } = await supabase
       .from('price_alerts')
@@ -38,7 +39,7 @@ export async function PATCH(
     const body = await req.json()
     const result = patchAlertSchema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+      return zodValidationError(result.error)
     }
     await updateAlert(supabase, id, result.data)
 
@@ -67,6 +68,10 @@ export async function DELETE(
     }
 
     const { id } = await params
+
+    if (!z.uuid().safeParse(id).success) {
+      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+    }
 
     // Verify ownership
     const { data: alert } = await supabase

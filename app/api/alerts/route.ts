@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getAlerts, createAlert } from '@/lib/supabase/queries/alerts'
 import { alertSchema } from '@/lib/validators/alert.schema'
+import { zodValidationError } from '@/lib/api/errors'
 
 export async function GET() {
   try {
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const result = alertSchema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+      return zodValidationError(result.error)
     }
     const alert = await createAlert(supabase, user.id, result.data)
 

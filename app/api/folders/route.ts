@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFolders, createFolder, deleteFolder } from '@/lib/supabase/queries/folders'
 import { folderSchema } from '@/lib/validators/folder.schema'
+import { zodValidationError } from '@/lib/api/errors'
 
 export async function GET() {
   try {
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const result = folderSchema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+      return zodValidationError(result.error)
     }
     const folder = await createFolder(supabase, user.id, result.data.name)
 
@@ -72,6 +74,10 @@ export async function DELETE(req: NextRequest) {
         { error: 'Missing folder id' },
         { status: 400 }
       )
+    }
+
+    if (!z.uuid().safeParse(id).success) {
+      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
     }
 
     // Verify ownership before deleting

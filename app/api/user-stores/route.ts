@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { userStoreSchema } from '@/lib/validators/user-store.schema'
+import { zodValidationError } from '@/lib/api/errors'
 
 export async function GET() {
   try {
@@ -15,9 +18,9 @@ export async function GET() {
 
     if (error) throw error
     return NextResponse.json(data)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[user-stores] GET error:', error)
-    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch custom URLs' }, { status: 500 })
   }
 }
 
@@ -27,24 +30,24 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { url, name } = await req.json()
-    if (!url) return NextResponse.json({ error: 'URL required' }, { status: 400 })
+    const body = await req.json()
+    const result = userStoreSchema.safeParse(body)
+    if (!result.success) {
+      return zodValidationError(result.error)
+    }
+
+    const { url, name } = result.data
 
     // Normalize: ensure https:// and clean domain
     const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/+$/, '')
     const fullUrl = `https://${cleanUrl}`
-
-    // Validate URL
-    try { new URL(fullUrl) } catch {
-      return NextResponse.json({ error: 'URL inválida' }, { status: 400 })
-    }
 
     const storeName = name || cleanUrl
 
     const { data, error } = await supabase
       .from('user_custom_urls')
       .upsert(
-        { user_id: user.id, url: cleanUrl, name: storeName },
+        { user_id: user.id, url: fullUrl, name: storeName },
         { onConflict: 'user_id,url' }
       )
       .select()
@@ -52,9 +55,9 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
     return NextResponse.json(data, { status: 201 })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[user-stores] POST error:', error)
-    return NextResponse.json({ error: 'Failed to save' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to save custom URL' }, { status: 500 })
   }
 }
 
@@ -68,6 +71,10 @@ export async function DELETE(req: NextRequest) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
+    if (!z.uuid().safeParse(id).success) {
+      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+    }
+
     const { error } = await supabase
       .from('user_custom_urls')
       .delete()
@@ -76,8 +83,8 @@ export async function DELETE(req: NextRequest) {
 
     if (error) throw error
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[user-stores] DELETE error:', error)
-    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to delete custom URL' }, { status: 500 })
   }
 }

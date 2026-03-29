@@ -92,19 +92,20 @@ export function SearchDrawer() {
       }
 
       const rem = res.headers.get('X-Searches-Remaining')
-      if (rem !== null) setRemaining(parseInt(rem))
+      if (rem !== null) setRemaining(parseInt(rem, 10))
 
       if (!res.ok) {
         setSearchError(data.error || 'Error en la búsqueda')
         return
       }
 
-      data._budget = budgetRef.current?.value.trim() || undefined
-      data._purpose = purposeRef.current?.value.trim() || ''
-
-      setResults(data)
+      setResults({
+        ...data,
+        _budget: budgetRef.current?.value.trim() || undefined,
+        _purpose: purposeRef.current?.value.trim() || '',
+      })
       close()
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Search error:', error)
       setSearchError('No se pudo conectar. Intenta de nuevo.')
     } finally {
@@ -114,7 +115,7 @@ export function SearchDrawer() {
 
   return (
     <Drawer open={isOpen} onClose={close}>
-      <h2 className="font-[family-name:var(--font-title)] text-[26px] mb-2">
+      <h2 className="font-[family-name:var(--font-title)] text-xl sm:text-[26px] mb-2">
         🐀 A Ratear
       </h2>
       <p style={{ color: '#6b7280', fontSize: '15px', marginBottom: '20px' }}>
