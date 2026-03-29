@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { updateAlert, deleteAlert } from '@/lib/supabase/queries/alerts'
+
+const patchAlertSchema = z.object({
+  status: z.enum(['active', 'paused', 'triggered']).optional(),
+  target_price: z.number().positive().optional(),
+}).strict()
 
 export async function PATCH(
   req: NextRequest,
@@ -30,10 +36,14 @@ export async function PATCH(
     }
 
     const body = await req.json()
-    await updateAlert(supabase, id, body)
+    const result = patchAlertSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+    }
+    await updateAlert(supabase, id, result.data)
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[alerts] PATCH error:', error)
     return NextResponse.json(
       { error: 'Failed to update alert' },
@@ -72,7 +82,7 @@ export async function DELETE(
     await deleteAlert(supabase, id)
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[alerts] DELETE error:', error)
     return NextResponse.json(
       { error: 'Failed to delete alert' },

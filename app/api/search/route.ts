@@ -8,7 +8,11 @@ import type { SearchResponse } from '@/types/search'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const parsed = searchSchema.parse(body)
+    const result = searchSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+    }
+    const parsed = result.data
 
     // Check auth
     let isAuthenticated = false
@@ -16,7 +20,7 @@ export async function POST(req: NextRequest) {
       const supabase = await createServerSupabaseClient()
       const { data: { user } } = await supabase.auth.getUser()
       isAuthenticated = !!user
-    } catch { /* not auth */ }
+    } catch (_e: unknown) { /* not auth */ }
 
     // Rate limit for free users
     if (!isAuthenticated) {
@@ -64,9 +68,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response)
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'issues' in error) {
-      return NextResponse.json({ error: 'Invalid request data' }, { status: 400 })
-    }
     console.error('[search] Error:', error)
     return NextResponse.json({ error: 'Search failed. Try again.' }, { status: 500 })
   }

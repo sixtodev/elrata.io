@@ -16,7 +16,7 @@ export async function GET() {
 
     const alerts = await getAlerts(supabase, user.id)
     return NextResponse.json(alerts)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[alerts] GET error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch alerts' },
@@ -37,17 +37,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const parsed = alertSchema.parse(body)
-    const alert = await createAlert(supabase, user.id, parsed)
+    const result = alertSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+    }
+    const alert = await createAlert(supabase, user.id, result.data)
 
     return NextResponse.json(alert, { status: 201 })
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'issues' in error) {
-      return NextResponse.json(
-        { error: 'Invalid request data' },
-        { status: 400 }
-      )
-    }
     console.error('[alerts] POST error:', error)
     return NextResponse.json(
       { error: 'Failed to create alert' },

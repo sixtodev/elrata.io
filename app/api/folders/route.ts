@@ -16,7 +16,7 @@ export async function GET() {
 
     const folders = await getFolders(supabase, user.id)
     return NextResponse.json(folders)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[folders] GET error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch folders' },
@@ -37,17 +37,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const parsed = folderSchema.parse(body)
-    const folder = await createFolder(supabase, user.id, parsed.name)
+    const result = folderSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues }, { status: 400 })
+    }
+    const folder = await createFolder(supabase, user.id, result.data.name)
 
     return NextResponse.json(folder, { status: 201 })
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'issues' in error) {
-      return NextResponse.json(
-        { error: 'Invalid request data' },
-        { status: 400 }
-      )
-    }
     console.error('[folders] POST error:', error)
     return NextResponse.json(
       { error: 'Failed to create folder' },
@@ -77,9 +74,20 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
+    // Verify ownership before deleting
+    const { data: folder } = await supabase
+      .from('folders')
+      .select('user_id')
+      .eq('id', id)
+      .single()
+
+    if (!folder || folder.user_id !== user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
     await deleteFolder(supabase, id)
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[folders] DELETE error:', error)
     return NextResponse.json(
       { error: 'Failed to delete folder' },
