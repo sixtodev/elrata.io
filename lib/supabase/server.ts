@@ -1,12 +1,12 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
-import type { AppSettingsDatabase } from '@/types/database'
+import type { Database } from '@/types/database'
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies()
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -28,14 +28,11 @@ export async function createServerSupabaseClient() {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _serviceClient: ReturnType<typeof createClient<any>> | null = null
+let _serviceClient: ReturnType<typeof createClient<Database>> | null = null
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createServiceClient(): ReturnType<typeof createClient<any>> {
+export function createServiceClient(): ReturnType<typeof createClient<Database>> {
   if (!_serviceClient) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _serviceClient = createClient<any>(
+    _serviceClient = createClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
@@ -43,15 +40,5 @@ export function createServiceClient(): ReturnType<typeof createClient<any>> {
   return _serviceClient
 }
 
-let _settingsClient: ReturnType<typeof createClient<AppSettingsDatabase>> | null = null
-
-/** Cliente tipado exclusivamente para operaciones sobre app_settings. */
-export function createSettingsClient() {
-  if (!_settingsClient) {
-    _settingsClient = createClient<AppSettingsDatabase>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-  }
-  return _settingsClient
-}
+/** Alias tipado para operaciones sobre app_settings — usa el mismo cliente. */
+export const createSettingsClient = createServiceClient
