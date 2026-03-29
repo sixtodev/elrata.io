@@ -100,7 +100,7 @@ export function ResultsSection() {
 
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
-          <h2 className="font-[family-name:var(--font-title)]" style={{ fontSize: '28px', marginBottom: '8px', color: '#fefeff' }}>
+          <h2 className="font-title" style={{ fontSize: '28px', marginBottom: '8px', color: '#fefeff' }}>
             🐀 Resultados para &quot;{results.query.product}&quot;
           </h2>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
@@ -130,7 +130,7 @@ export function ResultsSection() {
             border: '1px solid rgba(196,239,22,0.2)', borderRadius: '16px',
             padding: '24px', marginBottom: '24px',
           }}>
-            <h3 className="font-[family-name:var(--font-title)]" style={{ fontSize: '20px', color: '#fefeff', marginBottom: '8px' }}>
+            <h3 className="font-title" style={{ fontSize: '20px', color: '#fefeff', marginBottom: '8px' }}>
               🤖 Análisis inteligente
             </h3>
             <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>{analysis.summary}</p>

@@ -56,7 +56,7 @@ export function HowItWorks() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="font-[family-name:var(--font-title)] text-[clamp(40px,6vw,68px)] text-center mb-4"
+        className="font-title text-[clamp(40px,6vw,68px)] text-center mb-4"
       >
         Tres pasos pa&apos; ahorrar
       </m.h2>
@@ -86,10 +86,10 @@ export function HowItWorks() {
             transition={{ duration: 0.3 }}
             className="bg-bg2 border border-border rounded-2xl p-8"
           >
-            <div className="w-10 h-10 bg-green-glow border border-green/30 rounded-[10px] flex items-center justify-center font-[family-name:var(--font-title)] text-lg text-green mb-5">
+            <div className="w-10 h-10 bg-green-glow border border-green/30 rounded-[10px] flex items-center justify-center font-title text-lg text-green mb-5">
               {step.num}
             </div>
-            <h3 className="font-[family-name:var(--font-title)] text-xl mb-2.5">
+            <h3 className="font-title text-xl mb-2.5">
               {step.title}
             </h3>
             <p className="text-muted text-[15px] leading-relaxed">

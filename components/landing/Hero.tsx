@@ -91,7 +91,7 @@ export function Hero() {
           hidden: {},
           visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
         }}
-        className="relative z-10 -mt-32 font-[family-name:var(--font-title)] font-normal leading-none tracking-tight mb-8 sm:mb-20"
+        className="relative z-10 -mt-32 font-title font-normal leading-none tracking-tight mb-8 sm:mb-20"
         style={{ fontSize: 'clamp(34px, 6vw, 82px)' }}
       >
         {titleTokens.map((token, i) => {
@@ -178,7 +178,7 @@ export function Hero() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="text-center"
           >
-            <div className="font-[family-name:var(--font-title)] text-[18px] sm:text-[28px] text-green">
+            <div className="font-title text-[18px] sm:text-[28px] text-green">
               {stat.num}
             </div>
             <div className="text-[10px] sm:text-[13px] text-muted">{stat.label}</div>

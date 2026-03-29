@@ -110,7 +110,7 @@ export function Features() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="font-[family-name:var(--font-title)] text-[clamp(40px,6vw,68px)] text-center mb-4"
+        className="font-title text-[clamp(40px,6vw,68px)] text-center mb-4"
       >
         Todo lo que un rata necesita
       </m.h2>
@@ -119,7 +119,7 @@ export function Features() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="text-center text-muted text-lg max-w-[500px] mx-auto mb-16"
+        className="text-center text-muted text-lg max-w-125 mx-auto mb-16"
       >
         Sin comisiones, sin anuncios. Solo información.
       </m.p>
@@ -130,7 +130,7 @@ export function Features() {
         variants={gridVariants}
         initial="hidden"
         animate={gridInView ? 'visible' : 'hidden'}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1100px] mx-auto"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-275 mx-auto"
       >
         {features.map((f) => (
           <m.div
@@ -144,7 +144,7 @@ export function Features() {
             ) : (
               <span className="text-4xl block mb-4">{f.icon}</span>
             )}
-            <h3 className="font-[family-name:var(--font-title)] text-lg mb-2">
+            <h3 className="font-title text-lg mb-2">
               {f.title}
             </h3>
             <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
@@ -158,10 +158,10 @@ export function Features() {
         initial={{ opacity: 0, y: 40 }}
         animate={alertInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="max-w-[900px] mx-auto mt-16 bg-[linear-gradient(135deg,rgba(196,239,22,0.05),rgba(196,239,22,0.02))] border border-green/20 rounded-[20px] p-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
+        className="max-w-225 mx-auto mt-16 bg-[linear-gradient(135deg,rgba(196,239,22,0.05),rgba(196,239,22,0.02))] border border-green/20 rounded-[20px] p-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
       >
         <div>
-          <h3 className="font-[family-name:var(--font-title)] text-[26px] mb-3">
+          <h3 className="font-title text-[26px] mb-3">
             Alertas de precio inteligentes
           </h3>
           <p className="text-muted leading-relaxed mb-5">

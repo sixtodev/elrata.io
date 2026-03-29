@@ -22,7 +22,7 @@ export function ResultsTable({ results, query, modelUsed }: ResultsTableProps) {
     return (
       <div className="text-center py-16">
         <span className="text-6xl block mb-4">🐀</span>
-        <h3 className="text-xl font-[family-name:var(--font-title)] mb-2">
+        <h3 className="text-xl font-title mb-2">
           No encontramos resultados
         </h3>
         <p className="text-muted text-sm">
@@ -36,7 +36,7 @@ export function ResultsTable({ results, query, modelUsed }: ResultsTableProps) {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <h2 className="font-[family-name:var(--font-title)] text-2xl mb-2">
+        <h2 className="font-title text-2xl mb-2">
           🐀 Resultados para &quot;{query.product}&quot;
         </h2>
         <p className="text-muted text-sm">

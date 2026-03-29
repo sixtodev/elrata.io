@@ -5,9 +5,9 @@ import { Spinner } from './Spinner'
 
 const variants = {
   primary:
-    'bg-green text-black font-bold hover:bg-green-dim shadow-none hover:shadow-[0_0_20px_rgba(196,239,22,0.15)] hover:-translate-y-0.5 active:translate-y-0',
+    'bg-green text-black font-bold hover:bg-green-dim shadow-none hover:shadow-[0_0_20px_var(--color-green-glow)] hover:-translate-y-0.5 active:translate-y-0',
   secondary:
-    'bg-transparent text-muted border border-border hover:text-foreground hover:border-[#444]',
+    'bg-transparent text-muted border border-border hover:text-foreground hover:border-border-hover',
   ghost: 'bg-transparent text-muted hover:text-foreground hover:bg-bg3',
 }
 

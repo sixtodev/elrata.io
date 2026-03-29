@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,20 +25,14 @@ export default function LoginPage() {
     const supabase = createClient()
 
     if (isRegister) {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      })
+      const { error: signUpError } = await supabase.auth.signUp({ email, password })
       if (signUpError) {
         setError(signUpError.message)
       } else {
         setSuccessMessage('Revisa tu email para confirmar tu cuenta.')
       }
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       if (signInError) {
         setError(signInError.message)
       } else {
@@ -62,74 +58,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#151518',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-      }}
-    >
-      <div style={{ width: '100%', maxWidth: '420px' }}>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-[420px]">
         {/* Logo */}
         <Link
           href="/"
-          style={{
-            display: 'block',
-            textAlign: 'center',
-            marginBottom: '32px',
-            textDecoration: 'none',
-            fontFamily: 'var(--font-title)',
-            fontSize: '28px',
-            color: '#fefeff',
-          }}
+          className="block text-center mb-8 no-underline font-title text-[28px] text-foreground"
         >
-          🐀 El<span style={{ color: '#c4ef16' }}>Rata</span>.io
+          🐀 El<span className="text-green">Rata</span>.io
         </Link>
 
         {/* Card */}
-        <div
-          style={{
-            background: '#1C1C1F',
-            border: '1px solid #2a2a2a',
-            borderRadius: '16px',
-            padding: '32px',
-          }}
-        >
-          <h1
-            style={{
-              fontFamily: 'var(--font-title)',
-              fontSize: '24px',
-              color: '#fefeff',
-              marginBottom: '24px',
-              textAlign: 'center',
-            }}
-          >
+        <div className="bg-bg2 border border-border rounded-2xl p-8">
+          <h1 className="font-title text-2xl text-foreground mb-6 text-center">
             {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
           </h1>
 
           {/* Google OAuth */}
-          <button
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full mb-6 text-foreground"
             onClick={handleGoogleLogin}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              background: 'transparent',
-              border: '1px solid #2a2a2a',
-              borderRadius: '8px',
-              color: '#fefeff',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              marginBottom: '24px',
-            }}
           >
-            <svg width="18" height="18" viewBox="0 0 18 18">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
               <path
                 d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
                 fill="#4285F4"
@@ -148,158 +100,67 @@ export default function LoginPage() {
               />
             </svg>
             Continuar con Google
-          </button>
+          </Button>
 
           {/* Divider */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '24px',
-            }}
-          >
-            <div style={{ flex: 1, height: '1px', background: '#2a2a2a' }} />
-            <span style={{ color: '#6b7280', fontSize: '12px' }}>o</span>
-            <div style={{ flex: 1, height: '1px', background: '#2a2a2a' }} />
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-muted text-xs">o</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '16px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  color: '#6b7280',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  marginBottom: '6px',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                Email
-              </label>
-              <input
+            <div className="mb-4">
+              <Input
                 type="email"
+                label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="tu@email.com"
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  background: '#1a1a1e',
-                  border: '1px solid #2a2a2a',
-                  borderRadius: '8px',
-                  color: '#fefeff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                }}
               />
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  color: '#6b7280',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  marginBottom: '6px',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                Contraseña
-              </label>
-              <input
+            <div className="mb-5">
+              <Input
                 type="password"
+                label="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
                 minLength={6}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  background: '#1a1a1e',
-                  border: '1px solid #2a2a2a',
-                  borderRadius: '8px',
-                  color: '#fefeff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                }}
               />
             </div>
 
-            {/* Error message */}
             {error && (
-              <div
-                style={{
-                  padding: '10px 14px',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '8px',
-                  color: '#ef4444',
-                  fontSize: '13px',
-                  marginBottom: '16px',
-                }}
-              >
+              <div className="px-3.5 py-2.5 bg-red/10 border border-red/30 rounded-lg text-red text-[13px] mb-4">
                 {error}
               </div>
             )}
 
-            {/* Success message */}
             {successMessage && (
-              <div
-                style={{
-                  padding: '10px 14px',
-                  background: 'rgba(196, 239, 22, 0.1)',
-                  border: '1px solid rgba(196, 239, 22, 0.3)',
-                  borderRadius: '8px',
-                  color: '#c4ef16',
-                  fontSize: '13px',
-                  marginBottom: '16px',
-                }}
-              >
+              <div className="px-3.5 py-2.5 bg-green/10 border border-green/30 rounded-lg text-green text-[13px] mb-4">
                 {successMessage}
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                background: '#c4ef16',
-                color: '#000',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-              }}
+              loading={loading}
+              className="w-full"
             >
               {loading
                 ? 'Cargando...'
                 : isRegister
                   ? 'Crear cuenta'
                   : 'Iniciar sesión'}
-            </button>
+            </Button>
           </form>
 
-          {/* Toggle login/register */}
-          <p
-            style={{
-              textAlign: 'center',
-              marginTop: '20px',
-              color: '#6b7280',
-              fontSize: '13px',
-            }}
-          >
+          <p className="text-center mt-5 text-muted text-[13px]">
             {isRegister ? '¿Ya tenés cuenta?' : '¿No tenés cuenta?'}{' '}
             <button
               onClick={() => {
@@ -307,30 +168,15 @@ export default function LoginPage() {
                 setError(null)
                 setSuccessMessage(null)
               }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#c4ef16',
-                cursor: 'pointer',
-                fontSize: '13px',
-                textDecoration: 'underline',
-              }}
+              className="bg-transparent border-none text-green cursor-pointer text-[13px] underline"
             >
               {isRegister ? 'Iniciar sesión' : 'Crear cuenta'}
             </button>
           </p>
         </div>
 
-        {/* Back to landing */}
-        <p style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Link
-            href="/"
-            style={{
-              color: '#6b7280',
-              fontSize: '13px',
-              textDecoration: 'none',
-            }}
-          >
+        <p className="text-center mt-5">
+          <Link href="/" className="text-muted text-[13px] no-underline">
             ← Volver al inicio
           </Link>
         </p>

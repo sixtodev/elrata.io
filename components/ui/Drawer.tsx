@@ -40,52 +40,27 @@ export function Drawer({ open, onClose, children, className }: DrawerProps) {
         onClick={onClose}
       />
 
-      {/* Drawer */}
+      {/* Drawer panel */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Panel de búsqueda"
+        className={cn(
+          'fixed top-1/2 left-1/2 z-[201] bg-bg2 border border-border rounded-2xl px-6 pt-6 pb-10 max-h-[calc(100vh-50px)] overflow-y-auto max-w-[680px] w-[calc(100%-32px)]',
+          className
+        )}
         style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          zIndex: 201,
-          background: '#1C1C1F',
-          border: '1px solid #2a2a2a',
-          borderRadius: '16px',
-          padding: '24px 24px 40px',
-          maxHeight: 'calc(100vh - 50px)',
-          height: 'auto',
-          overflowY: 'auto',
-          maxWidth: '680px',
-          width: 'calc(100% - 32px)',
           transition: 'transform 0.4s cubic-bezier(.32,.72,0,1), opacity 0.3s',
           transform: open ? 'translate(-50%, -50%)' : 'translate(-50%, 100%)',
           opacity: open ? 1 : 0,
           WebkitOverflowScrolling: 'touch',
         }}
-        className={className}
       >
         {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Cerrar"
-          style={{
-            position: 'absolute',
-            top: '14px',
-            right: '14px',
-            background: 'transparent',
-            border: 'none',
-            color: '#6b7280',
-            fontSize: '20px',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            borderRadius: '6px',
-            lineHeight: 1,
-            transition: 'color 0.2s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#fefeff' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#6b7280' }}
+          className="absolute top-3.5 right-3.5 bg-transparent border-none text-muted hover:text-foreground text-xl cursor-pointer px-2 py-1 rounded-md leading-none transition-colors"
         >
           ✕
         </button>

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Modal } from '@/components/ui/Modal'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 
 interface CreateFolderModalProps {
   open: boolean
@@ -55,89 +57,34 @@ export function CreateFolderModal({ open, onOpenChange }: CreateFolderModalProps
       description="Organiza tus busquedas en carpetas"
     >
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '16px' }}>
-          <label
-            htmlFor="folder-name"
-            style={{
-              display: 'block',
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#6b7280',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              marginBottom: '8px',
-            }}
-          >
-            Nombre
-          </label>
-          <input
+        <div className="mb-4">
+          <Input
             id="folder-name"
+            label="Nombre"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="ej. Laptops Argentina"
             autoFocus
-            style={{
-              width: '100%',
-              backgroundColor: '#1a1a1e',
-              border: `1px solid ${error ? '#ef4444' : '#2a2a2a'}`,
-              borderRadius: '10px',
-              padding: '12px 16px',
-              fontSize: '15px',
-              color: '#fefeff',
-              outline: 'none',
-              transition: 'border-color 0.2s',
-              boxSizing: 'border-box',
-            }}
-            onFocus={(e) => {
-              if (!error) e.currentTarget.style.borderColor = '#c4ef16'
-            }}
-            onBlur={(e) => {
-              if (!error) e.currentTarget.style.borderColor = '#2a2a2a'
-            }}
+            error={error || undefined}
           />
-          {error && (
-            <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '6px' }}>
-              {error}
-            </p>
-          )}
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <button
+        <div className="flex gap-3 justify-end">
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => onOpenChange(false)}
-            style={{
-              background: 'transparent',
-              border: '1px solid #2a2a2a',
-              color: '#6b7280',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontSize: '14px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
           >
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={loading}
-            style={{
-              backgroundColor: '#c4ef16',
-              border: 'none',
-              color: '#000',
-              fontWeight: 700,
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontSize: '14px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              transition: 'all 0.2s',
-            }}
+            loading={loading}
           >
             {loading ? 'Creando...' : 'Crear carpeta'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

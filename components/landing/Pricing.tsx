@@ -77,7 +77,7 @@ export function Pricing() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="font-[family-name:var(--font-title)] text-[clamp(40px,6vw,68px)] text-center mb-4"
+        className="font-title text-[clamp(40px,6vw,68px)] text-center mb-4"
       >
         Todo gratis para{' '}
         <span className="text-green">ratas exigentes</span>
@@ -121,7 +121,7 @@ export function Pricing() {
                 {plan.badge}
               </m.div>
             )}
-            <div className="font-[family-name:var(--font-title)] text-[22px] mb-2">
+            <div className="font-title text-[22px] mb-2">
               {plan.name}
             </div>
             <div className="text-muted text-sm mb-6">{plan.desc}</div>

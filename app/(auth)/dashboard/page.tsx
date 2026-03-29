@@ -29,30 +29,11 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#151518',
-      }}
-    >
+    <div className="min-h-screen bg-background">
       <DashboardNav email={user.email} />
 
-      <main
-        style={{
-          maxWidth: '1100px',
-          margin: '0 auto',
-          padding: '100px 24px 60px',
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: 'var(--font-title)',
-            fontSize: '32px',
-            color: '#fefeff',
-            marginBottom: '32px',
-            fontWeight: 400,
-          }}
-        >
+      <main className="max-w-[1100px] mx-auto px-6 pt-[100px] pb-[60px]">
+        <h1 className="font-title text-[32px] text-foreground mb-8 font-normal">
           🐀 Mi Dashboard
         </h1>
 

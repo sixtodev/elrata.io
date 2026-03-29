@@ -5,6 +5,7 @@ import type { Folder } from '@/types/folder'
 import { FolderList } from './FolderList'
 import { CreateFolderModal } from './CreateFolderModal'
 import { DashboardSearch } from './DashboardSearch'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface DashboardClientProps {
@@ -24,25 +25,21 @@ export function DashboardClient({
     <>
       {/* Stats summary */}
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))',
-          gap: '16px',
-          marginBottom: '32px',
-        }}
+        className="grid gap-4 mb-8"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))' }}
       >
-        <div style={{ backgroundColor: '#1C1C1F', border: '1px solid #2a2a2a', borderRadius: '12px', padding: '20px' }}>
-          <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Carpetas</div>
-          <div style={{ fontSize: '28px', fontWeight: 700, color: '#fefeff' }}>{folders.length}</div>
+        <div className="bg-bg2 border border-border rounded-xl p-5">
+          <div className="text-[13px] text-muted mb-1">Carpetas</div>
+          <div className="text-[28px] font-bold text-foreground">{folders.length}</div>
         </div>
-        <div style={{ backgroundColor: '#1C1C1F', border: '1px solid #2a2a2a', borderRadius: '12px', padding: '20px' }}>
-          <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Búsquedas guardadas</div>
-          <div style={{ fontSize: '28px', fontWeight: 700, color: '#c4ef16' }}>{recentSearchCount}</div>
+        <div className="bg-bg2 border border-border rounded-xl p-5">
+          <div className="text-[13px] text-muted mb-1">Búsquedas guardadas</div>
+          <div className="text-[28px] font-bold text-green">{recentSearchCount}</div>
         </div>
-        <div style={{ backgroundColor: '#1C1C1F', border: '1px solid #2a2a2a', borderRadius: '12px', padding: '20px' }}>
-          <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Plan</div>
-          <div style={{ fontSize: '18px', fontWeight: 700, color: '#c4ef16' }}>🐀 Pro</div>
-          <div style={{ fontSize: '11px', color: '#6b7280' }}>Búsquedas ilimitadas</div>
+        <div className="bg-bg2 border border-border rounded-xl p-5">
+          <div className="text-[13px] text-muted mb-1">Plan</div>
+          <div className="text-lg font-bold text-green">🐀 Pro</div>
+          <div className="text-[11px] text-muted">Búsquedas ilimitadas</div>
         </div>
       </div>
 
@@ -50,16 +47,13 @@ export function DashboardClient({
       <DashboardSearch />
 
       {/* Folder section */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <h2 className="font-[family-name:var(--font-title)]" style={{ fontSize: '22px', color: '#fefeff', margin: 0 }}>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="font-title text-[22px] text-foreground m-0">
           📁 Mis Carpetas
         </h2>
-        <button
-          onClick={() => setModalOpen(true)}
-          style={{ backgroundColor: '#c4ef16', border: 'none', color: '#000', fontWeight: 700, padding: '10px 20px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
-        >
+        <Button onClick={() => setModalOpen(true)}>
           + Crear carpeta
-        </button>
+        </Button>
       </div>
 
       {folders.length > 0 ? (
@@ -70,10 +64,9 @@ export function DashboardClient({
           title="No tienes carpetas aún"
           description="Crea tu primera carpeta para organizar tus búsquedas"
           action={
-            <button onClick={() => setModalOpen(true)}
-              style={{ backgroundColor: '#c4ef16', border: 'none', color: '#000', fontWeight: 700, padding: '10px 24px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>
+            <Button onClick={() => setModalOpen(true)}>
               Crear carpeta
-            </button>
+            </Button>
           }
         />
       )}

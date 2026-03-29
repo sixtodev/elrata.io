@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { cn } from '@/lib/utils'
 import { useAlerts } from '@/hooks/useAlerts'
 import { PriceHistoryChart } from './PriceHistoryChart'
 import type { PriceAlert, AlertStatus } from '@/types/alert'
@@ -11,11 +13,18 @@ interface AlertCardProps {
   onUpdate: () => void
 }
 
-const statusConfig: Record<AlertStatus, { label: string; bg: string; color: string; borderColor: string }> = {
-  active: { label: 'Activa', bg: 'rgba(196,239,22,0.1)', color: '#c4ef16', borderColor: 'rgba(196,239,22,0.2)' },
-  triggered: { label: 'Disparada', bg: 'rgba(251,191,36,0.1)', color: '#fbbf24', borderColor: 'rgba(251,191,36,0.2)' },
-  paused: { label: 'Pausada', bg: 'rgba(107,114,128,0.1)', color: '#6b7280', borderColor: 'rgba(107,114,128,0.2)' },
-  deleted: { label: 'Eliminada', bg: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)' },
+const statusVariant: Record<AlertStatus, 'default' | 'warning' | 'muted' | 'error'> = {
+  active: 'default',
+  triggered: 'warning',
+  paused: 'muted',
+  deleted: 'error',
+}
+
+const statusLabel: Record<AlertStatus, string> = {
+  active: 'Activa',
+  triggered: 'Disparada',
+  paused: 'Pausada',
+  deleted: 'Eliminada',
 }
 
 function formatTimeAgo(dateStr: string | null): string {
@@ -34,8 +43,6 @@ export function AlertCard({ alert, onUpdate }: AlertCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
   const { pauseAlert, resumeAlert, deleteAlert } = useAlerts()
-
-  const status = statusConfig[alert.status] || statusConfig.active
 
   const handlePauseResume = async () => {
     setActionLoading(true)
@@ -62,80 +69,52 @@ export function AlertCard({ alert, onUpdate }: AlertCardProps) {
   }
 
   return (
-    <div
-      style={{
-        background: '#151518',
-        border: '1px solid #2a2a2a',
-        borderRadius: '12px',
-        padding: '20px',
-        transition: 'border-color 0.2s',
-      }}
-    >
+    <div className="bg-background border border-border rounded-xl p-5 transition-colors">
       {/* Main row */}
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: '16px',
-          cursor: 'pointer',
-        }}
+        className="flex justify-between items-start gap-4 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
       >
         {/* Left */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                borderRadius: '9999px',
-                border: `1px solid ${status.borderColor}`,
-                background: status.bg,
-                color: status.color,
-                padding: '2px 10px',
-                fontSize: '11px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {status.label}
-            </span>
-            <span style={{ color: '#6b7280', fontSize: '12px' }}>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Badge variant={statusVariant[alert.status] ?? 'default'}>
+              {statusLabel[alert.status]}
+            </Badge>
+            <span className="text-muted text-xs">
               {formatTimeAgo(alert.last_checked_at)}
             </span>
           </div>
-          <h3 style={{ color: '#fefeff', fontSize: '15px', fontWeight: 500, marginBottom: '4px' }}>
+          <h3 className="text-foreground text-[15px] font-medium mb-1">
             {alert.product_name}
           </h3>
-          <p style={{ color: '#6b7280', fontSize: '13px' }}>
+          <p className="text-muted text-[13px]">
             {alert.query_data.city}, {alert.query_data.country}
           </p>
         </div>
 
         {/* Right - Prices */}
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ marginBottom: '4px' }}>
-            <span style={{ color: '#6b7280', fontSize: '12px' }}>Objetivo: </span>
-            <span style={{ color: '#c4ef16', fontWeight: 700, fontSize: '16px' }}>
+        <div className="text-right shrink-0">
+          <div className="mb-1">
+            <span className="text-muted text-xs">Objetivo: </span>
+            <span className="text-green font-bold text-base">
               {alert.currency} {alert.target_price}
             </span>
           </div>
           {alert.last_price !== null && (
             <div>
-              <span style={{ color: '#6b7280', fontSize: '12px' }}>Actual: </span>
+              <span className="text-muted text-xs">Actual: </span>
               <span
-                style={{
-                  color: alert.last_price <= alert.target_price ? '#c4ef16' : '#fefeff',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                }}
+                className={cn(
+                  'font-semibold text-sm',
+                  alert.last_price <= alert.target_price ? 'text-green' : 'text-foreground'
+                )}
               >
                 {alert.currency} {alert.last_price}
               </span>
             </div>
           )}
-          <div style={{ color: '#6b7280', fontSize: '18px', marginTop: '4px' }}>
+          <div className="text-muted text-lg mt-1">
             {expanded ? '▲' : '▼'}
           </div>
         </div>
@@ -143,16 +122,13 @@ export function AlertCard({ alert, onUpdate }: AlertCardProps) {
 
       {/* Expanded section */}
       {expanded && (
-        <div style={{ borderTop: '1px solid #2a2a2a', marginTop: '16px', paddingTop: '16px' }}>
-          {/* Price history chart */}
+        <div className="border-t border-border mt-4 pt-4">
           <PriceHistoryChart
             alertId={alert.id}
             targetPrice={alert.target_price}
             currency={alert.currency}
           />
-
-          {/* Action buttons */}
-          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          <div className="flex gap-2 mt-3">
             {(alert.status === 'active' || alert.status === 'paused' || alert.status === 'triggered') && (
               <Button
                 variant="secondary"
@@ -169,12 +145,12 @@ export function AlertCard({ alert, onUpdate }: AlertCardProps) {
             <Button
               variant="ghost"
               size="sm"
+              className="text-red hover:text-red"
               onClick={(e) => {
                 e.stopPropagation()
                 handleDelete()
               }}
               disabled={actionLoading}
-              style={{ color: '#ef4444' }}
             >
               Eliminar
             </Button>

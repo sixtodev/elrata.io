@@ -21,7 +21,7 @@ export function DashboardNav({ email }: DashboardNavProps) {
     <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-8 h-16 bg-background/85 backdrop-blur-xl border-b border-border">
       <a
         href="/"
-        className="font-[family-name:var(--font-title)] text-[22px] text-foreground flex items-center gap-2 no-underline"
+        className="font-title text-[22px] text-foreground flex items-center gap-2 no-underline"
       >
         🐀 El<span className="text-green">Rata</span>.io
       </a>

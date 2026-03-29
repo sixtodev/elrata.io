@@ -38,7 +38,8 @@ export async function POST(req: NextRequest) {
 
     const { url, name } = result.data
 
-    // Normalize: ensure https:// and clean domain
+    // Normalize to HTTPS — http:// URLs are intentionally upgraded.
+    // cleanUrl (no protocol) is used as display name fallback; fullUrl is what gets stored.
     const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/+$/, '')
     const fullUrl = `https://${cleanUrl}`
 

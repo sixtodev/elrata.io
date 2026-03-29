@@ -9,7 +9,10 @@
   font-display: swap;
 }
 
+/* ─── Design tokens ────────────────────────────────────────────────────────── */
+
 :root {
+  /* Raw hex values — kept here so plain CSS (e.g. page loader) can access them */
   --background: #151518;
   --foreground: #fefeff;
   --bg2: #1C1C1F;
@@ -21,6 +24,7 @@
   --red: #ef4444;
   --muted: #6b7280;
   --border: #2a2a2a;
+  --border-hover: #444444;
   --radius: 12px;
 }
 
@@ -36,87 +40,83 @@
   --color-red: var(--red);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
   --font-sans: "Open Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
   --font-title: "Maghfirea", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
+/* ─── Base resets ──────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-title);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.06em;
+  }
+
+  h4 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+  }
+
+  h1 { font-size: clamp(1.75rem, 5vw, 2.75rem); }
+  h2 { font-size: clamp(1.5rem, 4vw, 2.125rem); }
+  h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+
+  p {
+    letter-spacing: 0.2px;
+  }
+
+  button {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.65;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+/* ─── Keyframes (must live at top level, not inside @layer) ────────────────── */
 
-/* Heading hierarchy */
-h1, h2 {
-  font-family: var(--font-title);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: 0.06em;
-}
-
-h3 {
-  font-family: var(--font-title);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: 0.06em;
-}
-
-h4 {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: 0.02em;
-}
-
-h1 { font-size: clamp(1.75rem, 5vw, 2.75rem); }
-h2 { font-size: clamp(1.5rem, 4vw, 2.125rem); }
-h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
-
-/* Paragraph spacing */
-p {
-  letter-spacing: 0.2px;
-}
-
-/* Button typography */
-button {
-  font-weight: 500;
-  letter-spacing: 0.3px;
-}
-
-/* Noise overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-/* Animations */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -143,50 +143,6 @@ body::before {
   40%, 80% { transform: translateX(6px); }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease both;
-}
-
-.animate-fade-in-down {
-  animation: fadeInDown 0.6s ease both;
-}
-
-.animate-bounce-rat {
-  animation: bounce-rat 2.5s ease-in-out infinite;
-}
-
-.nav-link {
-  position: relative;
-}
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--color-green);
-  transition: width 0.3s ease;
-}
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.animate-pulse-dot {
-  animation: pulse-dot 2s infinite;
-}
-
-.animate-shake {
-  animation: shake 0.3s ease;
-}
-
-.animation-delay-100 { animation-delay: 0.1s; }
-.animation-delay-200 { animation-delay: 0.2s; }
-.animation-delay-300 { animation-delay: 0.3s; }
-.animation-delay-400 { animation-delay: 0.4s; }
-.animation-delay-500 { animation-delay: 0.5s; }
-
-/* Page loader — CSS only, no JS dependency */
 @keyframes loader-pulse {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.08); }
@@ -206,6 +162,55 @@ body::before {
 @keyframes loader-fade-out {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
 }
+
+/* ─── Utilities ────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease both;
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown 0.6s ease both;
+  }
+
+  .animate-bounce-rat {
+    animation: bounce-rat 2.5s ease-in-out infinite;
+  }
+
+  .animate-pulse-dot {
+    animation: pulse-dot 2s infinite;
+  }
+
+  .animate-shake {
+    animation: shake 0.3s ease;
+  }
+
+  .animation-delay-100 { animation-delay: 0.1s; }
+  .animation-delay-200 { animation-delay: 0.2s; }
+  .animation-delay-300 { animation-delay: 0.3s; }
+  .animation-delay-400 { animation-delay: 0.4s; }
+  .animation-delay-500 { animation-delay: 0.5s; }
+
+  .nav-link {
+    position: relative;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-green);
+    transition: width 0.3s ease;
+  }
+  .nav-link:hover::after {
+    width: 100%;
+  }
+}
+
+/* ─── Page loader — CSS only, no JS dependency ─────────────────────────────── */
 
 #page-loader {
   position: fixed;
@@ -267,4 +272,3 @@ body.app-ready #page-loader {
   display: none !important;
   animation: none !important;
 }
-

@@ -29,7 +29,7 @@ export function CtaBottom() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="font-[family-name:var(--font-title)] text-[clamp(40px,6vw,68px)] mb-4"
+        className="font-title text-[clamp(40px,6vw,68px)] mb-4"
       >
         ¿Listo para ser el rata
         <br />

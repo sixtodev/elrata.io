@@ -214,7 +214,7 @@ export function DashboardSearch() {
 
       {/* Search Drawer */}
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <h2 className="font-[family-name:var(--font-title)]" style={{ fontSize: '26px', marginBottom: '8px', color: '#fefeff' }}>
+        <h2 className="font-title" style={{ fontSize: '26px', marginBottom: '8px', color: '#fefeff' }}>
           🐀 Buscar productos
         </h2>
         <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
@@ -363,7 +363,7 @@ export function DashboardSearch() {
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <h2 className="font-[family-name:var(--font-title)]" style={{ fontSize: '24px', color: '#fefeff', margin: 0 }}>
+              <h2 className="font-title" style={{ fontSize: '24px', color: '#fefeff', margin: 0 }}>
                 🐀 Resultados para &quot;{results.query.product}&quot;
               </h2>
               <p style={{ color: '#6b7280', fontSize: '13px', marginTop: '4px' }}>
@@ -394,7 +394,7 @@ export function DashboardSearch() {
 
           {analysis && (
             <div style={{ background: 'linear-gradient(135deg, rgba(196,239,22,0.05), rgba(196,239,22,0.02))', border: '1px solid rgba(196,239,22,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '20px' }}>
-              <h3 className="font-[family-name:var(--font-title)]" style={{ fontSize: '18px', color: '#fefeff', marginBottom: '6px' }}>🤖 Análisis inteligente</h3>
+              <h3 className="font-title" style={{ fontSize: '18px', color: '#fefeff', marginBottom: '6px' }}>🤖 Análisis inteligente</h3>
               <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '14px' }}>{analysis.summary}</p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>

@@ -115,7 +115,7 @@ export function SearchDrawer() {
 
   return (
     <Drawer open={isOpen} onClose={close}>
-      <h2 className="font-[family-name:var(--font-title)] text-xl sm:text-[26px] mb-2">
+      <h2 className="font-title text-xl sm:text-[26px] mb-2">
         🐀 A Ratear
       </h2>
       <p style={{ color: '#6b7280', fontSize: '15px', marginBottom: '20px' }}>

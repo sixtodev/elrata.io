@@ -65,7 +65,7 @@ export function AlertList({ initialAlerts }: AlertListProps) {
 
       {/* Refresh error */}
       {refreshError && (
-        <div className="mb-3 text-sm text-red-500">
+        <div className="mb-3 text-sm text-red">
           {refreshError}
         </div>
       )}

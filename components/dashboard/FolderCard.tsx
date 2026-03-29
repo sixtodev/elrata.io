@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 import type { Folder } from '@/types/folder'
 
 interface FolderCardProps {
@@ -46,70 +47,20 @@ export function FolderCard({ folder, searchCount = 0 }: FolderCardProps) {
   return (
     <div
       onClick={() => router.push(`/dashboard/${folder.id}`)}
-      style={{
-        backgroundColor: '#1C1C1F',
-        border: '1px solid #2a2a2a',
-        borderRadius: '16px',
-        padding: '24px',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        position: 'relative',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#c4ef16'
-        e.currentTarget.style.boxShadow = '0 0 20px rgba(196, 239, 22, 0.1)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = '#2a2a2a'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
+      className="bg-bg2 border border-border rounded-2xl p-6 cursor-pointer transition-all relative hover:border-green hover:shadow-[0_0_20px_var(--color-green-glow)]"
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          marginBottom: '16px',
-        }}
-      >
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            backgroundColor: '#1a1a1e',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-          }}
-        >
+      <div className="flex items-start justify-between mb-4">
+        <div className="w-10 h-10 bg-bg3 rounded-[10px] flex items-center justify-center text-xl">
           📁
         </div>
 
         <button
           onClick={handleDelete}
           disabled={deleting}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: confirmDelete ? '#ef4444' : '#6b7280',
-            fontSize: '12px',
-            cursor: deleting ? 'not-allowed' : 'pointer',
-            padding: '4px 8px',
-            borderRadius: '6px',
-            transition: 'color 0.2s',
-            opacity: deleting ? 0.5 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (!confirmDelete) e.currentTarget.style.color = '#ef4444'
-          }}
-          onMouseLeave={(e) => {
-            if (!confirmDelete) {
-              e.currentTarget.style.color = '#6b7280'
-              setConfirmDelete(false)
-            }
-          }}
+          className={cn(
+            'bg-transparent border-none text-xs px-2 py-1 rounded-md transition-colors cursor-pointer hover:text-red disabled:opacity-50 disabled:cursor-not-allowed',
+            confirmDelete ? 'text-red' : 'text-muted',
+          )}
         >
           {deleting
             ? 'Eliminando...'
@@ -119,29 +70,13 @@ export function FolderCard({ folder, searchCount = 0 }: FolderCardProps) {
         </button>
       </div>
 
-      <h3
-        style={{
-          fontFamily: 'var(--font-title)',
-          fontSize: '18px',
-          color: '#fefeff',
-          margin: '0 0 8px 0',
-          fontWeight: 400,
-        }}
-      >
+      <h3 className="font-title text-lg text-foreground mb-2 font-normal">
         {folder.name}
       </h3>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          fontSize: '13px',
-          color: '#6b7280',
-        }}
-      >
+      <div className="flex items-center gap-3 text-[13px] text-muted">
         <span>{searchCount} busquedas</span>
-        <span style={{ color: '#2a2a2a' }}>|</span>
+        <span className="text-border">|</span>
         <span>{createdDate}</span>
       </div>
     </div>

@@ -17,26 +17,12 @@ export default async function AlertsPage() {
   const alerts = user ? ((await getAlerts(supabase, user.id)) as PriceAlert[]) : []
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#151518',
-        color: '#fefeff',
-      }}
-    >
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '48px 24px' }}>
-        <h1
-          style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            marginBottom: '8px',
-            fontFamily: 'var(--font-title)',
-          }}
-          className="font-[family-name:var(--font-title)]"
-        >
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="max-w-[800px] mx-auto py-12 px-6">
+        <h1 className="font-title text-[32px] font-bold mb-2">
           🔔 Mis Alertas
         </h1>
-        <p style={{ color: '#6b7280', fontSize: '15px', marginBottom: '32px' }}>
+        <p className="text-muted text-[15px] mb-8">
           Monitorea precios y recibe notificaciones cuando bajen.
         </p>
 
