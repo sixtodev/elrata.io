@@ -40,7 +40,7 @@ export function DashboardClient({
         <div className="bg-bg2 border border-border rounded-xl p-5">
           <div className="text-[13px] text-muted mb-1">Plan</div>
           <div className="flex items-center gap-1.5 text-lg font-bold text-green">
-            <Image src="/icons/rata.webp" alt="" width={22} height={22} />
+            <Image src="/icons/rata.webp" alt="" width={32} height={32} />
             Pro
           </div>
           <div className="text-[11px] text-muted">Búsquedas ilimitadas</div>

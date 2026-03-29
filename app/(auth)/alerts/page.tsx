@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getAlerts } from '@/lib/supabase/queries/alerts'
 import { AlertList } from '@/components/alerts/AlertList'
+import { DashboardNav } from '@/components/dashboard/DashboardNav'
 import type { PriceAlert } from '@/types/alert'
 
 export const metadata = {
@@ -18,7 +19,9 @@ export default async function AlertsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-[800px] mx-auto py-12 px-6">
+      <DashboardNav email={user?.email} />
+
+      <main className="max-w-[800px] mx-auto px-6 pt-[100px] pb-[60px]">
         <h1 className="font-title text-[32px] font-bold mb-2">
           🔔 Mis Alertas
         </h1>
@@ -27,7 +30,7 @@ export default async function AlertsPage() {
         </p>
 
         <AlertList initialAlerts={alerts} />
-      </div>
+      </main>
     </div>
   )
 }
