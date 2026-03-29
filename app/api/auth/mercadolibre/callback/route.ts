@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createSettingsClient } from '@/lib/supabase/server'
 
 /**
  * MercadoLibre OAuth2 callback.
@@ -56,9 +56,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Also persist in Supabase so tokens survive restarts
-    const supabase = createServiceClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('app_settings').upsert(
+    const supabase = createSettingsClient()
+    await supabase.from('app_settings').upsert(
       {
         key: 'ml_tokens',
         value: {

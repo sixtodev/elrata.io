@@ -1,5 +1,5 @@
 import type { SearchResult } from '@/types/search'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createSettingsClient } from '@/lib/supabase/server'
 
 /**
  * MercadoLibre API oficial.
@@ -34,9 +34,8 @@ const CURRENCIES: Record<string, string> = {
  */
 async function loadMLTokensFromDB(): Promise<void> {
   try {
-    const supabase = createServiceClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
+    const supabase = createSettingsClient()
+    const { data } = await supabase
       .from('app_settings')
       .select('value')
       .eq('key', 'ml_tokens')
@@ -58,9 +57,8 @@ async function loadMLTokensFromDB(): Promise<void> {
  */
 async function persistMLTokensToDB(accessToken: string, refreshToken?: string): Promise<void> {
   try {
-    const supabase = createServiceClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('app_settings').upsert(
+    const supabase = createSettingsClient()
+    await supabase.from('app_settings').upsert(
       {
         key: 'ml_tokens',
         value: {

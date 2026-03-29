@@ -7,3 +7,23 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[]
+
+/**
+ * Tipo manual para app_settings hasta que se generen los tipos completos con Supabase CLI.
+ * Cuando se ejecute `supabase gen types`, reemplazar esto con el output generado.
+ */
+export interface AppSettingsDatabase {
+  public: {
+    Tables: {
+      app_settings: {
+        Row: { key: string; value: Json; updated_at: string }
+        Insert: { key: string; value: Json; updated_at?: string }
+        Update: { key?: string; value?: Json; updated_at?: string }
+      }
+    }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
+  }
+}
