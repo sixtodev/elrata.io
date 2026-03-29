@@ -102,12 +102,16 @@ export const SEARCH_CATEGORIES: SearchCategory[] = [
       ]},
     ],
     buildQuery: (product, brand, fields) => {
-      // Keep query lean for text-based search APIs (ML, web).
-      // Specs like RAM/storage are too specific — ML returns 0 results with them.
-      // The AI analysis step handles spec-based recommendations from broad results.
       const parts = [product]
       if (brand) parts.push(brand)
-      if (fields.type) parts.push(fields.type)
+      // type: include only if it adds info (skip "laptop" when product already says "notebook")
+      if (fields.type && !product.toLowerCase().includes(fields.type)) parts.push(fields.type)
+      // RAM and storage: compact values like "32GB", "1TB SSD" appear in real product titles — include them
+      if (fields.ram) parts.push(fields.ram)
+      if (fields.storage) parts.push(fields.storage)
+      // Processor: short identifiers like "Ryzen 9", "i7", "M3" work well in text search
+      if (fields.processor) parts.push(fields.processor)
+      // Screen: skip — "17"" with the quote char breaks URL encoding and rarely appears as text in ML
       return parts.join(' ')
     },
   },
@@ -142,6 +146,8 @@ export const SEARCH_CATEGORIES: SearchCategory[] = [
     buildQuery: (product, brand, fields) => {
       const parts = [product]
       if (brand) parts.push(brand)
+      // storage like "256GB", "512GB" appear in phone titles — include them
+      if (fields.storage) parts.push(fields.storage)
       if (fields.condition) parts.push(fields.condition)
       return parts.join(' ')
     },
