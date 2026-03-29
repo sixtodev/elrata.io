@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { Folder } from '@/types/folder'
 import { FolderList } from './FolderList'
 import { CreateFolderModal } from './CreateFolderModal'
@@ -38,7 +39,10 @@ export function DashboardClient({
         </div>
         <div className="bg-bg2 border border-border rounded-xl p-5">
           <div className="text-[13px] text-muted mb-1">Plan</div>
-          <div className="text-lg font-bold text-green">🐀 Pro</div>
+          <div className="flex items-center gap-1.5 text-lg font-bold text-green">
+            <Image src="/icons/rata.webp" alt="" width={22} height={22} />
+            Pro
+          </div>
           <div className="text-[11px] text-muted">Búsquedas ilimitadas</div>
         </div>
       </div>

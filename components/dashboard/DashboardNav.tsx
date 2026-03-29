@@ -23,7 +23,7 @@ export function DashboardNav({ email }: DashboardNavProps) {
         href="/"
         className="font-title text-[22px] text-foreground flex items-center gap-2 no-underline"
       >
-        🐀 El<span className="text-green">Rata</span>.io
+        El<span className="text-green">Rata</span>.io
       </a>
 
       {/* Desktop links */}

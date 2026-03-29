@@ -209,7 +209,7 @@ export function DashboardSearch() {
           marginBottom: '32px',
         }}
       >
-        🐀 A Ratear — Nueva búsqueda
+        A Ratear — Nueva búsqueda
       </button>
 
       {/* Search Drawer */}
