@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Bell } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { useAlerts } from '@/hooks/useAlerts'
@@ -62,7 +63,9 @@ export function SetPriceAlertModal({
     return (
       <Modal open={open} onOpenChange={handleClose} title="Alerta de Precio">
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔔</div>
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+            <Bell size={48} color="#c4ef16" />
+          </div>
           <p style={{ color: '#fefeff', fontSize: '16px', marginBottom: '8px' }}>
             Crea una cuenta para usar alertas
           </p>

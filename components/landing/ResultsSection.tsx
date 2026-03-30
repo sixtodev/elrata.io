@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { Bell } from 'lucide-react'
 import Image from 'next/image'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
@@ -250,7 +251,7 @@ export function ResultsSection() {
                         onClick={() => setAlertResult(r)}
                         style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '6px', padding: '4px 10px', color: '#6b7280', fontSize: '12px', cursor: 'pointer' }}
                       >
-                        🔔 Alerta
+                        <Bell size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} /> Alerta
                       </button>
                     </div>
                   </div>

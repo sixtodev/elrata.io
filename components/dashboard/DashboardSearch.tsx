@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { Bell } from 'lucide-react'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -524,7 +525,7 @@ export function DashboardSearch() {
                         💾 Guardar
                       </button>
                       <button onClick={() => setAlertResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer' }}>
-                        🔔 Alerta
+                        <Bell size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} /> Alerta
                       </button>
                     </div>
                   </div>
