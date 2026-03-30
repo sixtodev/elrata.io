@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 
 interface DashboardNavProps {
   email?: string
@@ -21,27 +22,27 @@ export function DashboardNav({ email }: DashboardNavProps) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-8 h-20 bg-background/85 backdrop-blur-xl border-b border-border">
-      <a
+      <Link
         href="/"
         className="font-title text-[22px] font-bold text-foreground flex items-center gap-2 no-underline"
       >
         El<span className="text-green">Rata</span>.io
-      </a>
+      </Link>
 
       {/* Desktop links */}
       <div className="hidden md:flex items-center gap-6">
-        <a
+        <Link
           href="/dashboard"
           className={`text-sm no-underline transition-colors hover:text-green ${isActive('/dashboard') ? 'text-green font-semibold' : 'text-muted'}`}
         >
           Dashboard
-        </a>
-        <a
+        </Link>
+        <Link
           href="/alerts"
           className={`text-sm no-underline transition-colors hover:text-green ${isActive('/alerts') ? 'text-green font-semibold' : 'text-muted'}`}
         >
           Alertas
-        </a>
+        </Link>
 
         {email && (
           <span className="text-muted text-[13px] border-l border-border pl-4">
@@ -80,18 +81,18 @@ export function DashboardNav({ email }: DashboardNavProps) {
           id="dashboard-mobile-menu"
           className="absolute top-20 left-0 right-0 bg-bg2 border-b border-border p-6 flex flex-col gap-4 md:hidden"
         >
-          <a
+          <Link
             href="/dashboard"
             className={`no-underline transition-colors min-h-11 flex items-center hover:text-green ${isActive('/dashboard') ? 'text-green font-semibold' : 'text-muted'}`}
           >
             Dashboard
-          </a>
-          <a
+          </Link>
+          <Link
             href="/alerts"
             className={`no-underline transition-colors min-h-11 flex items-center hover:text-green ${isActive('/alerts') ? 'text-green font-semibold' : 'text-muted'}`}
           >
             Alertas
-          </a>
+          </Link>
 
           {email && (
             <span className="text-muted text-[13px]">{email}</span>
