@@ -10,7 +10,7 @@ import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/sear
 import { SUPPORTED_COUNTRIES, ML_COUNTRIES } from '@/lib/search/countries'
 import type { CategoryField } from '@/lib/search/categories'
 
-type SearchSource = 'all' | 'mercadolibre'
+type SearchSource = 'all' | 'mercadolibre' | 'amazon'
 
 export function SearchDrawer() {
   const { isOpen, close, setResults } = useSearchDrawer()
@@ -279,7 +279,11 @@ export function SearchDrawer() {
           Buscar en
         </label>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {([{ id: 'all', label: 'Google Shopping' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
+          {([
+            { id: 'all', label: 'Google Shopping' },
+            { id: 'amazon', label: 'Amazon' },
+            ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : []),
+          ] as { id: SearchSource; label: string }[]).map((s) => (
             <button
               key={s.id}
               onClick={() => setSelectedSource(s.id)}

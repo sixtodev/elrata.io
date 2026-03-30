@@ -80,7 +80,7 @@ export async function orchestrateSearch(
   }
 
   // ── AMAZON (ScraperAPI structured endpoint) ──
-  if (source === 'all') {
+  if (source === 'all' || source === 'amazon') {
     tasks.push(
       (async () => {
         try {
