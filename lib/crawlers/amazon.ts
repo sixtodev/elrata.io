@@ -65,13 +65,14 @@ export async function searchAmazon(
       .filter((item) => item.name && item.url)
       .filter((item) => {
         if (!priceMax || !item.price) return true
-        const num = parseFloat(item.price.replace(/[^0-9.]/g, ''))
+        const priceStr = String(item.price)
+        const num = parseFloat(priceStr.replace(/[^0-9.]/g, ''))
         return isNaN(num) || num <= priceMax * 1.15
       })
       .slice(0, 10)
       .map((item) => ({
         name: item.name!,
-        price: item.price || 'Ver precio',
+        price: item.price != null ? String(item.price) : 'Ver precio',
         currency,
         store: `Amazon ${countryCode}`,
         store_id: undefined,
