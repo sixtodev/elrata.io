@@ -17,6 +17,7 @@ interface AlertRow {
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret')
+  console.log('[cron] secret received:', secret?.slice(0, 6), '| env set:', !!process.env.CRON_SECRET)
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
