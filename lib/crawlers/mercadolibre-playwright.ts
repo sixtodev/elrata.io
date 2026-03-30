@@ -16,10 +16,28 @@ const GL_CODES: Record<string, string> = {
   PE: 'pe', UY: 'uy', EC: 'ec', VE: 've',
 }
 
+interface SerperShoppingItem {
+  title: string
+  link: string
+  source?: string
+  price?: string
+  imageUrl?: string
+  rating?: number
+  ratingCount?: number
+}
+
+interface SerperOrganicItem {
+  title: string
+  link: string
+  snippet?: string
+}
+
 /**
- * Searches MercadoLibre via Serper (Google site: filter).
- * ML blocks direct API calls and scraping from datacenter IPs.
- * Google indexes all ML listings and returns them reliably via Serper.
+ * Searches MercadoLibre via Serper.
+ * Runs /shopping + /search in parallel:
+ *   - /shopping → structured prices (primary)
+ *   - /search   → more URLs via site: filter (fallback for items not in shopping)
+ * Results are merged by URL to avoid duplicates, shopping prices take priority.
  */
 export async function searchMercadoLibrePlaywright(
   product: string,
@@ -38,45 +56,49 @@ export async function searchMercadoLibrePlaywright(
   const currency = CURRENCIES[countryCode] || 'USD'
   const gl = GL_CODES[countryCode] || 'us'
   const store = `MercadoLibre ${countryCode}`
-  const query = `${product} site:${domain}`
+  const siteQuery = `${product} site:${domain}`
 
-  console.log(`[ml-serper] Searching via Serper: "${query}"`)
+  console.log(`[ml-serper] Searching via Serper shopping+organic: "${product}" on ${domain}`)
 
-  try {
-    const res = await fetch('https://google.serper.dev/search', {
+  const headers = { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' }
+  const timeout = AbortSignal.timeout(15000)
+
+  const [shoppingRes, organicRes] = await Promise.allSettled([
+    fetch('https://google.serper.dev/shopping', {
       method: 'POST',
-      headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ q: query, gl, hl: 'es', num: 20 }),
-      signal: AbortSignal.timeout(15000),
-    })
+      headers,
+      body: JSON.stringify({ q: siteQuery, gl, hl: 'es', num: 20 }),
+      signal: timeout,
+    }),
+    fetch('https://google.serper.dev/search', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ q: siteQuery, gl, hl: 'es', num: 20 }),
+      signal: timeout,
+    }),
+  ])
 
-    if (!res.ok) {
-      console.error(`[ml-serper] Serper error: ${res.status}`)
-      return []
-    }
+  const priceMax = budget ? parseBudget(budget) : null
 
-    const data = await res.json()
-    const organic = (data.organic || []) as Array<{
-      title: string
-      link: string
-      snippet?: string
-    }>
+  // Map url → result, shopping results take priority (have real prices)
+  const resultMap = new Map<string, SearchResult>()
 
-    // Filter to only ML links for the correct country
-    const mlResults = organic.filter((r) =>
-      r.link.includes(domain) && !r.link.includes('/vendedor/') && !r.link.includes('/tienda/')
+  // ── Organic first (lower priority, no structured price) ──
+  if (organicRes.status === 'fulfilled' && organicRes.value.ok) {
+    const data = await organicRes.value.json()
+    const organic = (data.organic || []) as SerperOrganicItem[]
+    const mlItems = organic.filter((r) =>
+      r.link.includes(domain) &&
+      !r.link.includes('/vendedor/') &&
+      !r.link.includes('/tienda/')
     )
+    console.log(`[ml-serper] Organic ML items: ${mlItems.length}`)
 
-    console.log(`[ml-serper] Raw ML items: ${mlResults.length}`)
-
-    const priceMax = budget ? parseBudget(budget) : null
-
-    const results: SearchResult[] = mlResults.map((item) => {
+    for (const item of mlItems) {
       const priceMatch = item.snippet?.match(/\$\s?[\d.,]+/)
-      const rawPrice = priceMatch ? priceMatch[0] : null
-      const numericPrice = rawPrice ? parseFloat(rawPrice.replace(/[$.,]/g, '').replace(/\./g, '')) : null
+      const rawPrice = priceMatch ? priceMatch[0].trim() : null
 
-      return {
+      resultMap.set(item.link, {
         name: item.title.replace(/\s*-\s*Mercado Libre$/, '').trim(),
         price: rawPrice || 'Ver precio',
         currency,
@@ -88,19 +110,47 @@ export async function searchMercadoLibrePlaywright(
         scraper_type: 'serper-ml',
         image: null,
         notes: item.snippet?.slice(0, 100) || undefined,
-      }
-    }).filter((item) => {
-      if (!priceMax) return true
+      })
+    }
+  }
+
+  // ── Shopping (higher priority, structured price) ──
+  if (shoppingRes.status === 'fulfilled' && shoppingRes.value.ok) {
+    const data = await shoppingRes.value.json()
+    const items = (data.shopping || []) as SerperShoppingItem[]
+    const mlItems = items.filter((r) => r.link?.includes(domain))
+    console.log(`[ml-serper] Shopping ML items: ${mlItems.length}`)
+
+    for (const item of mlItems) {
+      if (!item.link) continue
+      resultMap.set(item.link, {
+        name: item.title.replace(/\s*-\s*Mercado Libre$/, '').trim(),
+        price: item.price || 'Ver precio',
+        currency,
+        store,
+        store_id: undefined,
+        url: item.link,
+        availability: 'in_stock' as const,
+        source: 'crawlee' as const,
+        scraper_type: 'serper-ml-shopping',
+        image: item.imageUrl || null,
+        notes: item.rating ? `${item.rating}★ (${item.ratingCount || 0})` : undefined,
+      })
+    }
+  }
+
+  let results = Array.from(resultMap.values())
+
+  if (priceMax) {
+    results = results.filter((item) => {
+      if (item.price === 'Ver precio') return true
       const num = parseFloat(item.price.replace(/[^0-9.]/g, ''))
       return isNaN(num) || num <= priceMax * 1.15
     })
-
-    console.log(`[ml-serper] ✓ ${results.length} results from ${store}`)
-    return results
-  } catch (error) {
-    console.error('[ml-serper] Error:', error)
-    return []
   }
+
+  console.log(`[ml-serper] ✓ ${results.length} results from ${store}`)
+  return results
 }
 
 function parseBudget(budget: string): number | null {
