@@ -89,7 +89,7 @@ export function HowItWorks() {
             <div className="w-10 h-10 bg-green-glow border border-green/30 rounded-[10px] flex items-center justify-center text-lg font-bold text-green mb-5">
               {step.num}
             </div>
-            <h3 className="text-xl font-semibold mb-2.5">
+            <h3 className="text-xl font-semibold tracking-wide mb-2.5">
               {step.title}
             </h3>
             <p className="text-muted text-[15px] leading-relaxed">

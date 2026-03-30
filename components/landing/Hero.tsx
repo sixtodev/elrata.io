@@ -91,7 +91,7 @@ export function Hero() {
           hidden: {},
           visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
         }}
-        className="relative z-10 -mt-32 font-title font-black leading-none tracking-tight mb-8 sm:mb-20"
+        className="relative z-10 -mt-32 font-title font-black leading-tight tracking-tight mb-8 sm:mb-20"
         style={{ fontSize: 'clamp(34px, 6vw, 82px)' }}
       >
         {titleTokens.map((token, i) => {
@@ -152,7 +152,7 @@ export function Hero() {
               .getElementById('como-funciona')
               ?.scrollIntoView({ behavior: 'smooth' })
           }
-          className="bg-bg2 text-foreground border-none rounded-xl px-6 py-3 text-base font-bold md:px-7 md:py-4 md:text-lg cursor-pointer transition-all shadow-[0_0_15px_rgba(196,239,22,0.15)]"
+          className="bg-[#151518] text-white border-none rounded-xl px-6 py-3 text-base font-bold md:px-7 md:py-4 md:text-lg cursor-pointer transition-all hover:bg-[#1C1C1F] shadow-[0_0_15px_rgba(196,239,22,0.15)]"
         >
           ¿Cómo funciona?
         </button>

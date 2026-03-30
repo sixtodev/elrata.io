@@ -144,7 +144,7 @@ export function Features() {
             ) : (
               <span className="text-4xl block mb-4">{f.icon}</span>
             )}
-            <h3 className="text-base font-semibold mb-2">
+            <h3 className="font-title text-[20px] font-semibold tracking-wide mb-2">
               {f.title}
             </h3>
             <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
@@ -161,7 +161,7 @@ export function Features() {
         className="max-w-225 mx-auto mt-16 bg-[linear-gradient(135deg,rgba(196,239,22,0.05),rgba(196,239,22,0.02))] border border-green/20 rounded-[20px] p-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
       >
         <div>
-          <h3 className="text-[26px] font-semibold mb-3">
+          <h3 className="text-[26px] font-semibold tracking-wide mb-3">
             Alertas de precio inteligentes
           </h3>
           <p className="text-muted leading-relaxed mb-5">

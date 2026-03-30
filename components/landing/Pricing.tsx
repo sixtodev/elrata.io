@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 
 const plans = [
   {
-    name: '🐀 Sin cuenta',
+    name: 'Sin cuenta',
     desc: 'Busca sin registrarte',
     featured: false,
     features: [
@@ -26,7 +26,7 @@ const plans = [
     cta: 'Buscar ahora',
   },
   {
-    name: '🐀 Con cuenta gratis',
+    name: 'Con cuenta gratis',
     desc: 'Regístrate y desbloquea todo — $0 por siempre',
     featured: true,
     badge: '100% GRATIS',
@@ -105,7 +105,7 @@ export function Pricing() {
             variants={planVariants}
             whileHover={{ y: -6 }}
             transition={{ duration: 0.3 }}
-            className={`relative rounded-[20px] p-8 ${
+            className={`relative rounded-[20px] p-8 flex flex-col ${
               plan.featured
                 ? 'border border-green bg-[linear-gradient(135deg,rgba(196,239,22,0.06),var(--bg2))]'
                 : 'bg-bg2 border border-border'
@@ -121,11 +121,11 @@ export function Pricing() {
                 {plan.badge}
               </m.div>
             )}
-            <div className="text-[22px] font-semibold mb-2">
+            <div className="font-title text-[22px] font-semibold tracking-wide mb-2">
               {plan.name}
             </div>
             <div className="text-muted text-sm mb-6">{plan.desc}</div>
-            <ul className="space-y-0 mb-7">
+            <ul className="space-y-0 mb-7 flex-1">
               {plan.features.map((f) => (
                 <li
                   key={f.text}
@@ -159,7 +159,7 @@ export function Pricing() {
             ) : (
               <Button
                 variant="secondary"
-                className="w-full"
+                className="w-full bg-[#151518] text-white border-[#151518] hover:bg-[#1C1C1F]"
                 onClick={open}
               >
                 {plan.cta}

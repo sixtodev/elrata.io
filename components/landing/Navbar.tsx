@@ -55,7 +55,7 @@ export function Navbar() {
     >
       <Link
         href="/"
-        className="text-[22px] font-bold text-foreground flex items-center gap-2 no-underline"
+        className="font-title text-[22px] font-bold text-foreground flex items-center gap-2 no-underline"
       >
         El<span className="text-green">Rata</span>.io
       </Link>
