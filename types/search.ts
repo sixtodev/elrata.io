@@ -8,7 +8,7 @@ export interface SearchQuery {
   purpose: string
   model?: AIProvider
   budget?: string
-  source?: 'all' | 'mercadolibre' | 'web'
+  source?: 'all' | 'mercadolibre' | 'web' | 'amazon'
   categories?: string[]
   store_ids?: string[]
   /** Category-specific filters (ram, storage, processor, type, etc.) */

@@ -8,7 +8,7 @@ export const searchSchema = z.object({
   purpose: z.string().min(1, { error: 'Propósito requerido' }).max(500),
   model: z.enum(['claude-sonnet-4-6', 'gpt-4o', 'gemini-2.5-pro']).optional(),
   budget: z.string().max(50).optional(),
-  source: z.enum(['all', 'mercadolibre', 'web']).optional(),
+  source: z.enum(['all', 'mercadolibre', 'web', 'amazon']).optional(),
   specs: z.record(z.string(), z.string()).optional(),
 })
 
