@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Folder as FolderIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Folder } from '@/types/folder'
 
@@ -50,8 +51,8 @@ export function FolderCard({ folder, searchCount = 0 }: FolderCardProps) {
       className="bg-bg2 border border-border rounded-2xl p-6 cursor-pointer transition-all relative hover:border-green hover:shadow-[0_0_20px_var(--color-green-glow)]"
     >
       <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 bg-bg3 rounded-[10px] flex items-center justify-center text-xl">
-          📁
+        <div className="w-10 h-10 bg-bg3 rounded-[10px] flex items-center justify-center">
+          <FolderIcon size={20} className="text-accent" />
         </div>
 
         <button

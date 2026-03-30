@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Bell } from 'lucide-react'
+import { Bell, Bookmark, FolderPlus } from 'lucide-react'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -16,6 +16,23 @@ import type { CategoryField } from '@/lib/search/categories'
 import type { SearchResult, SearchResponse } from '@/types/search'
 
 type SearchSource = 'all' | 'mercadolibre' | 'amazon'
+
+const NO_DECIMAL_CURRENCIES = new Set(['CLP', 'ARS', 'COP', 'UYU', 'MXN', 'PEN', 'VES'])
+
+function formatPrice(price: string, currency: string): string {
+  if (!price || price === 'Ver precio') return price
+  const raw = price.replace(/[^0-9.,]/g, '')
+  if (!raw) return price
+  const dots = (raw.match(/\./g) || []).length
+  const num = dots > 1
+    ? parseFloat(raw.replace(/\./g, ''))
+    : parseFloat(raw.replace(/,/g, ''))
+  if (isNaN(num) || num === 0) return price
+  if (NO_DECIMAL_CURRENCIES.has(currency)) {
+    return new Intl.NumberFormat('es-CL').format(Math.round(num))
+  }
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num)
+}
 
 function extractStoreName(url: string): string {
   try {
@@ -68,6 +85,7 @@ export function DashboardSearch() {
 
   // Modals
   const [saveResult, setSaveResult] = useState<SearchResult | null>(null)
+  const [saveAll, setSaveAll] = useState(false)
   const [alertResult, setAlertResult] = useState<SearchResult | null>(null)
 
   const productRef = useRef<HTMLInputElement>(null)
@@ -432,12 +450,18 @@ export function DashboardSearch() {
                 {results.sources_used && <> · <span style={{ color: '#c4ef16' }}>{results.sources_used.join(', ')}</span></>}
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => { setResults(null); setAnalysis(null) }}
                 style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', color: '#6b7280', cursor: 'pointer', transition: 'all 0.2s' }}
               >
-                Cerrar resultados
+                Cerrar
+              </button>
+              <button
+                onClick={() => setSaveAll(true)}
+                style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', color: '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+              >
+                <FolderPlus size={14} /> Guardar búsqueda
               </button>
               <button onClick={() => { setDrawerOpen(true); loadSavedUrls() }} style={{ background: '#c4ef16', color: '#000', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                 Nueva búsqueda
@@ -470,7 +494,7 @@ export function DashboardSearch() {
                         <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>{rec.reason}</div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '16px' }}>{p.price}</div>
+                        <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '16px' }}>{formatPrice(p.price, p.currency)}</div>
                         <div style={{ color: '#6b7280', fontSize: '11px' }}>{p.store}</div>
                       </div>
                     </div>
@@ -489,43 +513,40 @@ export function DashboardSearch() {
           )}
 
           {/* Product cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {results.results.map((r, i) => {
               const isRec = recommendedIndices.has(i)
               const recLabel = analysis?.recommendations?.find((x) => x.productIndex === i)?.label
 
               return (
-                <div key={`r-${i}`} style={{ background: '#151518', border: isRec ? '1px solid rgba(196,239,22,0.4)' : '1px solid #2a2a2a', borderRadius: '10px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', position: 'relative' }}>
+                <div key={`r-${i}`} style={{ background: '#151518', border: isRec ? '1px solid rgba(196,239,22,0.4)' : '1px solid #2a2a2a', borderRadius: '12px', padding: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', position: 'relative' }}>
                   {recLabel && (
                     <div style={{ position: 'absolute', top: '-9px', left: '14px', background: '#c4ef16', color: '#000', fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px' }}>{recLabel}</div>
                   )}
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                       <span style={{ color: '#6b7280', fontSize: '11px', fontFamily: 'monospace' }}>#{i + 1}</span>
-                      <Badge variant={r.source === 'crawlee' ? 'default' : 'muted'}>
-                        {r.source === 'crawlee' ? '✓ Verificado' : 'Web'}
-                      </Badge>
                     </div>
-                    <h4 style={{ color: '#fefeff', fontSize: '14px', fontWeight: 500, marginBottom: '2px', margin: 0 }}>{r.name}</h4>
-                    <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>{r.store}</p>
-                    {r.notes && <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px', margin: 0 }}>{r.notes}</p>}
+                    <h4 style={{ color: '#fefeff', fontSize: '14px', fontWeight: 500, marginBottom: '4px', margin: 0 }}>{r.name}</h4>
+                    <p style={{ color: '#6b7280', fontSize: '13px', margin: '4px 0 0' }}>{r.store}</p>
+                    {r.notes && <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '4px', margin: 0 }}>{r.notes}</p>}
                   </div>
 
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '18px' }}>{r.price}</div>
-                    <div style={{ color: '#6b7280', fontSize: '11px', marginBottom: '6px' }}>{r.currency}</div>
+                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '18px' }}>{formatPrice(r.price, r.currency)}</div>
+                    <div style={{ color: '#6b7280', fontSize: '11px', marginBottom: '8px' }}>{r.currency}</div>
 
                     {r.url && r.url !== '#' && (
-                      <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#c4ef16', color: '#000', padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, textDecoration: 'none', marginBottom: '6px' }}>Ver →</a>
+                      <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#c4ef16', color: '#000', padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, textDecoration: 'none', marginBottom: '8px' }}>Ver →</a>
                     )}
 
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => setSaveResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer' }}>
-                        💾 Guardar
+                      <button onClick={() => setSaveResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <Bookmark size={11} /> Guardar
                       </button>
-                      <button onClick={() => setAlertResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer' }}>
-                        <Bell size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} /> Alerta
+                      <button onClick={() => setAlertResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <Bell size={11} /> Alerta
                       </button>
                     </div>
                   </div>
@@ -550,12 +571,12 @@ export function DashboardSearch() {
       )}
 
       {/* Modals */}
-      {saveResult && results && (
+      {(saveAll || saveResult) && results && (
         <SaveToFolderModal
-          open={!!saveResult}
-          onOpenChange={(open) => { if (!open) setSaveResult(null) }}
+          open={saveAll || !!saveResult}
+          onOpenChange={(open) => { if (!open) { setSaveAll(false); setSaveResult(null) } }}
           queryData={results.query}
-          results={results.results}
+          results={saveAll ? results.results : [saveResult!]}
           modelUsed={results.model_used}
           isLoggedIn={true}
         />
