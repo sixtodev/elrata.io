@@ -7,20 +7,6 @@ const COUNTRY_CODES: Record<string, string> = {
   canada: 'CA', espana: 'ES', spain: 'ES', brasil: 'BR', brazil: 'BR',
 }
 
-const CURRENCIES: Record<string, string> = {
-  CL: 'CLP', AR: 'ARS', CO: 'COP', MX: 'MXN',
-  PE: 'PEN', UY: 'UYU', EC: 'USD', VE: 'VES',
-  US: 'USD', CA: 'CAD', ES: 'EUR', BR: 'BRL',
-}
-
-/** Stores to scrape by country (besides MercadoLibre API) */
-const STORES_BY_COUNTRY: Record<string, string[]> = {
-  CL: ['https://www.falabella.com/falabella-cl', 'https://www.sodimac.cl', 'https://www.pcfactory.cl', 'https://www.paris.cl'],
-  CO: ['https://www.falabella.com.co/falabella-co', 'https://www.exito.com'],
-  PE: ['https://www.falabella.com.pe/falabella-pe'],
-  MX: ['https://www.liverpool.com.mx', 'https://www.coppel.com'],
-  AR: ['https://www.fravega.com', 'https://www.garbarino.com'],
-}
 
 function getCountryCode(country: string): string {
   return COUNTRY_CODES[
@@ -41,7 +27,6 @@ export async function runCrawlers(
   const cc = getCountryCode(query.country)
   // query.product already includes brand (added by buildQuery in the UI)
   const product = query.product
-  const currency = CURRENCIES[cc] || 'USD'
   const source = query.source || 'all'
 
   console.log(`[crawlers] Starting for "${product}" in ${cc} [source=${source}]`)
@@ -54,16 +39,6 @@ export async function runCrawlers(
     tasks.push(
       import('./mercadolibre-playwright').then(m => m.searchMercadoLibrePlaywright(product, cc, query.budget))
     )
-  }
-
-  // Other stores for this country — only when source is 'all'
-  if (source === 'all') {
-    const stores = STORES_BY_COUNTRY[cc] || []
-    for (const storeUrl of stores) {
-      tasks.push(
-        import('./generic').then(m => m.scrapeGenericUrl(storeUrl, product, currency))
-      )
-    }
   }
 
   const settled = await Promise.allSettled(tasks)
