@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { Bell, Bookmark, FolderPlus } from 'lucide-react'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input, Textarea } from '@/components/ui/Input'
@@ -350,9 +350,12 @@ export function DashboardSearch() {
 
         {/* Custom URL */}
         <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px' }}>
             Buscar en un sitio específico (opcional)
           </label>
+          <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+            Guardá tus tiendas favoritas para búsquedas específicas — aparecen abajo como accesos rápidos.
+          </p>
           <div style={{ display: 'flex', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', flex: 1, background: '#1a1a1e', border: customUrl ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', overflow: 'hidden' }}>
               <span style={{ padding: '6px 0 6px 10px', color: '#6b7280', fontSize: '13px', flexShrink: 0 }}>https://</span>
@@ -360,7 +363,7 @@ export function DashboardSearch() {
                 type="text"
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value.replace(/^https?:\/\//, ''))}
-                placeholder="pcfactory.cl, ripley.com..."
+                placeholder="elcorteingles.es, liverpool.com.mx, fravega.com..."
                 style={{ flex: 1, background: 'transparent', border: 'none', padding: '8px 10px', fontSize: '13px', color: '#fefeff', outline: 'none' }}
               />
             </div>
@@ -542,12 +545,8 @@ export function DashboardSearch() {
                     )}
 
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => setSaveResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <Bookmark size={11} /> Guardar
-                      </button>
-                      <button onClick={() => setAlertResult(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '5px', padding: '3px 8px', color: '#6b7280', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <Bell size={11} /> Alerta
-                      </button>
+                      <ActionButton onClick={() => setSaveResult(r)} icon={<Bookmark size={11} />} label="Guardar" />
+                      <ActionButton onClick={() => setAlertResult(r)} icon={<Bell size={11} />} label="Alerta" />
                     </div>
                   </div>
                 </div>
@@ -592,6 +591,33 @@ export function DashboardSearch() {
         />
       )}
     </>
+  )
+}
+
+function ActionButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? 'rgba(196,239,22,0.12)' : 'transparent',
+        border: hovered ? '1px solid rgba(196,239,22,0.5)' : '1px solid #2a2a2a',
+        borderRadius: '5px',
+        padding: '4px 10px',
+        color: hovered ? '#c4ef16' : '#6b7280',
+        fontSize: '11px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        transition: 'all 0.15s',
+        fontWeight: hovered ? 600 : 400,
+      }}
+    >
+      {icon} {label}
+    </button>
   )
 }
 
