@@ -34,7 +34,7 @@ export default async function DashboardPage() {
 
       <main className="max-w-[1100px] mx-auto px-6 pt-[100px] pb-[60px]">
         <h1 className="font-title text-[32px] text-foreground mb-8 font-normal">
-          Mi Rata Dashboard
+          Mi <span className="text-accent">Rata</span> Dashboard
         </h1>
 
         <DashboardClient
