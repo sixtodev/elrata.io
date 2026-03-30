@@ -113,7 +113,7 @@ export function SearchDrawer() {
     <Drawer open={isOpen} onClose={close}>
       {/* Loading overlay — rata en skate mientras busca */}
       {loading && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 rounded-2xl bg-[var(--background)]/95 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center gap-6 bg-[var(--background)]/95 backdrop-blur-sm rounded-2xl" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 'calc(100% - 32px)', maxWidth: '680px', maxHeight: 'calc(100vh - 50px)' }}>
           <Image
             src="/icons/rata.webp"
             alt="Buscando..."
