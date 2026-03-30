@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { m, AnimatePresence } from 'motion/react'
 import { useSearchDrawer } from './SearchDrawerContext'
@@ -15,6 +15,8 @@ export function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const { open } = useSearchDrawer()
   const router = useRouter()
+  const pathname = usePathname()
+  const isActive = (href: string) => pathname === href
 
   useEffect(() => {
     const supabase = createClient()
@@ -81,7 +83,7 @@ export function Navbar() {
         {user ? (
           <>
             <li>
-              <Link href="/dashboard" className="nav-link text-foreground text-sm hover:text-green transition-colors no-underline">
+              <Link href="/dashboard" className={`nav-link text-sm transition-colors no-underline hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-foreground'}`}>
                 Dashboard
               </Link>
             </li>
@@ -118,7 +120,7 @@ export function Navbar() {
           </>
         ) : (
           <li>
-            <Link href="/login" className="nav-link text-foreground text-sm hover:text-green transition-colors no-underline">
+            <Link href="/login" className={`nav-link text-sm transition-colors no-underline hover:text-accent ${isActive('/login') ? 'text-accent font-semibold' : 'text-foreground'}`}>
               Login
             </Link>
           </li>
@@ -171,7 +173,7 @@ export function Navbar() {
 
             {user ? (
               <>
-                <Link href="/dashboard" className="text-foreground hover:text-green transition-colors no-underline min-h-11 flex items-center">
+                <Link href="/dashboard" className={`transition-colors no-underline min-h-11 flex items-center hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-foreground'}`}>
                   Dashboard
                 </Link>
                 <div className="flex items-center gap-2.5 text-muted text-[13px]">
@@ -188,7 +190,7 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <Link href="/login" className="text-foreground hover:text-green transition-colors no-underline min-h-11 flex items-center font-medium">
+              <Link href="/login" className={`transition-colors no-underline min-h-11 flex items-center hover:text-accent ${isActive('/login') ? 'text-accent font-semibold' : 'text-foreground'}`}>
                 Iniciar sesión
               </Link>
             )}
