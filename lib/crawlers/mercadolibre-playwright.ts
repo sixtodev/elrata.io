@@ -51,7 +51,9 @@ export async function searchMercadoLibrePlaywright(
     const html = await res.text()
     const $ = cheerio.load(html)
 
-    console.log(`[ml-scraper] Page title: "${$('title').text()}"`)
+    const title = $('title').text()
+    console.log(`[ml-scraper] Page title: "${title}"`)
+    console.log(`[ml-scraper] HTML snippet: ${html.slice(0, 800).replace(/\s+/g, ' ')}`)
 
     const items: { title: string; price: string; url: string; image: string | null; freeShipping: boolean }[] = []
 
