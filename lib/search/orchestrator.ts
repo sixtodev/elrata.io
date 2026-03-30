@@ -79,6 +79,23 @@ export async function orchestrateSearch(
     )
   }
 
+  // ── AMAZON (ScraperAPI structured endpoint) ──
+  if (source === 'all') {
+    tasks.push(
+      (async () => {
+        try {
+          const cc = getCountryCode(query.country)
+          const { searchAmazon } = await import('@/lib/crawlers/amazon')
+          const results = await searchAmazon(webProduct, cc, budget)
+          return { results, name: 'Amazon' }
+        } catch (error) {
+          console.error('[orchestrator] Amazon failed:', error)
+          return { results: [] as SearchResult[], name: 'Amazon' }
+        }
+      })()
+    )
+  }
+
   // ── WEB SEARCH (Serper → SerpAPI → Google CSE) ──
   if (source === 'all' || source === 'web') {
     tasks.push(
