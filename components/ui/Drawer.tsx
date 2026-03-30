@@ -30,41 +30,50 @@ export function Drawer({ open, onClose, children, className }: DrawerProps) {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay — centers the drawer via flexbox, pt-16 on mobile to clear navbar */}
       <div
         aria-hidden="true"
         className={cn(
-          'fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] transition-opacity duration-300',
+          'fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 px-4 pt-16 sm:pt-4 pb-4',
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
         onClick={onClose}
       />
 
-      {/* Drawer panel */}
+      {/* Drawer panel — positioned on top of overlay, same centering logic */}
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Panel de búsqueda"
         className={cn(
-          'fixed top-1/2 left-1/2 z-[201] bg-bg2 border border-border rounded-2xl px-6 pt-6 pb-10 max-h-[calc(100vh-50px)] overflow-y-auto max-w-[680px] w-[calc(100%-32px)]',
-          className
+          'fixed inset-0 z-[201] flex items-center justify-center px-4 pt-16 sm:pt-4 pb-4',
+          open ? 'pointer-events-auto' : 'pointer-events-none'
         )}
-        style={{
-          transition: 'transform 0.4s cubic-bezier(.32,.72,0,1), opacity 0.3s',
-          transform: open ? 'translate(-50%, -50%)' : 'translate(-50%, 100%)',
-          opacity: open ? 1 : 0,
-          WebkitOverflowScrolling: 'touch',
-        }}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          aria-label="Cerrar"
-          className="absolute top-3.5 right-3.5 bg-transparent border-none text-muted hover:text-foreground text-xl cursor-pointer px-2 py-1 rounded-md leading-none transition-colors"
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Panel de búsqueda"
+          className={cn(
+            'relative bg-bg2 border border-border rounded-2xl px-6 pt-6 pb-10 w-full max-w-[680px]',
+            'max-h-[calc(100vh-80px)] sm:max-h-[calc(100vh-50px)] overflow-y-auto',
+            className
+          )}
+          style={{
+            transition: 'transform 0.4s cubic-bezier(.32,.72,0,1), opacity 0.3s',
+            transform: open ? 'translateY(0)' : 'translateY(60px)',
+            opacity: open ? 1 : 0,
+            WebkitOverflowScrolling: 'touch',
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
-          ✕
-        </button>
-        {children}
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="absolute top-3.5 right-3.5 bg-transparent border-none text-muted hover:text-foreground text-xl cursor-pointer px-2 py-1 rounded-md leading-none transition-colors"
+          >
+            ✕
+          </button>
+          {children}
+        </div>
       </div>
     </>
   )
