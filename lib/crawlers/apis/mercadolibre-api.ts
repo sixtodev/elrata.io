@@ -4,18 +4,13 @@ import { createSettingsClient } from '@/lib/supabase/server'
 /**
  * MercadoLibre API oficial.
  *
- * SETUP:
- * 1. Crear app en https://developers.mercadolibre.com.ar/devcenter
- * 2. Obtener CLIENT_ID y CLIENT_SECRET
- * 3. Generar access token con OAuth2
- * 4. Guardar en .env.local:
- *    ML_CLIENT_ID=...
- *    ML_CLIENT_SECRET=...
- *    ML_ACCESS_TOKEN=...
- *
  * Site IDs:
  *   MLA = Argentina, MLC = Chile, MCO = Colombia, MLM = México
  *   MPE = Perú, MLU = Uruguay, MEC = Ecuador, MLV = Venezuela
+ *
+ * NOTE: The public search endpoint works WITHOUT auth.
+ * Auth only adds: price filters, higher rate limits.
+ * We try with auth first, fall back to public search.
  */
 
 const SITE_IDS: Record<string, string> = {
@@ -28,10 +23,88 @@ const CURRENCIES: Record<string, string> = {
   PE: 'PEN', UY: 'UYU', EC: 'USD', VE: 'VES',
 }
 
-/**
- * Carga tokens de ML desde Supabase. Si no hay tokens almacenados,
- * intenta generar uno nuevo via client_credentials (si hay credenciales).
- */
+export async function searchMercadoLibreAPI(
+  product: string,
+  countryCode: string,
+  budget?: string
+): Promise<SearchResult[]> {
+  const siteId = SITE_IDS[countryCode]
+  if (!siteId) return []
+
+  const currency = CURRENCIES[countryCode] || 'USD'
+
+  // Load token if not in env
+  if (!process.env.ML_ACCESS_TOKEN) {
+    await loadMLTokensFromDB()
+  }
+
+  const token = process.env.ML_ACCESS_TOKEN
+  const priceMax = budget ? parseBudgetToNumber(budget) : null
+  const priceParam = priceMax && token ? `&price_max=${Math.round(priceMax * 1.15)}` : ''
+  const baseUrl = `https://api.mercadolibre.com/sites/${siteId}/search?q=${encodeURIComponent(product)}&limit=20`
+
+  // ── Try 1: authenticated (gives price filter + higher rate limits) ──
+  if (token) {
+    try {
+      const res = await fetch(`${baseUrl}${priceParam}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const results = mapMLResults(data.results || [], currency, countryCode)
+        console.log(`[ml-api] ✓ ${results.length} results from ML ${siteId} (auth)`)
+        return results
+      }
+
+      const errText = await res.text().catch(() => '')
+      console.error(`[ml-api] Auth failed HTTP ${res.status}:`, errText.slice(0, 300))
+
+      // On 401: refresh token and retry once
+      if (res.status === 401) {
+        process.env.ML_ACCESS_TOKEN = ''
+        await refreshMLToken()
+        const newToken = process.env.ML_ACCESS_TOKEN
+        if (newToken) {
+          const retry = await fetch(`${baseUrl}${priceParam}`, {
+            headers: { Authorization: `Bearer ${newToken}` },
+          })
+          if (retry.ok) {
+            const data = await retry.json()
+            const results = mapMLResults(data.results || [], currency, countryCode)
+            console.log(`[ml-api] ✓ ${results.length} results from ML ${siteId} (auth after refresh)`)
+            return results
+          }
+          const retryErr = await retry.text().catch(() => '')
+          console.error(`[ml-api] Retry after refresh failed HTTP ${retry.status}:`, retryErr.slice(0, 200))
+        }
+      }
+    } catch (error) {
+      console.error('[ml-api] Auth request exception:', error)
+    }
+  }
+
+  // ── Try 2: public search — no auth, always works for product search ──
+  try {
+    console.log(`[ml-api] Falling back to public search for ML ${siteId}`)
+    const res = await fetch(baseUrl)
+    if (res.ok) {
+      const data = await res.json()
+      const results = mapMLResults(data.results || [], currency, countryCode)
+      console.log(`[ml-api] ✓ ${results.length} results from ML ${siteId} (public)`)
+      return results
+    }
+    const errText = await res.text().catch(() => '')
+    console.error(`[ml-api] Public search failed HTTP ${res.status}:`, errText.slice(0, 200))
+  } catch (error) {
+    console.error('[ml-api] Public search exception:', error)
+  }
+
+  return []
+}
+
+// ── Token management ──────────────────────────────────────────────────────────
+
 async function loadMLTokensFromDB(): Promise<void> {
   try {
     const supabase = createSettingsClient()
@@ -52,24 +125,16 @@ async function loadMLTokensFromDB(): Promise<void> {
     console.error('[ml-api] Failed to load tokens from DB:', error)
   }
 
-  // No hay tokens en DB — intentar generar uno con client_credentials
   await requestClientCredentialsToken()
 }
 
-/**
- * Persiste tokens de ML en Supabase para sobrevivir restarts.
- */
 async function persistMLTokensToDB(accessToken: string, refreshToken?: string): Promise<void> {
   try {
     const supabase = createSettingsClient()
     await supabase.from('app_settings').upsert(
       {
         key: 'ml_tokens',
-        value: {
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          updated_at: new Date().toISOString(),
-        },
+        value: { access_token: accessToken, refresh_token: refreshToken, updated_at: new Date().toISOString() },
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'key' }
@@ -79,83 +144,15 @@ async function persistMLTokensToDB(accessToken: string, refreshToken?: string): 
   }
 }
 
-export async function searchMercadoLibreAPI(
-  product: string,
-  countryCode: string,
-  budget?: string
-): Promise<SearchResult[]> {
-  if (!process.env.ML_ACCESS_TOKEN) {
-    await loadMLTokensFromDB()
-  }
-
-  const token = process.env.ML_ACCESS_TOKEN
-  if (!token) {
-    console.log('[ml-api] ML_ACCESS_TOKEN not set, skipping')
-    return []
-  }
-
-  const siteId = SITE_IDS[countryCode]
-  if (!siteId) return []
-
-  const currency = CURRENCIES[countryCode] || 'USD'
-
-  try {
-    const priceMax = budget ? parsebudgetToNumber(budget) : null
-    const priceParam = priceMax ? `&price_max=${Math.round(priceMax * 1.15)}` : ''
-    const url = `https://api.mercadolibre.com/sites/${siteId}/search?q=${encodeURIComponent(product)}&limit=20${priceParam}`
-
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    if (!res.ok) {
-      console.error(`[ml-api] HTTP ${res.status}`)
-      // Token might be expired — try refreshing
-      if (res.status === 401) {
-        await refreshMLToken()
-        // Retry once
-        return searchMercadoLibreAPI(product, countryCode)
-      }
-      return []
-    }
-
-    const data = await res.json()
-
-    return (data.results || []).map((item: MLItem) => ({
-      name: item.title,
-      price: `$${item.price.toLocaleString()}`,
-      currency: item.currency_id || currency,
-      store: `MercadoLibre ${countryCode}`,
-      store_id: undefined,
-      url: item.permalink,
-      availability: item.available_quantity > 0 ? 'in_stock' as const : 'limited' as const,
-      source: 'crawlee' as const,
-      scraper_type: 'crawlee_dedicated',
-      image: item.thumbnail || null,
-      notes: [
-        item.shipping?.free_shipping ? 'Envío gratis' : '',
-        item.condition === 'new' ? 'Nuevo' : item.condition === 'used' ? 'Usado' : '',
-      ].filter(Boolean).join(', ') || undefined,
-    }))
-  } catch (error) {
-    console.error('[ml-api] Failed:', error)
-    return []
-  }
-}
-
 async function refreshMLToken(): Promise<void> {
   const clientId = process.env.ML_CLIENT_ID
   const clientSecret = process.env.ML_CLIENT_SECRET
-  const refreshToken = process.env.ML_REFRESH_TOKEN
-
   if (!clientId || !clientSecret) {
-    console.error('[ml-api] Missing ML_CLIENT_ID or ML_CLIENT_SECRET')
+    console.error('[ml-api] Missing ML_CLIENT_ID or ML_CLIENT_SECRET for refresh')
     return
   }
 
-  // Prefer refresh_token flow, fall back to client_credentials
+  const refreshToken = process.env.ML_REFRESH_TOKEN
   if (refreshToken) {
     try {
       const res = await fetch('https://api.mercadolibre.com/oauth/token', {
@@ -168,7 +165,6 @@ async function refreshMLToken(): Promise<void> {
           refresh_token: refreshToken,
         }),
       })
-
       if (res.ok) {
         const data = await res.json()
         process.env.ML_ACCESS_TOKEN = data.access_token
@@ -177,21 +173,21 @@ async function refreshMLToken(): Promise<void> {
         console.log('[ml-api] Token refreshed via refresh_token')
         return
       }
+      const err = await res.text().catch(() => '')
+      console.error('[ml-api] refresh_token failed:', res.status, err.slice(0, 200))
     } catch (error) {
-      console.error('[ml-api] refresh_token flow failed:', error)
+      console.error('[ml-api] refresh_token exception:', error)
     }
   }
 
-  // Fallback: client_credentials (app-level, no user scope)
   await requestClientCredentialsToken()
 }
 
 async function requestClientCredentialsToken(): Promise<void> {
   const clientId = process.env.ML_CLIENT_ID
   const clientSecret = process.env.ML_CLIENT_SECRET
-
   if (!clientId || !clientSecret) {
-    console.log('[ml-api] No ML_CLIENT_ID/ML_CLIENT_SECRET configured, skipping')
+    console.log('[ml-api] No ML_CLIENT_ID/ML_CLIENT_SECRET — skipping token generation')
     return
   }
 
@@ -212,25 +208,42 @@ async function requestClientCredentialsToken(): Promise<void> {
       await persistMLTokensToDB(data.access_token)
       console.log('[ml-api] Token obtained via client_credentials')
     } else {
-      const err = await res.json().catch(() => ({}))
-      console.error('[ml-api] client_credentials failed:', res.status, err)
+      const err = await res.text().catch(() => '')
+      console.error('[ml-api] client_credentials failed:', res.status, err.slice(0, 200))
     }
   } catch (error) {
-    console.error('[ml-api] client_credentials request failed:', error)
+    console.error('[ml-api] client_credentials exception:', error)
   }
 }
 
-function parsebudgetToNumber(budget: string): number | null {
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function mapMLResults(items: MLItem[], currency: string, countryCode: string): SearchResult[] {
+  return items.map((item) => ({
+    name: item.title,
+    price: `$${item.price.toLocaleString('es-CL')}`,
+    currency: item.currency_id || currency,
+    store: `MercadoLibre ${countryCode}`,
+    store_id: undefined,
+    url: item.permalink,
+    availability: item.available_quantity > 0 ? 'in_stock' as const : 'limited' as const,
+    source: 'crawlee' as const,
+    scraper_type: 'crawlee_dedicated',
+    image: item.thumbnail || null,
+    notes: [
+      item.shipping?.free_shipping ? 'Envío gratis' : '',
+      item.condition === 'new' ? 'Nuevo' : item.condition === 'used' ? 'Usado' : '',
+    ].filter(Boolean).join(', ') || undefined,
+  }))
+}
+
+function parseBudgetToNumber(budget: string): number | null {
   const cleaned = budget.replace(/[^0-9.,]/g, '')
   if (!cleaned) return null
-  // Handle thousands separator (dot in CLP: $1.500.000 → 1500000)
   const dots = (cleaned.match(/\./g) || []).length
-  const commas = (cleaned.match(/,/g) || []).length
   let num: number
   if (dots > 1) {
     num = parseFloat(cleaned.replace(/\./g, ''))
-  } else if (commas > 0 && dots === 0) {
-    num = parseFloat(cleaned.replace(/,/g, ''))
   } else {
     num = parseFloat(cleaned.replace(/,/g, ''))
   }
