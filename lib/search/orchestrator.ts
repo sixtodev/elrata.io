@@ -50,7 +50,8 @@ export async function orchestrateSearch(
           const { scrapeGenericUrl } = await import('@/lib/crawlers/generic')
           const cc = getCountryCode(query.country)
           const currency = getCurrencyForCountry(cc)
-          const results = await scrapeGenericUrl(customUrl, webProduct, currency)
+          const scraperApiKey = process.env.SCRAPERAPI_KEY
+          const results = await scrapeGenericUrl(customUrl, webProduct, currency, scraperApiKey)
           const label = new URL(customUrl).hostname.replace(/^www\./, '')
           return { results, name: label }
         } catch (error) {

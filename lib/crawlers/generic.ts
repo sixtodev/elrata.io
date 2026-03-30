@@ -20,7 +20,8 @@ const FETCH_MORE_THRESHOLD = 8
 export async function scrapeGenericUrl(
   url: string,
   product: string,
-  currency: string
+  currency: string,
+  scraperApiKey?: string
 ): Promise<SearchResult[]> {
   const fullUrl = url.startsWith('http') ? url : `https://${url}`
   const searchUrl = buildSearchUrl(fullUrl, product)
@@ -29,7 +30,7 @@ export async function scrapeGenericUrl(
   console.log(`[generic] Scraping: ${searchUrl}`)
 
   // Step 1: Fetch page 1
-  const firstPageHtml = await fetchPage(searchUrl)
+  const firstPageHtml = await fetchPage(searchUrl, scraperApiKey)
   if (!firstPageHtml) return []
 
   const results = parseGenericPage(firstPageHtml, product, currency, storeName, searchUrl, fullUrl)
@@ -44,7 +45,7 @@ export async function scrapeGenericUrl(
     console.log(`[generic] Page 1 had ${results.length} results, fetching ${extraPages.length} more pages`)
 
     const morePages = await Promise.allSettled(
-      extraPages.map(pageUrl => fetchPage(pageUrl))
+      extraPages.map(pageUrl => fetchPage(pageUrl, scraperApiKey))
     )
 
     for (const page of morePages) {
@@ -58,16 +59,21 @@ export async function scrapeGenericUrl(
   return results
 }
 
-async function fetchPage(url: string): Promise<string | null> {
+async function fetchPage(url: string, scraperApiKey?: string): Promise<string | null> {
   try {
-    const response = await fetch(url, {
-      headers: {
+    const fetchUrl = scraperApiKey
+      ? `https://api.scraperapi.com?api_key=${scraperApiKey}&url=${encodeURIComponent(url)}&render=true`
+      : url
+
+    const response = await fetch(fetchUrl, {
+      headers: scraperApiKey ? {} : {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'es-419,es;q=0.9,en;q=0.8',
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
       redirect: 'follow',
+      signal: AbortSignal.timeout(60000),
     })
 
     if (!response.ok) {
