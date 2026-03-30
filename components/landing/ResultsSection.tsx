@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Bell, Bot } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
 import Image from 'next/image'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
@@ -155,7 +156,7 @@ export function ResultsSection() {
                       <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '2px' }}>{rec.reason}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '18px' }}>{product.price}</div>
+                      <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '18px' }}>{formatPrice(product.price, product.currency)}</div>
                       <div style={{ color: '#6b7280', fontSize: '11px' }}>{product.store}</div>
                     </div>
                   </div>
@@ -233,7 +234,7 @@ export function ResultsSection() {
 
                   {/* Right */}
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '20px' }}>{r.price}</div>
+                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '20px' }}>{formatPrice(r.price, r.currency)}</div>
                     <div style={{ color: '#6b7280', fontSize: '12px', marginBottom: '8px' }}>{r.currency}</div>
                     {r.url && r.url !== '#' ? (
                       <a href={r.url} target="_blank" rel="noopener noreferrer"

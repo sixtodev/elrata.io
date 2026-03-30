@@ -14,25 +14,9 @@ import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/sear
 import { SUPPORTED_COUNTRIES, ML_COUNTRIES } from '@/lib/search/countries'
 import type { CategoryField } from '@/lib/search/categories'
 import type { SearchResult, SearchResponse } from '@/types/search'
+import { formatPrice } from '@/lib/utils'
 
 type SearchSource = 'all' | 'mercadolibre' | 'amazon'
-
-const NO_DECIMAL_CURRENCIES = new Set(['CLP', 'ARS', 'COP', 'UYU', 'MXN', 'PEN', 'VES'])
-
-function formatPrice(price: string, currency: string): string {
-  if (!price || price === 'Ver precio') return price
-  const raw = price.replace(/[^0-9.,]/g, '')
-  if (!raw) return price
-  const dots = (raw.match(/\./g) || []).length
-  const num = dots > 1
-    ? parseFloat(raw.replace(/\./g, ''))
-    : parseFloat(raw.replace(/,/g, ''))
-  if (isNaN(num) || num === 0) return price
-  if (NO_DECIMAL_CURRENCIES.has(currency)) {
-    return new Intl.NumberFormat('es-CL').format(Math.round(num))
-  }
-  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num)
-}
 
 function extractStoreName(url: string): string {
   try {
