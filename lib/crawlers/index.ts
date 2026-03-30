@@ -36,14 +36,15 @@ function getCountryCode(country: string): string {
  * - Todas en paralelo
  */
 export async function runCrawlers(
-  query: SearchQuery
+  query: SearchQuery & { source?: string }
 ): Promise<SearchResult[]> {
   const cc = getCountryCode(query.country)
   // query.product already includes brand (added by buildQuery in the UI)
   const product = query.product
   const currency = CURRENCIES[cc] || 'USD'
+  const source = query.source || 'all'
 
-  console.log(`[crawlers] Starting for "${product}" in ${cc}`)
+  console.log(`[crawlers] Starting for "${product}" in ${cc} [source=${source}]`)
 
   const tasks: Promise<SearchResult[]>[] = []
 
@@ -55,12 +56,14 @@ export async function runCrawlers(
     )
   }
 
-  // Other stores for this country — all through generic scraper
-  const stores = STORES_BY_COUNTRY[cc] || []
-  for (const storeUrl of stores) {
-    tasks.push(
-      import('./generic').then(m => m.scrapeGenericUrl(storeUrl, product, currency))
-    )
+  // Other stores for this country — only when source is 'all'
+  if (source === 'all') {
+    const stores = STORES_BY_COUNTRY[cc] || []
+    for (const storeUrl of stores) {
+      tasks.push(
+        import('./generic').then(m => m.scrapeGenericUrl(storeUrl, product, currency))
+      )
+    }
   }
 
   const settled = await Promise.allSettled(tasks)
@@ -70,6 +73,6 @@ export async function runCrawlers(
     if (r.status === 'fulfilled') results.push(...r.value)
   }
 
-  console.log(`[crawlers] Total: ${results.length} results from ${1 + stores.length} stores`)
+  console.log(`[crawlers] Total: ${results.length} results`)
   return results
 }
