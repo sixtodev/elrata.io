@@ -7,17 +7,16 @@ import type { SearchResult } from '@/types/search'
 
 interface AlertRow {
   id: string
+  user_id: string
   product_name: string
   query_data: import('@/types/search').SearchQuery
   target_price: number
   currency: string
   notified_at: string | null
-  user: { email: string }
 }
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret')
-  console.log('[cron] secret received:', secret?.slice(0, 6), '| env set:', !!process.env.CRON_SECRET)
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -27,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('price_alerts')
-    .select('*, user:user_id(email)')
+    .select('*')
     .eq('status', 'active')
   const alerts = data as AlertRow[] | null
 
@@ -39,6 +38,15 @@ export async function GET(req: NextRequest) {
   for (const alert of alerts ?? []) {
     try {
       results.checked++
+
+      // Get user email via admin API (auth.users is not accessible via PostgREST join)
+      const { data: userData } = await supabase.auth.admin.getUserById(alert.user_id)
+      const userEmail = userData?.user?.email
+      if (!userEmail) {
+        console.error(`[cron] No email for user ${alert.user_id}`)
+        results.errors++
+        continue
+      }
 
       const { results: searchResults } = await runSearch(alert.query_data)
       const lowestPrice = parseLowestPrice(searchResults)
@@ -65,7 +73,7 @@ export async function GET(req: NextRequest) {
         results.triggered++
 
         await sendPriceAlert({
-          to: alert.user.email,
+          to: userEmail,
           productName: alert.product_name,
           targetPrice: alert.target_price,
           currentPrice: lowestPrice.numericPrice,
