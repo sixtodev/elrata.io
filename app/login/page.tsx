@@ -65,7 +65,7 @@ export default function LoginPage() {
           href="/"
           className="block text-center mb-8 no-underline font-title text-[28px] text-foreground"
         >
-          🐀 El<span className="text-green">Rata</span>.io
+          El<span className="text-green">Rata</span>.io
         </Link>
 
         {/* Card */}
