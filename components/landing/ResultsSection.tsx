@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -101,7 +102,7 @@ export function ResultsSection() {
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
           <h2 className="font-title" style={{ fontSize: '28px', marginBottom: '8px', color: '#fefeff' }}>
-            🐀 Resultados para &quot;{results.query.product}&quot;
+            Resultados para &quot;{results.query.product}&quot;
           </h2>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
             {items.length} productos encontrados en {results.query.city}, {results.query.country}
@@ -180,7 +181,7 @@ export function ResultsSection() {
         {/* Results list */}
         {items.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 0' }}>
-            <span style={{ fontSize: '48px', display: 'block', marginBottom: '16px' }}>🐀</span>
+            <Image src="/icons/rata.webp" alt="Sin resultados" width={80} height={80} className="mx-auto mb-4 opacity-60" />
             <p style={{ color: '#6b7280' }}>No encontramos resultados. Intenta con otro producto.</p>
           </div>
         ) : (

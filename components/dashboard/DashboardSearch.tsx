@@ -6,6 +6,7 @@ import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { Badge } from '@/components/ui/Badge'
+import Image from 'next/image'
 import { SaveToFolderModal } from '@/components/results/SaveToFolderModal'
 import { SetPriceAlertModal } from '@/components/results/SetPriceAlertModal'
 import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/search/categories'
@@ -240,6 +241,13 @@ export function DashboardSearch() {
 
       {/* Search Drawer */}
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        {loading && (
+          <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center gap-6 bg-[var(--background)]/95 backdrop-blur-sm rounded-2xl" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 'calc(100% - 32px)', maxWidth: '680px', maxHeight: 'calc(100vh - 50px)' }}>
+            <Image src="/icons/rata.webp" alt="Buscando..." width={120} height={120} className="animate-bounce drop-shadow-[0_0_24px_rgba(196,239,22,0.5)]" priority />
+            <p className="text-lg font-semibold text-[var(--accent)]">Buscando en tiendas reales...</p>
+            <p className="text-sm text-muted">Esto puede tardar unos segundos</p>
+          </div>
+        )}
         <h2 className="font-title" style={{ fontSize: '26px', marginBottom: '8px', color: '#fefeff' }}>
           Buscar productos
         </h2>
@@ -412,7 +420,7 @@ export function DashboardSearch() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h2 className="font-title" style={{ fontSize: '24px', color: '#fefeff', margin: 0 }}>
-                🐀 Resultados para &quot;{results.query.product}&quot;
+                Resultados para &quot;{results.query.product}&quot;
               </h2>
               <p style={{ color: '#6b7280', fontSize: '13px', marginTop: '4px' }}>
                 {results.results.length} productos · {results.query.city}, {results.query.country}
@@ -525,7 +533,7 @@ export function DashboardSearch() {
 
       {results && results.results.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px 0', marginBottom: '40px', borderBottom: '1px solid #2a2a2a', paddingBottom: '40px' }}>
-          <span style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }}>🐀</span>
+          <Image src="/icons/rata.webp" alt="Sin resultados" width={80} height={80} className="mx-auto mb-4 opacity-60" />
           <p style={{ color: '#6b7280', marginBottom: '16px' }}>No encontramos resultados. Intenta con otro producto.</p>
           <button
             onClick={() => { setResults(null); setDrawerOpen(true); loadSavedUrls() }}
