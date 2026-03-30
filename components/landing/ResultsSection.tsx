@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Bell } from 'lucide-react'
+import { Bell, Bot } from 'lucide-react'
 import Image from 'next/image'
 import { useSearchDrawer } from './SearchDrawerContext'
 import { Button } from '@/components/ui/Button'
@@ -121,7 +121,7 @@ export function ResultsSection() {
           }}>
             <Spinner size="sm" />
             <span style={{ color: '#6b7280', fontSize: '14px' }}>
-              🤖 La IA está analizando los productos para darte recomendaciones...
+              <Bot size={16} style={{ color: '#c4ef16', flexShrink: 0 }} /> La IA está analizando los productos para darte recomendaciones...
             </span>
           </div>
         )}
@@ -133,7 +133,7 @@ export function ResultsSection() {
             padding: '24px', marginBottom: '24px',
           }}>
             <h3 className="font-semibold" style={{ fontSize: '20px', color: '#fefeff', marginBottom: '8px' }}>
-              🤖 Análisis inteligente
+              <Bot size={20} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', color: '#c4ef16' }} />Análisis inteligente
             </h3>
             <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>{analysis.summary}</p>
 
@@ -186,7 +186,7 @@ export function ResultsSection() {
             <p style={{ color: '#6b7280' }}>No encontramos resultados. Intenta con otro producto.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {items.map((r, i) => {
               const isRecommended = recommendedIndices.has(i)
               const recLabel = analysis?.recommendations?.find((rec) => rec.productIndex === i)?.label
@@ -221,9 +221,6 @@ export function ResultsSection() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                       <span style={{ color: '#6b7280', fontSize: '12px', fontFamily: 'monospace' }}>#{i + 1}</span>
-                      <Badge variant={r.source === 'crawlee' ? 'default' : 'muted'}>
-                        {r.source === 'crawlee' ? '✓ Verificado' : 'Web'}
-                      </Badge>
                     </div>
                     <h3 style={{ color: '#fefeff', fontSize: '15px', fontWeight: 500, marginBottom: '4px' }}>
                       {r.name}

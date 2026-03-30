@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Bell, Bookmark, FolderPlus } from 'lucide-react'
+import { Bell, Bookmark, Bot, FolderPlus } from 'lucide-react'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -476,13 +476,13 @@ export function DashboardSearch() {
           {analyzingAI && (
             <div style={{ background: '#151518', border: '1px solid rgba(196,239,22,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Spinner size="sm" />
-              <span style={{ color: '#6b7280', fontSize: '13px' }}>🤖 Analizando productos...</span>
+              <span style={{ color: '#6b7280', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}><Bot size={15} style={{ color: '#c4ef16' }} /> Analizando productos...</span>
             </div>
           )}
 
           {analysis && (
             <div style={{ background: 'linear-gradient(135deg, rgba(196,239,22,0.05), rgba(196,239,22,0.02))', border: '1px solid rgba(196,239,22,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '20px' }}>
-              <h3 className="font-semibold" style={{ fontSize: '18px', color: '#fefeff', marginBottom: '6px' }}>🤖 Análisis inteligente</h3>
+              <h3 className="font-semibold" style={{ fontSize: '18px', color: '#fefeff', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}><Bot size={18} style={{ color: '#c4ef16' }} /> Análisis inteligente</h3>
               <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '14px' }}>{analysis.summary}</p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
