@@ -38,11 +38,12 @@ export async function searchMercadoLibrePlaywright(
       signal: AbortSignal.timeout(15000),
     }).catch(() => null)
 
-    // If blocked (403/429), fall back to ScraperAPI
+    // If blocked (403/429/timeout), fall back to ScraperAPI
+    // url param must be LAST per ScraperAPI docs; country_code=cl uses Chilean IPs (free)
     if (!res || res.status === 403 || res.status === 429) {
       console.log(`[ml-api] Direct blocked (${res?.status ?? 'timeout'}), retrying via ScraperAPI...`)
-      const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(mlApiUrl)}`
-      res = await fetch(scraperUrl, { signal: AbortSignal.timeout(50000) })
+      const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&country_code=cl&url=${encodeURIComponent(mlApiUrl)}`
+      res = await fetch(scraperUrl, { signal: AbortSignal.timeout(70000) })
     }
 
     if (!res.ok) {
