@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Open_Sans, Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -21,6 +21,12 @@ const geistMono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  themeColor: '#151518',
+  width: 'device-width',
+  initialScale: 1,
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://elrata.io'),
@@ -60,8 +66,14 @@ export const metadata: Metadata = {
     description: "Compara precios con IA en +16 países.",
     creator: "@elrata_io",
   },
-  other: {
-    "theme-color": "#151518",
+  icons: {
+    icon: [
+      { url: '/icons/rata.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/rata.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/icons/rata.png',
   },
 };
 
