@@ -279,7 +279,7 @@ export function SearchDrawer() {
           Buscar en
         </label>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {([{ id: 'all', label: 'ML + Google Shopping' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
+          {([{ id: 'all', label: 'Google Shopping' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
             <button
               key={s.id}
               onClick={() => setSelectedSource(s.id)}
@@ -321,7 +321,7 @@ export function SearchDrawer() {
         loading={loading}
         onClick={handleSearch}
       >
-        {loading ? '🐀 Buscando en tiendas reales...' : '🐀 ¡A buscar el precio más rata!'}
+        {loading ? 'Buscando en tiendas reales...' : '¡A buscar el precio más rata!'}
       </Button>
 
       {/* Info */}

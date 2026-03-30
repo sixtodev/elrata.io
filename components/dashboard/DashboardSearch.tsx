@@ -308,7 +308,7 @@ export function DashboardSearch() {
         <div style={{ marginBottom: '12px' }}>
           <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>Buscar en</label>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {([{ id: 'all', label: 'Completa' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
+            {([{ id: 'all', label: 'Google Shopping' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
               <button key={s.id} onClick={() => setSource(s.id)}
                 style={{ border: source === s.id ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: source === s.id ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: source === s.id ? '#c4ef16' : '#6b7280' }}>
                 {s.label}
