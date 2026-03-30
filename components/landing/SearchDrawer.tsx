@@ -127,7 +127,7 @@ export function SearchDrawer() {
         </div>
       )}
       <h2 className="font-title text-xl sm:text-[26px] mb-2">
-        🐀 A Ratear
+        A Ratear
       </h2>
       <p style={{ color: '#6b7280', fontSize: '15px', marginBottom: '20px' }}>
         Buscamos precios reales en tiendas online. La IA analiza y te recomienda la mejor opción.

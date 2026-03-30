@@ -133,7 +133,7 @@ export function DashboardSearch() {
   }
 
   const handleSelectSavedUrl = (url: string) => {
-    setCustomUrl(url)
+    setCustomUrl((prev) => prev === url ? '' : url)
   }
 
   const cat = getCategoryById(category)
@@ -241,7 +241,7 @@ export function DashboardSearch() {
       {/* Search Drawer */}
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <h2 className="font-title" style={{ fontSize: '26px', marginBottom: '8px', color: '#fefeff' }}>
-          🐀 Buscar productos
+          Buscar productos
         </h2>
         <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
           Búsquedas ilimitadas. Guarda resultados y crea alertas de precio.
@@ -401,7 +401,7 @@ export function DashboardSearch() {
         {error && <div style={{ marginBottom: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '10px', fontSize: '13px', color: '#ef4444' }}>{error}</div>}
 
         <Button className="w-full text-[16px] py-4" loading={loading} onClick={handleSearch}>
-          {loading ? '🐀 Buscando...' : '🐀 ¡Buscar!'}
+          {loading ? 'Buscando...' : '¡Buscar!'}
         </Button>
       </Drawer>
 
