@@ -413,7 +413,7 @@ export function DashboardSearch() {
         {error && <div style={{ marginBottom: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '10px', fontSize: '13px', color: '#ef4444' }}>{error}</div>}
 
         <Button className="w-full text-[16px] py-4" loading={loading} onClick={handleSearch}>
-          {loading ? 'Buscando en tiendas reales...' : '¡A buscar el precio más rata! Pro'}
+          {loading ? 'Buscando en tiendas reales...' : '¡A buscar el precio más rata! como un Pro'}
         </Button>
       </Drawer>
 
