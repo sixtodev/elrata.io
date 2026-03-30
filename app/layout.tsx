@@ -67,13 +67,9 @@ export const metadata: Metadata = {
     creator: "@elrata_io",
   },
   icons: {
-    icon: [
-      { url: '/icons/rata.png', type: 'image/png' },
-    ],
     apple: [
       { url: '/icons/rata.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/icons/rata.png',
   },
 };
 
