@@ -36,7 +36,8 @@ export async function searchMercadoLibrePlaywright(
   const slug = product.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
   const mlUrl = `${baseUrl}/${slug}`
 
-  const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(mlUrl)}&render=true`
+  // wait=8000 gives React time to render products; wait_for_selector waits for cards
+  const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(mlUrl)}&render=true&wait=8000`
 
   console.log(`[ml-scraper] Fetching via ScraperAPI: ${mlUrl}`)
 
@@ -53,7 +54,9 @@ export async function searchMercadoLibrePlaywright(
 
     const title = $('title').text()
     console.log(`[ml-scraper] Page title: "${title}"`)
-    console.log(`[ml-scraper] HTML snippet: ${html.slice(0, 800).replace(/\s+/g, ' ')}`)
+    // Log body snippet to check if products rendered
+    const bodyMatch = html.match(/<body[^>]*>([\s\S]{0,2000})/)
+    console.log(`[ml-scraper] Body snippet: ${(bodyMatch?.[1] || html.slice(0, 2000)).replace(/\s+/g, ' ').slice(0, 1000)}`)
 
     const items: { title: string; price: string; url: string; image: string | null; freeShipping: boolean }[] = []
 
