@@ -279,7 +279,7 @@ export function SearchDrawer() {
           Buscar en
         </label>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {([{ id: 'all', label: 'Completa' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
+          {([{ id: 'all', label: 'ML + Google Shopping' }, ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : [])] as { id: SearchSource; label: string }[]).map((s) => (
             <button
               key={s.id}
               onClick={() => setSelectedSource(s.id)}
