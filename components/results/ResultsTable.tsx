@@ -22,7 +22,7 @@ export function ResultsTable({ results, query, modelUsed }: ResultsTableProps) {
     return (
       <div className="text-center py-16">
         <span className="text-6xl block mb-4">🐀</span>
-        <h3 className="text-xl font-title mb-2">
+        <h3 className="text-xl font-semibold mb-2">
           No encontramos resultados
         </h3>
         <p className="text-muted text-sm">

@@ -86,10 +86,10 @@ export function HowItWorks() {
             transition={{ duration: 0.3 }}
             className="bg-bg2 border border-border rounded-2xl p-8"
           >
-            <div className="w-10 h-10 bg-green-glow border border-green/30 rounded-[10px] flex items-center justify-center font-title text-lg text-green mb-5">
+            <div className="w-10 h-10 bg-green-glow border border-green/30 rounded-[10px] flex items-center justify-center text-lg font-bold text-green mb-5">
               {step.num}
             </div>
-            <h3 className="font-title text-xl mb-2.5">
+            <h3 className="text-xl font-semibold mb-2.5">
               {step.title}
             </h3>
             <p className="text-muted text-[15px] leading-relaxed">

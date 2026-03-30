@@ -178,7 +178,7 @@ export function Hero() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="text-center"
           >
-            <div className="font-title text-[18px] sm:text-[28px] text-green">
+            <div className="text-[18px] sm:text-[28px] text-green font-bold">
               {stat.num}
             </div>
             <div className="text-[10px] sm:text-[13px] text-muted">{stat.label}</div>

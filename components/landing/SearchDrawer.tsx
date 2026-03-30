@@ -122,7 +122,7 @@ export function SearchDrawer() {
             className="animate-bounce drop-shadow-[0_0_24px_rgba(196,239,22,0.5)]"
             priority
           />
-          <p className="font-title text-lg text-[var(--accent)]">Buscando en tiendas reales...</p>
+          <p className="text-lg font-semibold text-[var(--accent)]">Buscando en tiendas reales...</p>
           <p className="text-sm text-[var(--muted)]">Esto puede tardar unos segundos</p>
         </div>
       )}

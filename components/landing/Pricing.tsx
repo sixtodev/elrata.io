@@ -121,7 +121,7 @@ export function Pricing() {
                 {plan.badge}
               </m.div>
             )}
-            <div className="font-title text-[22px] mb-2">
+            <div className="text-[22px] font-semibold mb-2">
               {plan.name}
             </div>
             <div className="text-muted text-sm mb-6">{plan.desc}</div>

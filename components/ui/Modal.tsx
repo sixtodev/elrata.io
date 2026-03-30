@@ -32,7 +32,7 @@ export function Modal({
           )}
         >
           {title && (
-            <Dialog.Title className="text-xl font-bold text-foreground font-title mb-2">
+            <Dialog.Title className="text-xl font-bold text-foreground mb-2">
               {title}
             </Dialog.Title>
           )}
