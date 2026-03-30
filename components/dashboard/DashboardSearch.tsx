@@ -339,7 +339,7 @@ export function DashboardSearch() {
                 disabled={savingUrl}
                 style={{ background: '#c4ef16', color: '#000', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
-                {savingUrl ? '...' : '💾 Guardar'}
+                {savingUrl ? '...' : 'Guardar'}
               </button>
             )}
           </div>
