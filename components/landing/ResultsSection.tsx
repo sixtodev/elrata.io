@@ -25,7 +25,7 @@ interface AIAnalysis {
 }
 
 export function ResultsSection() {
-  const { results, clearResults, open } = useSearchDrawer()
+  const { results, clearResults, open, remaining } = useSearchDrawer()
   const sectionRef = useRef<HTMLElement>(null)
   const [alertResult, setAlertResult] = useState<SearchResult | null>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -91,6 +91,26 @@ export function ResultsSection() {
       style={{ padding: '48px 24px', position: 'relative', zIndex: 10, background: '#1C1C1F', borderTop: '1px solid #2a2a2a' }}
     >
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        {/* Remaining searches indicator */}
+        {remaining !== null && (
+          <div style={{
+            marginBottom: '16px',
+            background: remaining === 0 ? 'rgba(239,68,68,0.08)' : 'rgba(196,239,22,0.06)',
+            border: remaining === 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(196,239,22,0.15)',
+            borderRadius: '10px',
+            padding: '10px 16px',
+            fontSize: '13px',
+            color: remaining === 0 ? '#ef4444' : '#c4ef16',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            {remaining === 0
+              ? '⚠️ Alcanzaste el límite de 5 búsquedas gratis hoy. Volvé mañana o creá una cuenta Pro.'
+              : `Te quedan ${remaining} de 5 búsquedas gratis hoy`}
+          </div>
+        )}
+
         {/* Action bar */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', gap: '12px' }}>
           <Button variant="secondary" size="sm" onClick={clearResults}>

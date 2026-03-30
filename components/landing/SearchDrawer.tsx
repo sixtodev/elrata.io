@@ -13,7 +13,7 @@ import type { CategoryField } from '@/lib/search/categories'
 type SearchSource = 'all' | 'mercadolibre' | 'amazon'
 
 export function SearchDrawer() {
-  const { isOpen, close, setResults } = useSearchDrawer()
+  const { isOpen, close, setResults, setRemaining: setContextRemaining } = useSearchDrawer()
   const [selectedSource, setSelectedSource] = useState<SearchSource>('all')
   const [selectedCategory, setSelectedCategory] = useState('general')
   const [categoryFields, setCategoryFields] = useState<Record<string, string>>({})
@@ -88,7 +88,11 @@ export function SearchDrawer() {
       }
 
       const rem = res.headers.get('X-Searches-Remaining')
-      if (rem !== null) setRemaining(parseInt(rem, 10))
+      if (rem !== null) {
+        const n = parseInt(rem, 10)
+        setRemaining(n)
+        setContextRemaining(n)
+      }
 
       if (!res.ok) {
         setSearchError(data.error || 'Error en la búsqueda')
