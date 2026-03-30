@@ -17,12 +17,6 @@ const CURRENCIES: Record<string, string> = {
   PE: 'PEN', UY: 'UYU', EC: 'USD', VE: 'VES',
 }
 
-const STORE_LABELS: Record<string, string> = {
-  CL: 'MercadoLibre CL', AR: 'MercadoLibre AR', CO: 'MercadoLibre CO',
-  MX: 'MercadoLibre MX', PE: 'MercadoLibre PE', UY: 'MercadoLibre UY',
-  EC: 'MercadoLibre EC', VE: 'MercadoLibre VE',
-}
-
 export async function searchMercadoLibrePlaywright(
   product: string,
   countryCode: string,
@@ -32,19 +26,16 @@ export async function searchMercadoLibrePlaywright(
   if (!baseUrl) return []
 
   const currency = CURRENCIES[countryCode] || 'USD'
-  const store = STORE_LABELS[countryCode] || `MercadoLibre ${countryCode}`
-
-  // Path for system Chromium (Docker Alpine) or local dev
-  const executablePath =
-    process.env.CHROMIUM_PATH ||
-    process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ||
-    undefined // let playwright-core find it in dev
+  const store = `MercadoLibre ${countryCode}`
 
   let browser = null
 
   try {
+    console.log(`[ml-playwright] Launching browser for "${product}" in ${countryCode}`)
+
+    // PLAYWRIGHT_BROWSERS_PATH env var tells playwright-core where to find Chromium
+    // Set in Dockerfile: /app/.playwright
     browser = await chromium.launch({
-      executablePath,
       headless: true,
       args: [
         '--no-sandbox',
@@ -52,72 +43,67 @@ export async function searchMercadoLibrePlaywright(
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--no-first-run',
-        '--no-zygote',
-        '--single-process',
+        '--disable-extensions',
       ],
     })
 
     const context = await browser.newContext({
-      userAgent:
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       locale: 'es-CL',
       viewport: { width: 1280, height: 720 },
     })
 
     const page = await context.newPage()
-
-    // Build search URL
     const searchUrl = `${baseUrl}/${encodeURIComponent(product)}`
-    console.log(`[ml-playwright] Navigating to ${searchUrl}`)
 
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30000 })
+    console.log(`[ml-playwright] → ${searchUrl}`)
+    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 40000 })
 
-    // Wait for products — ML renders .poly-card items
-    // The PoW challenge resolves automatically (browser executes JS)
+    // ML renders products client-side — wait up to 25s for them to appear
+    // The PoW challenge resolves automatically (browser executes JS natively)
+    let selectorFound = false
     try {
-      await page.waitForSelector('.poly-card, .ui-search-layout__item', {
-        timeout: 20000,
-      })
+      await page.waitForSelector('.poly-card, .ui-search-layout__item', { timeout: 25000 })
+      selectorFound = true
+      console.log('[ml-playwright] ✓ Products selector found')
     } catch {
-      console.warn('[ml-playwright] Timeout waiting for products, trying anyway')
+      console.warn('[ml-playwright] Selector timeout — extracting anyway')
     }
 
-    // Extract products from DOM
+    const pageTitle = await page.title()
+    console.log(`[ml-playwright] Page title: "${pageTitle}", selectorFound: ${selectorFound}`)
+
     const items = await page.evaluate(() => {
       const cards = Array.from(
         document.querySelectorAll('.poly-card, .ui-search-layout__item')
       )
-
       return cards.slice(0, 20).map((card) => {
         const titleEl =
           card.querySelector('.poly-component__title') ||
           card.querySelector('.ui-search-item__title')
         const fractionEl = card.querySelector('.andes-money-amount__fraction')
-        const centsEl = card.querySelector('.andes-money-amount__cents')
         const linkEl = card.querySelector('a[href*="mercadolibre"]') as HTMLAnchorElement | null
         const imgEl = card.querySelector('img') as HTMLImageElement | null
-        const freeShipping = !!card.querySelector(
-          '[class*="free-shipping"], [class*="envio-gratis"], [data-testid*="free"]'
-        )
-        const condition = card.querySelector('[class*="condition"], [class*="condicion"]')?.textContent?.trim() || ''
+        const freeShipping = !!card.querySelector('[class*="free"]')
+        const conditionEl = card.querySelector('[class*="condition"], [class*="condicion"]')
 
-        const priceText = fractionEl ? fractionEl.textContent?.replace(/\./g, '').replace(',', '.') || '' : ''
-        const cents = centsEl ? centsEl.textContent?.trim() || '' : ''
-        const fullPrice = cents ? `${priceText}.${cents}` : priceText
+        const raw = fractionEl?.textContent?.replace(/\./g, '').replace(',', '.') || ''
 
         return {
           title: titleEl?.textContent?.trim() || '',
-          price: fullPrice,
+          price: raw,
           url: linkEl?.href || '',
           image: imgEl?.src || imgEl?.getAttribute('data-src') || null,
           freeShipping,
-          condition,
+          condition: conditionEl?.textContent?.trim() || '',
         }
       })
     })
 
     await browser.close()
     browser = null
+
+    console.log(`[ml-playwright] Raw items: ${items.length}`)
 
     const priceMax = budget ? parseBudget(budget) : null
 
@@ -141,16 +127,14 @@ export async function searchMercadoLibrePlaywright(
         image: item.image,
         notes: [
           item.freeShipping ? 'Envío gratis' : '',
-          item.condition === 'Nuevo' ? 'Nuevo' : item.condition === 'Usado' ? 'Usado' : '',
-        ]
-          .filter(Boolean)
-          .join(', ') || undefined,
+          item.condition ? item.condition : '',
+        ].filter(Boolean).join(', ') || undefined,
       }))
 
     console.log(`[ml-playwright] ✓ ${results.length} results from ${store}`)
     return results
   } catch (error) {
-    console.error('[ml-playwright] Error:', error)
+    console.error('[ml-playwright] Fatal error:', error)
     if (browser) await browser.close().catch(() => {})
     return []
   }

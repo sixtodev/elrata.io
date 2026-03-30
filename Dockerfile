@@ -21,20 +21,17 @@ ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 RUN npm run build
 
-FROM node:22-alpine AS runner
+# Debian slim — needed for Playwright's Chromium (Alpine musl is incompatible)
+FROM node:22-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Chromium for Playwright scraping (bypasses bot detection)
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont
-ENV CHROMIUM_PATH=/usr/bin/chromium-browser
+# Install Playwright's own Chromium (version-compatible with playwright-core)
+# --with-deps installs all OS-level dependencies via apt
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
+RUN npx --yes playwright@1.58.2 install chromium --with-deps && \
+    chmod -R a+rx /app/.playwright
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
@@ -49,4 +46,5 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
 CMD ["node", "server.js"]
