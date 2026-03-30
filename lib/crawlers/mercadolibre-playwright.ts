@@ -1,5 +1,5 @@
+import * as cheerio from 'cheerio'
 import type { SearchResult } from '@/types/search'
-import { chromium } from 'playwright-core'
 
 const SITE_URLS: Record<string, string> = {
   CL: 'https://listado.mercadolibre.cl',
@@ -25,108 +25,64 @@ export async function searchMercadoLibrePlaywright(
   const baseUrl = SITE_URLS[countryCode]
   if (!baseUrl) return []
 
+  const apiKey = process.env.SCRAPERAPI_KEY
+  if (!apiKey) {
+    console.error('[ml-scraper] SCRAPERAPI_KEY not set')
+    return []
+  }
+
   const currency = CURRENCIES[countryCode] || 'USD'
   const store = `MercadoLibre ${countryCode}`
+  const slug = product.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  const mlUrl = `${baseUrl}/${slug}`
 
-  let browser = null
+  const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(mlUrl)}&render=true`
+
+  console.log(`[ml-scraper] Fetching via ScraperAPI: ${mlUrl}`)
 
   try {
-    console.log(`[ml-playwright] Launching browser for "${product}" in ${countryCode}`)
+    const res = await fetch(scraperUrl, { signal: AbortSignal.timeout(60000) })
 
-    // PLAYWRIGHT_BROWSERS_PATH env var tells playwright-core where to find Chromium
-    // Set in Dockerfile: /app/.playwright
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--disable-extensions',
-        '--disable-blink-features=AutomationControlled',
-      ],
-    })
-
-    const context = await browser.newContext({
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      locale: 'es-CL',
-      viewport: { width: 1280, height: 720 },
-      extraHTTPHeaders: {
-        'Accept-Language': 'es-CL,es;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-      },
-    })
-
-    // Hide webdriver fingerprint
-    await context.addInitScript(() => {
-      Object.defineProperty(navigator, 'webdriver', { get: () => false })
-    })
-
-    const page = await context.newPage()
-    // ML prefers hyphens in search URLs
-    const slug = product.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-    const searchUrl = `${baseUrl}/${slug}`
-
-    console.log(`[ml-playwright] → ${searchUrl}`)
-    await page.goto(searchUrl, { waitUntil: 'load', timeout: 40000 })
-
-    // Wait for challenge JS to resolve (if any)
-    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})
-
-    const currentUrl = page.url()
-    console.log(`[ml-playwright] Final URL: ${currentUrl}`)
-
-    // ML renders products client-side — wait up to 25s for them to appear
-    // The PoW challenge resolves automatically (browser executes JS natively)
-    let selectorFound = false
-    try {
-      await page.waitForSelector('.poly-card, .ui-search-layout__item', { timeout: 25000 })
-      selectorFound = true
-      console.log('[ml-playwright] ✓ Products selector found')
-    } catch {
-      console.warn('[ml-playwright] Selector timeout — extracting anyway')
+    if (!res.ok) {
+      console.error(`[ml-scraper] ScraperAPI error: ${res.status}`)
+      return []
     }
 
-    const pageTitle = await page.title()
-    console.log(`[ml-playwright] Page title: "${pageTitle}", selectorFound: ${selectorFound}`)
+    const html = await res.text()
+    const $ = cheerio.load(html)
 
-    const items = await page.evaluate(() => {
-      const cards = Array.from(
-        document.querySelectorAll('.poly-card, .ui-search-layout__item')
-      )
-      return cards.slice(0, 20).map((card) => {
-        const titleEl =
-          card.querySelector('.poly-component__title') ||
-          card.querySelector('.ui-search-item__title')
-        const fractionEl = card.querySelector('.andes-money-amount__fraction')
-        const linkEl = card.querySelector('a[href*="mercadolibre"]') as HTMLAnchorElement | null
-        const imgEl = card.querySelector('img') as HTMLImageElement | null
-        const freeShipping = !!card.querySelector('[class*="free"]')
-        const conditionEl = card.querySelector('[class*="condition"], [class*="condicion"]')
+    console.log(`[ml-scraper] Page title: "${$('title').text()}"`)
 
-        const raw = fractionEl?.textContent?.replace(/\./g, '').replace(',', '.') || ''
+    const items: { title: string; price: string; url: string; image: string | null; freeShipping: boolean }[] = []
 
-        return {
-          title: titleEl?.textContent?.trim() || '',
-          price: raw,
-          url: linkEl?.href || '',
-          image: imgEl?.src || imgEl?.getAttribute('data-src') || null,
-          freeShipping,
-          condition: conditionEl?.textContent?.trim() || '',
-        }
-      })
+    // Try poly-card format (new ML)
+    $('.poly-card').each((_, el) => {
+      const title = $(el).find('.poly-component__title').text().trim()
+      const priceRaw = $(el).find('.andes-money-amount__fraction').first().text().replace(/\./g, '').replace(',', '.')
+      const url = $(el).find('a[href*="mercadolibre"]').attr('href') || ''
+      const image = $(el).find('img').attr('src') || $(el).find('img').attr('data-src') || null
+      const freeShipping = $(el).find('[class*="free"], [class*="gratis"]').length > 0
+      if (title && url) items.push({ title, price: priceRaw, url, image, freeShipping })
     })
 
-    await browser.close()
-    browser = null
+    // Fallback: old ML format
+    if (items.length === 0) {
+      $('.ui-search-layout__item').each((_, el) => {
+        const title = $(el).find('.ui-search-item__title').text().trim()
+        const priceRaw = $(el).find('.andes-money-amount__fraction').first().text().replace(/\./g, '').replace(',', '.')
+        const url = $(el).find('a').attr('href') || ''
+        const image = $(el).find('img').attr('src') || $(el).find('img').attr('data-src') || null
+        const freeShipping = $(el).find('[class*="free"]').length > 0
+        if (title && url) items.push({ title, price: priceRaw, url, image, freeShipping })
+      })
+    }
 
-    console.log(`[ml-playwright] Raw items: ${items.length}`)
+    console.log(`[ml-scraper] Raw items: ${items.length}`)
 
     const priceMax = budget ? parseBudget(budget) : null
 
     const results: SearchResult[] = items
-      .filter((item) => item.title && item.url)
+      .slice(0, 20)
       .filter((item) => {
         if (!priceMax || !item.price) return true
         const num = parseFloat(item.price)
@@ -141,19 +97,15 @@ export async function searchMercadoLibrePlaywright(
         url: item.url,
         availability: 'in_stock' as const,
         source: 'crawlee' as const,
-        scraper_type: 'playwright',
+        scraper_type: 'scraperapi',
         image: item.image,
-        notes: [
-          item.freeShipping ? 'Envío gratis' : '',
-          item.condition ? item.condition : '',
-        ].filter(Boolean).join(', ') || undefined,
+        notes: item.freeShipping ? 'Envío gratis' : undefined,
       }))
 
-    console.log(`[ml-playwright] ✓ ${results.length} results from ${store}`)
+    console.log(`[ml-scraper] ✓ ${results.length} results from ${store}`)
     return results
   } catch (error) {
-    console.error('[ml-playwright] Fatal error:', error)
-    if (browser) await browser.close().catch(() => {})
+    console.error('[ml-scraper] Error:', error)
     return []
   }
 }
