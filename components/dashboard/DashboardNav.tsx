@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface DashboardNavProps {
   email?: string
@@ -10,6 +10,8 @@ interface DashboardNavProps {
 export function DashboardNav({ email }: DashboardNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -30,13 +32,13 @@ export function DashboardNav({ email }: DashboardNavProps) {
       <div className="hidden md:flex items-center gap-6">
         <a
           href="/dashboard"
-          className="text-foreground text-sm no-underline hover:text-green transition-colors"
+          className={`text-sm no-underline transition-colors hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-muted'}`}
         >
           Dashboard
         </a>
         <a
           href="/alerts"
-          className="text-muted text-sm no-underline hover:text-foreground transition-colors"
+          className={`text-sm no-underline transition-colors hover:text-accent ${isActive('/alerts') ? 'text-accent font-semibold' : 'text-muted'}`}
         >
           Alertas
         </a>
@@ -80,13 +82,13 @@ export function DashboardNav({ email }: DashboardNavProps) {
         >
           <a
             href="/dashboard"
-            className="text-foreground no-underline hover:text-green transition-colors min-h-11 flex items-center"
+            className={`no-underline transition-colors min-h-11 flex items-center hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-muted'}`}
           >
             Dashboard
           </a>
           <a
             href="/alerts"
-            className="text-muted no-underline hover:text-foreground transition-colors min-h-11 flex items-center"
+            className={`no-underline transition-colors min-h-11 flex items-center hover:text-accent ${isActive('/alerts') ? 'text-accent font-semibold' : 'text-muted'}`}
           >
             Alertas
           </a>

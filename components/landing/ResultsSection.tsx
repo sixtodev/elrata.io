@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Bell, Bot } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Image from 'next/image'
@@ -245,12 +245,7 @@ export function ResultsSection() {
                       <span style={{ color: '#6b7280', fontSize: '12px' }}>Buscar en {r.store}</span>
                     )}
                     <div style={{ display: 'flex', gap: '6px', marginTop: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => setAlertResult(r)}
-                        style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '6px', padding: '4px 10px', color: '#6b7280', fontSize: '12px', cursor: 'pointer' }}
-                      >
-                        <Bell size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} /> Alerta
-                      </button>
+                      <AlertHoverButton onClick={() => setAlertResult(r)} />
                     </div>
                   </div>
                 </div>
@@ -270,5 +265,32 @@ export function ResultsSection() {
         />
       )}
     </section>
+  )
+}
+
+function AlertHoverButton({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? 'rgba(196,239,22,0.12)' : 'transparent',
+        border: hovered ? '1px solid rgba(196,239,22,0.5)' : '1px solid #2a2a2a',
+        borderRadius: '6px',
+        padding: '4px 10px',
+        color: hovered ? '#c4ef16' : '#6b7280',
+        fontSize: '12px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        transition: 'all 0.15s',
+        fontWeight: hovered ? 600 : 400,
+      }}
+    >
+      <Bell size={12} /> Alerta
+    </button>
   )
 }
