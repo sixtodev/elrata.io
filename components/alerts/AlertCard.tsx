@@ -85,7 +85,7 @@ export function AlertCard({ alert, onUpdate }: AlertCardProps) {
               {formatTimeAgo(alert.last_checked_at)}
             </span>
           </div>
-          <h3 className="text-foreground text-[15px] font-medium mb-1">
+          <h3 className="font-title text-foreground text-[15px] mb-1">
             {alert.product_name}
           </h3>
           <p className="text-muted text-[13px]">

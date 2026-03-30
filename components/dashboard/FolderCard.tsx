@@ -70,7 +70,7 @@ export function FolderCard({ folder, searchCount = 0 }: FolderCardProps) {
         </button>
       </div>
 
-      <h3 className="font-title text-lg text-foreground mb-2 font-normal">
+      <h3 className="font-title text-lg text-foreground mb-2">
         {folder.name}
       </h3>
 
