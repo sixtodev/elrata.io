@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { m } from 'motion/react'
 
 interface DashboardNavProps {
   email?: string
@@ -20,25 +21,30 @@ export function DashboardNav({ email }: DashboardNavProps) {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-8 h-16 bg-background/85 backdrop-blur-xl border-b border-border">
+    <m.nav
+      initial={{ y: -80 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-8 h-20 bg-background/85 backdrop-blur-xl border-b border-border"
+    >
       <a
         href="/"
         className="font-title text-[22px] font-bold text-foreground flex items-center gap-2 no-underline"
       >
-        El<span className="text-accent">Rata</span>.io
+        El<span className="text-yellow">Rata</span>.io
       </a>
 
       {/* Desktop links */}
       <div className="hidden md:flex items-center gap-6">
         <a
           href="/dashboard"
-          className={`text-sm no-underline transition-colors hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-muted'}`}
+          className={`text-sm no-underline transition-colors hover:text-yellow ${isActive('/dashboard') ? 'text-yellow font-semibold' : 'text-muted'}`}
         >
           Dashboard
         </a>
         <a
           href="/alerts"
-          className={`text-sm no-underline transition-colors hover:text-accent ${isActive('/alerts') ? 'text-accent font-semibold' : 'text-muted'}`}
+          className={`text-sm no-underline transition-colors hover:text-yellow ${isActive('/alerts') ? 'text-yellow font-semibold' : 'text-muted'}`}
         >
           Alertas
         </a>
@@ -78,17 +84,17 @@ export function DashboardNav({ email }: DashboardNavProps) {
       {mobileOpen && (
         <div
           id="dashboard-mobile-menu"
-          className="absolute top-16 left-0 right-0 bg-bg2 border-b border-border p-6 flex flex-col gap-4 md:hidden"
+          className="absolute top-20 left-0 right-0 bg-bg2 border-b border-border p-6 flex flex-col gap-4 md:hidden"
         >
           <a
             href="/dashboard"
-            className={`no-underline transition-colors min-h-11 flex items-center hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-muted'}`}
+            className={`no-underline transition-colors min-h-11 flex items-center hover:text-yellow ${isActive('/dashboard') ? 'text-yellow font-semibold' : 'text-muted'}`}
           >
             Dashboard
           </a>
           <a
             href="/alerts"
-            className={`no-underline transition-colors min-h-11 flex items-center hover:text-accent ${isActive('/alerts') ? 'text-accent font-semibold' : 'text-muted'}`}
+            className={`no-underline transition-colors min-h-11 flex items-center hover:text-yellow ${isActive('/alerts') ? 'text-yellow font-semibold' : 'text-muted'}`}
           >
             Alertas
           </a>
@@ -105,6 +111,6 @@ export function DashboardNav({ email }: DashboardNavProps) {
           </button>
         </div>
       )}
-    </nav>
+    </m.nav>
   )
 }

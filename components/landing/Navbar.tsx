@@ -59,7 +59,7 @@ export function Navbar() {
         href="/"
         className="font-title text-[22px] font-bold text-foreground flex items-center gap-2 no-underline"
       >
-        El<span className="text-green">Rata</span>.io
+        El<span className="text-yellow">Rata</span>.io
       </Link>
 
       {/* Desktop nav */}
@@ -83,7 +83,7 @@ export function Navbar() {
         {user ? (
           <>
             <li>
-              <Link href="/dashboard" className={`nav-link text-sm transition-colors no-underline hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-foreground'}`}>
+              <Link href="/dashboard" className={`nav-link text-sm transition-colors no-underline hover:text-yellow ${isActive('/dashboard') ? 'text-yellow font-semibold' : 'text-foreground'}`}>
                 Dashboard
               </Link>
             </li>
@@ -120,7 +120,7 @@ export function Navbar() {
           </>
         ) : (
           <li>
-            <Link href="/login" className={`nav-link text-sm transition-colors no-underline hover:text-accent ${isActive('/login') ? 'text-accent font-semibold' : 'text-foreground'}`}>
+            <Link href="/login" className={`nav-link text-sm transition-colors no-underline hover:text-yellow ${isActive('/login') ? 'text-yellow font-semibold' : 'text-foreground'}`}>
               Login
             </Link>
           </li>
@@ -173,7 +173,7 @@ export function Navbar() {
 
             {user ? (
               <>
-                <Link href="/dashboard" className={`transition-colors no-underline min-h-11 flex items-center hover:text-accent ${isActive('/dashboard') ? 'text-accent font-semibold' : 'text-foreground'}`}>
+                <Link href="/dashboard" className={`transition-colors no-underline min-h-11 flex items-center hover:text-yellow ${isActive('/dashboard') ? 'text-yellow font-semibold' : 'text-foreground'}`}>
                   Dashboard
                 </Link>
                 <div className="flex items-center gap-2.5 text-muted text-[13px]">
@@ -190,7 +190,7 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <Link href="/login" className={`transition-colors no-underline min-h-11 flex items-center hover:text-accent ${isActive('/login') ? 'text-accent font-semibold' : 'text-foreground'}`}>
+              <Link href="/login" className={`transition-colors no-underline min-h-11 flex items-center hover:text-yellow ${isActive('/login') ? 'text-yellow font-semibold' : 'text-foreground'}`}>
                 Iniciar sesión
               </Link>
             )}
