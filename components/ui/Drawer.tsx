@@ -46,7 +46,7 @@ export function Drawer({ open, onClose, children, className }: DrawerProps) {
         aria-modal="true"
         aria-label="Panel de búsqueda"
         className={cn(
-          'fixed top-1/2 left-1/2 z-[201] bg-bg2 border border-border rounded-2xl px-6 pt-6 pb-10 max-h-[calc(100vh-50px)] overflow-y-auto max-w-[680px] w-[calc(100%-32px)]',
+          'fixed top-1/2 left-1/2 z-[201] bg-bg2 border border-border rounded-2xl px-6 pt-6 pb-10 max-h-[calc(100vh-50px)] overflow-y-auto max-w-[680px] w-[calc(100%-32px)] relative',
           className
         )}
         style={{

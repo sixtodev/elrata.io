@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -110,6 +111,21 @@ export function SearchDrawer() {
 
   return (
     <Drawer open={isOpen} onClose={close}>
+      {/* Loading overlay — rata en skate mientras busca */}
+      {loading && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 rounded-2xl bg-[var(--background)]/95 backdrop-blur-sm">
+          <Image
+            src="/icons/rata.webp"
+            alt="Buscando..."
+            width={120}
+            height={120}
+            className="animate-bounce drop-shadow-[0_0_24px_rgba(196,239,22,0.5)]"
+            priority
+          />
+          <p className="font-title text-lg text-[var(--accent)]">Buscando en tiendas reales...</p>
+          <p className="text-sm text-[var(--muted)]">Esto puede tardar unos segundos</p>
+        </div>
+      )}
       <h2 className="font-title text-xl sm:text-[26px] mb-2">
         🐀 A Ratear
       </h2>

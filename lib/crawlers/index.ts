@@ -47,11 +47,11 @@ export async function runCrawlers(
 
   const tasks: Promise<SearchResult[]>[] = []
 
-  // MercadoLibre — API oficial (carga token desde Supabase si no está en env)
+  // MercadoLibre — Playwright scraper (bypasses CloudFront TLS fingerprint block)
   const mlCountries = ['CL', 'CO', 'MX', 'AR', 'PE', 'UY', 'EC', 'VE']
   if (mlCountries.includes(cc)) {
     tasks.push(
-      import('./apis/mercadolibre-api').then(m => m.searchMercadoLibreAPI(product, cc, query.budget))
+      import('./mercadolibre-playwright').then(m => m.searchMercadoLibrePlaywright(product, cc, query.budget))
     )
   }
 
