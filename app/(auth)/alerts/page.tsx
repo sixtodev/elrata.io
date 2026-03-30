@@ -23,7 +23,7 @@ export default async function AlertsPage() {
 
       <main className="max-w-[800px] mx-auto px-6 pt-[100px] pb-[60px]">
         <h1 className="font-title text-[32px] font-bold mb-2">
-          🔔 Mis Alertas
+          Mis Alertas
         </h1>
         <p className="text-muted text-[15px] mb-8">
           Monitorea precios y recibe notificaciones cuando bajen.
