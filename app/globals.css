@@ -9,6 +9,24 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Boska';
+  src: url('/fonts/Boska_Complete/Fonts/WEB/fonts/Boska-Bold.woff2') format('woff2'),
+       url('/fonts/Boska_Complete/Fonts/WEB/fonts/Boska-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Boska';
+  src: url('/fonts/Boska_Complete/Fonts/WEB/fonts/Boska-Black.woff2') format('woff2'),
+       url('/fonts/Boska_Complete/Fonts/WEB/fonts/Boska-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─── Design tokens ────────────────────────────────────────────────────────── */
 
 :root {
@@ -43,7 +61,7 @@
   --color-border-hover: var(--border-hover);
   --font-sans: "Open Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
-  --font-title: "Maghfirea", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-title: "Boska", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ─── Base resets ──────────────────────────────────────────────────────────── */
@@ -66,9 +84,9 @@
 
   h1, h2, h3 {
     font-family: var(--font-title);
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.25;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.01em;
   }
 
   h4 {

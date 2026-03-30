@@ -91,7 +91,7 @@ export function Hero() {
           hidden: {},
           visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
         }}
-        className="relative z-10 -mt-32 font-title font-normal leading-none tracking-tight mb-8 sm:mb-20"
+        className="relative z-10 -mt-32 font-title font-black leading-none tracking-tight mb-8 sm:mb-20"
         style={{ fontSize: 'clamp(34px, 6vw, 82px)' }}
       >
         {titleTokens.map((token, i) => {
