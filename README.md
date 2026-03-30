@@ -1,12 +1,12 @@
 # ElRata.io — Busca como rata, compra como rey
 
-> Inspirado en las ofertas ratas que [midudev](https://midu.dev) muestra en sus directos 😂
+> Inspirado en las ofertas de trabajo ratas que [midudev](https://midu.dev) muestra en sus directos 😂
 
 Comparador de precios con inteligencia artificial que busca en tiendas reales de +16 países de Latinoamérica y el mundo. Proyecto creado para la hackathon de [midudev](https://midu.dev).
 
 ## Qué es ElRata.io
 
-ElRata.io nace de una idea simple: nadie debería pagar de más por un producto que está más barato en otra tienda. La herramienta busca precios en MercadoLibre, Amazon, Google Shopping y tiendas online de tu país, y luego usa IA para analizar los resultados y recomendarte la mejor opción.
+ElRata.io nace de una idea simple: nadie debería pagar de más por un producto que está más barato en otra tienda. La herramienta busca precios en MercadoLibre, Amazon, Google Shopping y tiendas online que tu puedes agregar en tu perfil de tu país, y luego usa IA para analizar los resultados y recomendarte la mejor opción.
 
 El nombre "rata" se usa con orgullo — ser rata es ser inteligente con tu plata.
 
@@ -67,7 +67,7 @@ lib/
   email/              Envío de emails con Resend
   validators/         Schemas de validación con Zod
 
-Tablas Supabase: folders, searches, price_alerts, price_history, user_stores, app_settings
+
 ```
 
 ## Cómo funciona (resumen técnico)
@@ -78,7 +78,7 @@ Tablas Supabase: folders, searches, price_alerts, price_history, user_stores, ap
    - **Amazon** — via ScraperAPI structured endpoint, TLD dinámico por país (amazon.ca, amazon.com.mx, etc.)
    - **Google Shopping** — Serper → SerpAPI → Google CSE (cadena de fallback)
    - **URL custom** — ScraperAPI HTML scraping con IPs residenciales
-3. Los resultados se deduplicан y ordenan por precio
+3. Los resultados se deduplicán y ordenan por precio
 4. Un modelo de IA analiza los resultados y genera recomendaciones
 5. Se muestra tabla comparativa con precios formateados por moneda local
 6. El usuario puede guardar la búsqueda completa o productos individuales en carpetas
