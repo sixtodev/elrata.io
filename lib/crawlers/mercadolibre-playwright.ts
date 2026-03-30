@@ -28,12 +28,22 @@ export async function searchMercadoLibrePlaywright(
   const store = `MercadoLibre ${countryCode}`
 
   const mlApiUrl = `https://api.mercadolibre.com/sites/${siteCode}/search?q=${encodeURIComponent(product)}&limit=20`
-  const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(mlApiUrl)}`
 
-  console.log(`[ml-api] Fetching via ScraperAPI: ${mlApiUrl}`)
+  console.log(`[ml-api] Fetching: ${mlApiUrl}`)
 
   try {
-    const res = await fetch(scraperUrl, { signal: AbortSignal.timeout(30000) })
+    // Try ML API directly first (fast, no proxy overhead)
+    let res = await fetch(mlApiUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(15000),
+    }).catch(() => null)
+
+    // If blocked (403/429), fall back to ScraperAPI
+    if (!res || res.status === 403 || res.status === 429) {
+      console.log(`[ml-api] Direct blocked (${res?.status ?? 'timeout'}), retrying via ScraperAPI...`)
+      const scraperUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(mlApiUrl)}`
+      res = await fetch(scraperUrl, { signal: AbortSignal.timeout(50000) })
+    }
 
     if (!res.ok) {
       console.error(`[ml-api] ScraperAPI error: ${res.status}`)
