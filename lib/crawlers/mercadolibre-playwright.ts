@@ -44,6 +44,7 @@ export async function searchMercadoLibrePlaywright(
         '--disable-gpu',
         '--no-first-run',
         '--disable-extensions',
+        '--disable-blink-features=AutomationControlled',
       ],
     })
 
@@ -51,13 +52,30 @@ export async function searchMercadoLibrePlaywright(
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       locale: 'es-CL',
       viewport: { width: 1280, height: 720 },
+      extraHTTPHeaders: {
+        'Accept-Language': 'es-CL,es;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      },
+    })
+
+    // Hide webdriver fingerprint
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, 'webdriver', { get: () => false })
     })
 
     const page = await context.newPage()
-    const searchUrl = `${baseUrl}/${encodeURIComponent(product)}`
+    // ML prefers hyphens in search URLs
+    const slug = product.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    const searchUrl = `${baseUrl}/${slug}`
 
     console.log(`[ml-playwright] → ${searchUrl}`)
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 40000 })
+    await page.goto(searchUrl, { waitUntil: 'load', timeout: 40000 })
+
+    // Wait for challenge JS to resolve (if any)
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})
+
+    const currentUrl = page.url()
+    console.log(`[ml-playwright] Final URL: ${currentUrl}`)
 
     // ML renders products client-side — wait up to 25s for them to appear
     // The PoW challenge resolves automatically (browser executes JS natively)
