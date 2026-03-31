@@ -376,25 +376,23 @@ export function DashboardSearch() {
 
         {/* Source */}
         <div style={{ marginBottom: '12px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: customUrl ? '#3a3a3a' : '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>Buscar en</label>
-          {customUrl ? (
-            <div style={{ fontSize: '12px', color: '#4a4a4a', padding: '6px 10px', background: '#1a1a1e', border: '1px solid #2a2a2a', borderRadius: '8px', display: 'inline-block' }}>
-              Desactivado — usando sitio específico
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {([
-                { id: 'all', label: 'Google Shopping' },
-                { id: 'amazon', label: 'Amazon' },
-                ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : []),
-              ] as { id: SearchSource; label: string }[]).map((s) => (
-                <button key={s.id} onClick={() => setSource(s.id)}
-                  style={{ border: source === s.id ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: source === s.id ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: source === s.id ? '#c4ef16' : '#6b7280' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>Buscar en</label>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {([
+              { id: 'all', label: 'Google Shopping' },
+              { id: 'amazon', label: 'Amazon' },
+              ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : []),
+            ] as { id: SearchSource; label: string }[]).map((s) => {
+              const isActive = !customUrl && source === s.id
+              return (
+                <button key={s.id}
+                  onClick={() => { setSource(s.id); setCustomUrl(''); setCustomUrlIsFromChip(false) }}
+                  style={{ border: isActive ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: isActive ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: isActive ? '#c4ef16' : '#6b7280' }}>
                   {s.label}
                 </button>
-              ))}
-            </div>
-          )}
+              )
+            })}
+          </div>
         </div>
 
         {/* Custom URL */}
