@@ -32,12 +32,14 @@ export async function searchSerper(
 
   const gl = getGoogleCountry(country)
   const currency = getCurrency(gl)
+  const tld = getLocalTLD(gl)           // e.g. ".co", ".mx", null for US
+  const location = getLocationName(country) // e.g. "Colombia", "Mexico"
   const results: SearchResult[] = []
 
   // Run shopping + organic search in parallel for more results
   const [shoppingResults, organicResults] = await Promise.allSettled([
-    fetchShopping(apiKey, query, city, country, gl, currency, budget),
-    fetchOrganic(apiKey, query, city, country, gl, currency, budget),
+    fetchShopping(apiKey, query, city, country, gl, currency, tld, location, budget),
+    fetchOrganic(apiKey, query, city, country, gl, currency, tld, location, budget),
   ])
 
   if (shoppingResults.status === 'fulfilled') {
@@ -58,18 +60,22 @@ async function fetchShopping(
   country: string,
   gl: string,
   currency: string,
+  tld: string | null,
+  location: string,
   budget?: string
 ): Promise<SearchResult[]> {
   const results: SearchResult[] = []
 
-  // Build budget hint for query
   const budgetHint = budget ? ` hasta ${budget}` : ''
+  const cityHint = city ? ` ${city}` : ''
 
-  // Multiple query variations — country first to help Google Shopping prioritize local stores
+  // Formula: [producto] precio [país] [moneda] + location param
+  // NOTA: site:.TLD no funciona en Shopping API (devuelve 0) — solo en organic
+  // Rotamos 3 variantes para mayor cobertura
   const queries = [
-    `${query} tienda ${country}${city ? ` ${city}` : ''}${budgetHint}`,
-    `comprar ${query} ${country} precio${budgetHint}`,
-    `${query} venta ${country}`,
+    `"${query}" precio ${country} ${currency}${cityHint}${budgetHint}`,
+    `comprar ${query} ${country} ${currency}${budgetHint}`,
+    `${query} ${country} tienda online${cityHint}`,
   ]
 
   for (const q of queries) {
@@ -77,7 +83,7 @@ async function fetchShopping(
       const res = await fetch(SHOPPING_URL, {
         method: 'POST',
         headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q, gl, hl: 'es', num: 20 }),
+        body: JSON.stringify({ q, gl, hl: 'es', location, num: 20 }),
       })
 
       if (!res.ok) continue
@@ -122,21 +128,23 @@ async function fetchOrganic(
   country: string,
   gl: string,
   currency: string,
+  tld: string | null,
+  location: string,
   budget?: string
 ): Promise<SearchResult[]> {
   const results: SearchResult[] = []
   const budgetHint = budget ? ` hasta ${budget}` : ''
+  const cityHint = city ? ` ${city}` : ''
+
+  // Organic: use site:.TLD when available for strong local filtering
+  const siteFilter = tld ? ` site:${tld}` : ''
+  const q = `${query} precio ${country} ${currency}${cityHint}${siteFilter}${budgetHint}`
 
   try {
     const res = await fetch(SEARCH_URL, {
       method: 'POST',
       headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        q: `${query} venta precio${city ? ` ${city}` : ''} ${country}${budgetHint}`,
-        gl,
-        hl: 'es',
-        num: 10,
-      }),
+      body: JSON.stringify({ q, gl, hl: 'es', location, num: 10 }),
     })
 
     if (!res.ok) return []
@@ -188,6 +196,7 @@ function getGoogleCountry(country: string): string {
     peru: 'pe', uruguay: 'uy', ecuador: 'ec', venezuela: 've',
     'estados unidos': 'us', usa: 'us', espana: 'es', spain: 'es',
     brasil: 'br', brazil: 'br', canada: 'ca',
+    francia: 'fr', alemania: 'de', italia: 'it', 'reino unido': 'gb',
   }
   return map[country.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')] || 'us'
 }
@@ -197,8 +206,34 @@ function getCurrency(gl: string): string {
     cl: 'CLP', ar: 'ARS', co: 'COP', mx: 'MXN',
     pe: 'PEN', uy: 'UYU', us: 'USD', es: 'EUR',
     br: 'BRL', ca: 'CAD', ec: 'USD', ve: 'VES',
+    fr: 'EUR', de: 'EUR', it: 'EUR', gb: 'GBP',
   }
   return map[gl] || 'USD'
+}
+
+/** Local TLD for countries where it's well-established — used in site: filter */
+function getLocalTLD(gl: string): string | null {
+  const map: Record<string, string> = {
+    cl: '.cl', ar: '.ar', co: '.co', mx: '.mx',
+    pe: '.pe', uy: '.uy', br: '.br', ca: '.ca',
+    es: '.es', fr: '.fr', de: '.de', it: '.it', gb: '.co.uk',
+    // Omit: us (.us unused, .com dominates), ec/ve (weak TLD coverage)
+  }
+  return map[gl] || null
+}
+
+/** Location name for Serper's location param (English display name) */
+function getLocationName(country: string): string {
+  const map: Record<string, string> = {
+    chile: 'Chile', argentina: 'Argentina', colombia: 'Colombia',
+    mexico: 'Mexico', peru: 'Peru', uruguay: 'Uruguay',
+    ecuador: 'Ecuador', venezuela: 'Venezuela', brasil: 'Brazil',
+    espana: 'Spain', francia: 'France', alemania: 'Germany',
+    italia: 'Italy', 'reino unido': 'United Kingdom',
+    'estados unidos': 'United States', canada: 'Canada',
+  }
+  const key = country.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return map[key] || country
 }
 
 function detectCurrencyFromPrice(price: string, fallback: string): string {
