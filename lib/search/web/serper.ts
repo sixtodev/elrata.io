@@ -145,17 +145,21 @@ async function fetchOrganic(
     const organic = (data.organic || []) as SerperOrganicResult[]
 
     for (const item of organic) {
-      // Organic snippets don't have reliable structured prices — show Ver precio
-      const price = 'Ver precio'
-
       // Skip results that clearly aren't product pages
       const link = item.link.toLowerCase()
       if (link.includes('wikipedia') || link.includes('youtube') || link.includes('reddit')) continue
 
+      // Extract price only if it has a thousands separator — avoids "Save $17" false positives
+      // Matches: $17,077 | MX$14,990 | $1.299.990 | COP$250.000 | €1.299
+      const priceMatch = item.snippet?.match(
+        /(?:MX\$|US\$|COP\s*\$?|ARS\s*\$?|\$|€|£|R\$|S\/\.?\s*)\s*\d{1,3}(?:[.,]\d{3})+/
+      )
+      const price = priceMatch ? priceMatch[0].trim() : 'Ver precio'
+
       results.push({
         name: item.title,
         price,
-        currency,
+        currency: price !== 'Ver precio' ? detectCurrencyFromPrice(price, currency) : currency,
         store: extractStoreName(item.link),
         url: item.link,
         availability: 'unknown',

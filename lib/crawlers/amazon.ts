@@ -61,7 +61,10 @@ export async function searchAmazon(
 
     const priceMax = budget ? parseBudget(budget) : null
 
-    const results: SearchResult[] = items
+    // NO_DECIMAL currencies have large nominal values — a price < 100 is clearly bad data
+    const NO_DECIMAL = new Set(['CLP', 'ARS', 'COP', 'MXN', 'PEN', 'UYU', 'VES'])
+
+  const results: SearchResult[] = items
       .filter((item) => item.name && item.url)
       .filter((item) => {
         if (!priceMax || !item.price) return true
@@ -70,9 +73,14 @@ export async function searchAmazon(
         return isNaN(num) || num <= priceMax * 1.15
       })
       .slice(0, 10)
-      .map((item) => ({
+      .map((item) => {
+        const rawPrice = item.price != null ? String(item.price) : null
+        const priceNum = rawPrice ? parseFloat(rawPrice.replace(/[^0-9.]/g, '')) : NaN
+        const isBadPrice = !isNaN(priceNum) && NO_DECIMAL.has(currency) && priceNum < 100
+        const price = rawPrice && !isBadPrice ? rawPrice : 'Ver precio'
+        return {
         name: item.name!,
-        price: item.price != null ? String(item.price) : 'Ver precio',
+        price,
         currency,
         store: `Amazon ${countryCode}`,
         store_id: undefined,
@@ -87,7 +95,8 @@ export async function searchAmazon(
           item.amazons_choice ? "Amazon's Choice" : '',
           item.rating ? `${item.rating}★ (${item.review_count || 0})` : '',
         ].filter(Boolean).join(' · ') || undefined,
-      }))
+        }
+      })
 
     console.log(`[amazon] ✓ ${results.length} results`)
     return results
