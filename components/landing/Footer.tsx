@@ -5,11 +5,11 @@ export function Footer() {
         🐀 <strong className="text-foreground">ElRata.io</strong> — Busca como rata, compra como rey
       </p>
       <p>
-        <a href="#" className="text-muted hover:text-foreground no-underline transition-colors">Términos</a>
+        <a href="/terminos" className="text-muted hover:text-foreground no-underline transition-colors">Términos</a>
         {' · '}
-        <a href="#" className="text-muted hover:text-foreground no-underline transition-colors">Privacidad</a>
+        <a href="/privacidad" className="text-muted hover:text-foreground no-underline transition-colors">Privacidad</a>
         {' · '}
-        <a href="#" className="text-muted hover:text-foreground no-underline transition-colors">Contacto</a>
+        <a href="/contacto" className="text-muted hover:text-foreground no-underline transition-colors">Contacto</a>
       </p>
       <p className="mt-3 text-[12px]">© 2026 ElRata.io — Hecho con 🐀, café frío, cero presupuesto y los modelos de IA que no cobraron todavía</p>
       <p className="mt-2 text-[11px]" style={{ fontStyle: 'italic' }}>
