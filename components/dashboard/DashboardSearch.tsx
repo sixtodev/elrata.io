@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge'
 import Image from 'next/image'
 import { SaveToFolderModal } from '@/components/results/SaveToFolderModal'
 import { SetPriceAlertModal } from '@/components/results/SetPriceAlertModal'
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal'
 import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/search/categories'
 import { SUPPORTED_COUNTRIES, ML_COUNTRIES } from '@/lib/search/countries'
 import type { CategoryField } from '@/lib/search/categories'
@@ -100,6 +101,8 @@ export function DashboardSearch() {
   const [savingUrl, setSavingUrl] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ name: '', url: '' })
+  const [deletingUrlId, setDeletingUrlId] = useState<string | null>(null)
+  const [confirmDeleteUrlId, setConfirmDeleteUrlId] = useState<string | null>(null)
 
   // Results state
   const [results, setResults] = useState<SearchResponse | null>(null)
@@ -151,10 +154,13 @@ export function DashboardSearch() {
   }
 
   const handleDeleteUrl = async (id: string) => {
+    setDeletingUrlId(id)
     try {
       await fetch(`/api/user-stores?id=${id}`, { method: 'DELETE' })
       setSavedUrls((prev) => prev.filter((u) => u.id !== id))
+      setConfirmDeleteUrlId(null)
     } catch { /* ignore */ }
+    setDeletingUrlId(null)
   }
 
   const handleEditUrl = async (id: string) => {
@@ -409,7 +415,16 @@ export function DashboardSearch() {
 
           {/* Saved URLs */}
           {savedUrls.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
+            <>
+              <ConfirmDeleteModal
+                open={!!confirmDeleteUrlId}
+                onOpenChange={(open) => { if (!open) setConfirmDeleteUrlId(null) }}
+                onConfirm={() => confirmDeleteUrlId && handleDeleteUrl(confirmDeleteUrlId)}
+                title="¿Eliminar tienda?"
+                description="Se eliminará esta URL de tus tiendas guardadas."
+                loading={deletingUrlId !== null}
+              />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
               {savedUrls.map((u) => (
                 <div key={u.id}>
                   {editingId === u.id ? (
@@ -447,7 +462,7 @@ export function DashboardSearch() {
                         ✎
                       </button>
                       <button
-                        onClick={() => handleDeleteUrl(u.id)}
+                        onClick={() => setConfirmDeleteUrlId(u.id)}
                         style={{ background: '#1a1a1e', border: '1px solid #2a2a2a', borderLeft: 'none', borderRadius: '0 6px 6px 0', padding: '4px 6px', fontSize: '10px', color: '#6b7280', cursor: 'pointer' }}
                         title="Eliminar"
                       >
@@ -457,7 +472,8 @@ export function DashboardSearch() {
                   )}
                 </div>
               ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
 

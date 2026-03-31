@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal'
 import type { SearchQuery, SearchResult } from '@/types/search'
 
 interface SearchRecord {
@@ -19,6 +20,7 @@ interface SearchHistoryProps {
 function SearchHistoryItem({ search }: { search: SearchRecord }) {
   const [expanded, setExpanded] = useState(false)
   const [showAll, setShowAll] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const router = useRouter()
@@ -31,14 +33,12 @@ function SearchHistoryItem({ search }: { search: SearchRecord }) {
     minute: '2-digit',
   })
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!confirm('¿Eliminar esta búsqueda guardada?')) return
-
+  const handleDelete = async () => {
     setDeleting(true)
     try {
       const res = await fetch(`/api/searches?id=${search.id}`, { method: 'DELETE' })
       if (res.ok) {
+        setShowConfirm(false)
         setDeleted(true)
         router.refresh()
       }
@@ -52,7 +52,16 @@ function SearchHistoryItem({ search }: { search: SearchRecord }) {
   if (deleted) return null
 
   return (
-    <div style={{ backgroundColor: '#1C1C1F', border: '1px solid #2a2a2a', borderRadius: '12px', overflow: 'hidden' }}>
+    <>
+      <ConfirmDeleteModal
+        open={showConfirm}
+        onOpenChange={setShowConfirm}
+        onConfirm={handleDelete}
+        title="¿Eliminar búsqueda?"
+        description={`Se eliminará "${q.product}" de tus búsquedas guardadas. Esta acción no se puede deshacer.`}
+        loading={deleting}
+      />
+      <div style={{ backgroundColor: '#1C1C1F', border: '1px solid #2a2a2a', borderRadius: '12px', overflow: 'hidden' }}>
       {/* Header — click to expand */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -76,14 +85,14 @@ function SearchHistoryItem({ search }: { search: SearchRecord }) {
 
           {/* Delete button */}
           <button
-            onClick={handleDelete}
+            onClick={(e) => { e.stopPropagation(); setShowConfirm(true) }}
             disabled={deleting}
             style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '6px', padding: '4px 8px', color: '#6b7280', fontSize: '12px', cursor: deleting ? 'wait' : 'pointer', transition: 'all 0.2s' }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444' }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.color = '#6b7280' }}
             title="Eliminar búsqueda"
           >
-            {deleting ? '...' : '🗑️'}
+            🗑️
           </button>
 
           <span style={{ color: '#6b7280', fontSize: '16px', transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -184,7 +193,8 @@ function SearchHistoryItem({ search }: { search: SearchRecord }) {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 
