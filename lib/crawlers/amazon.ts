@@ -18,14 +18,20 @@ const CURRENCIES: Record<string, string> = {
 
 interface AmazonItem {
   name?: string
-  price?: string
-  image?: string
   url?: string
-  rating?: string
-  review_count?: string
-  prime?: boolean
-  best_seller?: boolean
-  amazons_choice?: boolean
+  image?: string
+  // Price fields per ScraperAPI docs
+  price?: number        // numeric value  e.g. 17077
+  price_string?: string // formatted      e.g. "MX$17,077"
+  price_symbol?: string // symbol only    e.g. "$"
+  // Badges
+  has_prime?: boolean
+  is_best_seller?: boolean
+  is_amazon_choice?: boolean
+  is_limited_deal?: boolean
+  // Ratings
+  stars?: number
+  total_reviews?: number
 }
 
 export async function searchAmazon(
@@ -61,40 +67,36 @@ export async function searchAmazon(
 
     const priceMax = budget ? parseBudget(budget) : null
 
-    // NO_DECIMAL currencies have large nominal values — a price < 100 is clearly bad data
-    const NO_DECIMAL = new Set(['CLP', 'ARS', 'COP', 'MXN', 'PEN', 'UYU', 'VES'])
-
-  const results: SearchResult[] = items
+    const results: SearchResult[] = items
       .filter((item) => item.name && item.url)
       .filter((item) => {
-        if (!priceMax || !item.price) return true
-        const priceStr = String(item.price)
-        const num = parseFloat(priceStr.replace(/[^0-9.]/g, ''))
-        return isNaN(num) || num <= priceMax * 1.15
+        // Use numeric price field directly for budget filtering
+        if (!priceMax || item.price == null) return true
+        return item.price <= priceMax * 1.15
       })
       .slice(0, 10)
       .map((item) => {
-        const rawPrice = item.price != null ? String(item.price) : null
-        const priceNum = rawPrice ? parseFloat(rawPrice.replace(/[^0-9.]/g, '')) : NaN
-        const isBadPrice = !isNaN(priceNum) && NO_DECIMAL.has(currency) && priceNum < 100
-        const price = rawPrice && !isBadPrice ? rawPrice : 'Ver precio'
+        // price_string is the formatted price with currency symbol (e.g. "MX$17,077")
+        // Fall back to numeric price only if price_string is missing
+        const price = item.price_string || (item.price != null ? String(item.price) : 'Ver precio')
         return {
-        name: item.name!,
-        price,
-        currency,
-        store: `Amazon ${countryCode}`,
-        store_id: undefined,
-        url: item.url!,
-        availability: 'in_stock' as const,
-        source: 'crawlee' as const,
-        scraper_type: 'amazon-structured',
-        image: item.image || null,
-        notes: [
-          item.prime ? 'Prime' : '',
-          item.best_seller ? 'Best Seller' : '',
-          item.amazons_choice ? "Amazon's Choice" : '',
-          item.rating ? `${item.rating}★ (${item.review_count || 0})` : '',
-        ].filter(Boolean).join(' · ') || undefined,
+          name: item.name!,
+          price,
+          currency,
+          store: `Amazon ${countryCode}`,
+          store_id: undefined,
+          url: item.url!,
+          availability: 'in_stock' as const,
+          source: 'crawlee' as const,
+          scraper_type: 'amazon-structured',
+          image: item.image || null,
+          notes: [
+            item.has_prime ? 'Prime' : '',
+            item.is_best_seller ? 'Best Seller' : '',
+            item.is_amazon_choice ? "Amazon's Choice" : '',
+            item.is_limited_deal ? 'Oferta limitada' : '',
+            item.stars ? `${item.stars}★ (${item.total_reviews || 0})` : '',
+          ].filter(Boolean).join(' · ') || undefined,
         }
       })
 
