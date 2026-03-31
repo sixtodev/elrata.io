@@ -89,7 +89,7 @@ export default function TerminosPage() {
 
               <div className="border-t border-border" />
 
-              <section className="bg-bg2 border border-border rounded-xl p-6">
+              <section className="bg-bg2 border border-green rounded-xl p-6">
                 <p className="text-muted text-sm">
                   <strong className="text-foreground">TL;DR:</strong> Úsala, es gratis, no hagas cosas malas, y si algo no funciona avisanos. Eso es todo. Serio.
                 </p>
