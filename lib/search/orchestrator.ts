@@ -103,7 +103,7 @@ export async function orchestrateSearch(
         try {
           const { searchWeb } = await import('./web')
           // Pass full query with specs for better web search precision
-          const results = await searchWeb(webProduct, query.country, query.city, budget)
+          const results = await searchWeb(webProduct, query.country, query.city ?? '', budget)
           return { results, name: 'Web Search' }
         } catch (error) {
           console.error('[orchestrator] Web search failed:', error)
