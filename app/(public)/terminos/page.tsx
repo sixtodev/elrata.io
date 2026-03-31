@@ -31,7 +31,7 @@ export default function TerminosPage() {
 
               <section>
                 <h2 className="text-foreground text-lg font-semibold mb-3">
-                  🐀 La verdad de la milanesa
+                  La verdad de la milanesa
                 </h2>
                 <p className="text-muted">
                   ElRata.io es <strong className="text-foreground">completamente gratis</strong>, sin condiciones ocultas, sin suscripciones que se cobran a los 30 días, sin versión premium camuflada. Si algún día eso cambia, te lo decimos con tiempo y sin letra chica.
