@@ -43,6 +43,9 @@ export const metadata: Metadata = {
     "price comparison",
     "ElRata",
   ],
+  alternates: {
+    canonical: 'https://elrata.io',
+  },
   robots: {
     index: true,
     follow: true,
@@ -59,12 +62,14 @@ export const metadata: Metadata = {
     siteName: "ElRata.io",
     locale: "es_LA",
     type: "website",
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ElRata.io — Busca como rata, compra como rey 🐀",
     description: "Compara precios con IA en +16 países.",
     creator: "@elrata_io",
+    images: ['/opengraph-image'],
   },
   icons: {
     apple: [
@@ -84,6 +89,37 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${openSans.variable} ${inter.variable} ${geistMono.variable}`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  name: 'ElRata.io',
+                  url: 'https://elrata.io',
+                  logo: 'https://elrata.io/icons/rata.png',
+                  description: 'Comparador de precios con IA en +16 países',
+                },
+                {
+                  '@type': 'SoftwareApplication',
+                  name: 'ElRata.io',
+                  applicationCategory: 'ShoppingApplication',
+                  operatingSystem: 'Web',
+                  offers: {
+                    '@type': 'Offer',
+                    price: '0',
+                    priceCurrency: 'USD',
+                  },
+                  description: 'Comparador de precios con IA. Busca, compara y crea alertas de precio en +16 países.',
+                },
+              ],
+            }),
+          }}
+        />
+      </head>
       <body className="min-h-screen antialiased">
         <Script id="sw-unregister" strategy="beforeInteractive">{`
           if ('serviceWorker' in navigator) {
@@ -94,7 +130,7 @@ export default function RootLayout({
         `}</Script>
         {/* CSS-only loader — server-rendered, only visible on slow networks (400ms delay) */}
         <div id="page-loader">
-          <img src="/icons/rata.webp" alt="" width={96} height={96} />
+          <img src="/icons/rata.webp" alt="ElRata.io" width={96} height={96} />
           <div className="loader-text">
             El<span>Rata</span>.io
           </div>

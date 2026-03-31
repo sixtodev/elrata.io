@@ -6,6 +6,7 @@ import type { PriceAlert } from '@/types/alert'
 
 export const metadata = {
   title: 'Mis Alertas | ElRata',
+  description: 'Crea y monitorea alertas de precio. Recibí un email cuando el precio baje al nivel que configuraste.',
 }
 
 export default async function AlertsPage() {

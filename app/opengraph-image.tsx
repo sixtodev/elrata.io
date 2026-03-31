@@ -24,22 +24,23 @@ export default async function Image() {
         <div style={{ fontSize: '120px', marginBottom: '24px' }}>🐀</div>
         <div
           style={{
-            fontSize: '48px',
+            fontSize: '72px',
             fontWeight: 700,
             color: '#fefeff',
             marginBottom: '16px',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '4px',
+            letterSpacing: '-2px',
           }}
         >
-          <span style={{ color: '#c4ef16' }}>ElRata</span>
-          <span style={{ color: '#6b7280' }}>.io</span>
+          El<span style={{ color: '#c4ef16' }}>Rata</span>.io
         </div>
         <div
           style={{
-            fontSize: '28px',
-            color: '#6b7280',
+            fontSize: '32px',
+            color: '#fefeff',
+            opacity: 0.75,
           }}
         >
           Busca como rata, compra como rey

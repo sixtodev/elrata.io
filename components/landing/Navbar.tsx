@@ -65,17 +65,17 @@ export function Navbar() {
       {/* Desktop nav */}
       <ul className="hidden md:flex items-center gap-7 list-none">
         <li>
-          <button onClick={() => scrollTo('como-funciona')} className="nav-link text-foreground text-sm hover:text-green transition-colors bg-transparent border-none cursor-pointer">
+          <button type="button" onClick={() => scrollTo('como-funciona')} aria-label="Cómo funciona" className="nav-link text-foreground text-sm hover:text-green transition-colors bg-transparent border-none cursor-pointer">
             Cómo funciona
           </button>
         </li>
         <li>
-          <button onClick={() => scrollTo('features')} className="nav-link text-foreground text-sm hover:text-green transition-colors bg-transparent border-none cursor-pointer">
+          <button type="button" onClick={() => scrollTo('features')} aria-label="Features" className="nav-link text-foreground text-sm hover:text-green transition-colors bg-transparent border-none cursor-pointer">
             Features
           </button>
         </li>
         <li>
-          <button onClick={() => scrollTo('precios')} className="nav-link text-foreground text-sm hover:text-green transition-colors bg-transparent border-none cursor-pointer">
+          <button type="button" onClick={() => scrollTo('precios')} aria-label="Precios" className="nav-link text-foreground text-sm hover:text-green transition-colors bg-transparent border-none cursor-pointer">
             Precios
           </button>
         </li>
@@ -161,13 +161,13 @@ export function Navbar() {
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="absolute top-20 left-0 right-0 z-[100] bg-bg2 border-b border-border p-6 flex flex-col gap-4 md:hidden"
           >
-            <button onClick={() => scrollTo('como-funciona')} className="text-foreground text-left hover:text-green transition-colors bg-transparent border-none cursor-pointer min-h-11">
+            <button type="button" onClick={() => scrollTo('como-funciona')} aria-label="Cómo funciona" className="text-foreground text-left hover:text-green transition-colors bg-transparent border-none cursor-pointer min-h-11">
               Cómo funciona
             </button>
-            <button onClick={() => scrollTo('features')} className="text-foreground text-left hover:text-green transition-colors bg-transparent border-none cursor-pointer min-h-11">
+            <button type="button" onClick={() => scrollTo('features')} aria-label="Features" className="text-foreground text-left hover:text-green transition-colors bg-transparent border-none cursor-pointer min-h-11">
               Features
             </button>
-            <button onClick={() => scrollTo('precios')} className="text-foreground text-left hover:text-green transition-colors bg-transparent border-none cursor-pointer min-h-11">
+            <button type="button" onClick={() => scrollTo('precios')} aria-label="Precios" className="text-foreground text-left hover:text-green transition-colors bg-transparent border-none cursor-pointer min-h-11">
               Precios
             </button>
 

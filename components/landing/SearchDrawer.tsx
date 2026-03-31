@@ -142,7 +142,7 @@ export function SearchDrawer() {
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
           Categoría
         </label>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div role="group" aria-label="Categoría" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {SEARCH_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
@@ -282,7 +282,7 @@ export function SearchDrawer() {
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
           Buscar en
         </label>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div role="group" aria-label="Fuentes de búsqueda" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {([
             { id: 'all', label: 'Google Shopping' },
             { id: 'amazon', label: 'Amazon' },
