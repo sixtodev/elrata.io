@@ -10,6 +10,45 @@ import { SEARCH_CATEGORIES, getCategoryById, getVisibleFields } from '@/lib/sear
 import { SUPPORTED_COUNTRIES, ML_COUNTRIES } from '@/lib/search/countries'
 import type { CategoryField } from '@/lib/search/categories'
 
+const NO_DECIMAL_CURRENCIES = new Set(['CLP', 'ARS', 'COP', 'MXN', 'PEN', 'UYU', 'VES'])
+const COUNTRY_CURRENCY: Record<string, { currency: string; locale: string }> = {
+  chile: { currency: 'CLP', locale: 'es-CL' },
+  argentina: { currency: 'ARS', locale: 'es-AR' },
+  colombia: { currency: 'COP', locale: 'es-CO' },
+  mexico: { currency: 'MXN', locale: 'es-MX' },
+  peru: { currency: 'PEN', locale: 'es-PE' },
+  uruguay: { currency: 'UYU', locale: 'es-UY' },
+  ecuador: { currency: 'USD', locale: 'en-US' },
+  venezuela: { currency: 'VES', locale: 'es-VE' },
+  brasil: { currency: 'BRL', locale: 'pt-BR' },
+  espana: { currency: 'EUR', locale: 'es-ES' },
+  francia: { currency: 'EUR', locale: 'fr-FR' },
+  alemania: { currency: 'EUR', locale: 'de-DE' },
+  italia: { currency: 'EUR', locale: 'it-IT' },
+  'reino unido': { currency: 'GBP', locale: 'en-GB' },
+  'estados unidos': { currency: 'USD', locale: 'en-US' },
+  canada: { currency: 'CAD', locale: 'en-CA' },
+}
+
+function formatBudgetDisplay(raw: string, country: string): string {
+  if (!raw || !country) return raw
+  const num = parseInt(raw, 10)
+  if (isNaN(num) || num === 0) return raw
+  const key = country.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const config = COUNTRY_CURRENCY[key]
+  if (!config) return raw
+  try {
+    return new Intl.NumberFormat(config.locale, {
+      style: 'currency',
+      currency: config.currency,
+      maximumFractionDigits: NO_DECIMAL_CURRENCIES.has(config.currency) ? 0 : 2,
+      minimumFractionDigits: 0,
+    }).format(num)
+  } catch {
+    return raw
+  }
+}
+
 type SearchSource = 'all' | 'mercadolibre' | 'amazon'
 
 export function SearchDrawer() {
@@ -23,10 +62,10 @@ export function SearchDrawer() {
   const [remaining, setRemaining] = useState<number | null>(null)
 
   const [selectedCountry, setSelectedCountry] = useState('')
+  const [budgetRaw, setBudgetRaw] = useState('')
   const productRef = useRef<HTMLInputElement>(null)
   const brandRef = useRef<HTMLInputElement>(null)
   const cityRef = useRef<HTMLInputElement>(null)
-  const budgetRef = useRef<HTMLInputElement>(null)
   const purposeRef = useRef<HTMLTextAreaElement>(null)
 
   const category = getCategoryById(selectedCategory)
@@ -73,7 +112,7 @@ export function SearchDrawer() {
           city,
           country,
           purpose: purposeRef.current?.value.trim() || 'Uso general',
-          budget: budgetRef.current?.value.trim() || undefined,
+          budget: budgetRaw || undefined,
           source: selectedSource,
           specs: Object.keys(activeSpecs).length > 0 ? activeSpecs : undefined,
         }),
@@ -101,7 +140,7 @@ export function SearchDrawer() {
 
       setResults({
         ...data,
-        _budget: budgetRef.current?.value.trim() || undefined,
+        _budget: budgetRaw || undefined,
         _purpose: purposeRef.current?.value.trim() || '',
       })
       close()
@@ -254,9 +293,11 @@ export function SearchDrawer() {
       {/* Budget */}
       <div className="mb-4">
         <Input
-          ref={budgetRef}
           label="Presupuesto máximo (opcional)"
-          placeholder="ej: $500.000, USD 800, €400..."
+          placeholder="ej: 460000, 800, 1500..."
+          inputMode="numeric"
+          value={selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
+          onChange={(e) => setBudgetRaw(e.target.value.replace(/\D/g, ''))}
         />
       </div>
 
