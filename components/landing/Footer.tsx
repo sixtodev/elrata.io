@@ -11,7 +11,7 @@ export function Footer() {
         {' · '}
         <a href="#" className="text-muted hover:text-foreground no-underline transition-colors">Contacto</a>
       </p>
-      <p className="mt-3 text-[12px]">© 2026 ElRata.io — Hecho con 🐀, mucho ahorro y varios modelos de IA gratis</p>
+      <p className="mt-3 text-[12px]">© 2026 ElRata.io — Hecho con 🐀, café frío, cero presupuesto y los modelos de IA que no cobraron todavía</p>
       <p className="mt-2 text-[11px]" style={{ fontStyle: 'italic' }}>
         Nombre inspirado por las ofertas de trabajo ratas que el midu muestra en sus directos xD
       </p>
