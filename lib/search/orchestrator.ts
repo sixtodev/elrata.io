@@ -42,7 +42,7 @@ export async function orchestrateSearch(
 
   const tasks: Promise<{ results: SearchResult[]; name: string }>[] = []
 
-  // ── CUSTOM URL → additional source alongside others ──
+  // ── CUSTOM URL → exclusive source, skips all others ──
   if (customUrl) {
     tasks.push(
       (async () => {
@@ -60,6 +60,18 @@ export async function orchestrateSearch(
         }
       })()
     )
+    // When a specific site is selected, skip all other sources
+    const settled = await Promise.allSettled(tasks)
+    const allResults: SearchResult[] = []
+    for (const result of settled) {
+      if (result.status === 'fulfilled') {
+        const { results: r, name } = result.value
+        if (r.length > 0) { allResults.push(...r); sources.push(name) }
+      }
+    }
+    const merged = mergeAndSort(allResults, query.brand || undefined, specs, budget)
+    console.log(`[orchestrator] ✓ ${merged.length} results from [${sources.join(', ')}] (custom URL only)`)
+    return { results: merged.slice(0, 20), sources }
   }
 
   // ── CRAWLEE (MercadoLibre + country stores) ──
