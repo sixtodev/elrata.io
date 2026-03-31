@@ -4,7 +4,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border py-8 px-6 text-center text-muted text-[13px] relative z-10">
       <p className="mb-3">
-        🐀 <strong className="text-foreground">ElRata.io</strong> — Busca como rata, compra como rey
+        <strong className="text-foreground">ElRata.io</strong> — Busca como rata, compra como rey
       </p>
       <p>
         <Link href="/terminos" className="text-muted hover:text-foreground no-underline transition-colors">Términos</Link>
