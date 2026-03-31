@@ -38,7 +38,7 @@ export default function ContactoPage() {
                   Usé IA para construir esto y lo digo sin vergüenza. La IA es una herramienta, como lo fue Stack Overflow en su momento. La diferencia es que yo entiendo lo que estoy haciendo: sé por qué una decisión de arquitectura es mejor que otra, qué es seguro y qué no. La IA ejecuta, yo dirijo. Y si algo no sé, lo investigo — leo la documentación, busco alternativas, comparo opciones.
                 </p>
                 <p className="text-muted">
-                  Ejemplo concreto: el scraping de esta app. Hay mil servicios de pago para eso, pero yo quería la opción más free y rata posible. Investigué, probé, descarté, volví a probar. El resultado funciona bien — con sus limitaciones, claro. La más memorable: MercadoLibre me baneó la IP del VPS. Literalmente. Me bloqueó el servidor entero. En algún punto eso deja de ser un error y empieza a ser un logro.
+                  El scraping de esta app. Hay mil servicios de pago para eso, pero yo quería la opción más free y rata posible. Investigué, probé, descarté, volví a probar. El resultado funciona bien — con sus limitaciones, claro. La más memorable: MercadoLibre me baneó la IP del VPS. Literalmente. Me bloqueó el servidor entero. En algún punto eso deja de ser un error y empieza a ser un logro.
                 </p>
               </section>
 
