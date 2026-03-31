@@ -119,6 +119,7 @@ export function DashboardSearch() {
   const cityRef = useRef<HTMLInputElement>(null)
   const [selectedCountry, setSelectedCountry] = useState('')
   const [budgetRaw, setBudgetRaw] = useState('')
+  const [budgetFocused, setBudgetFocused] = useState(false)
   const purposeRef = useRef<HTMLTextAreaElement>(null)
 
   // Load saved URLs when drawer opens
@@ -358,8 +359,10 @@ export function DashboardSearch() {
             label="Presupuesto (opcional)"
             placeholder="ej: 460000, 800, 1500..."
             inputMode="numeric"
-            value={selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
+            value={!budgetFocused && selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
             onChange={(e) => setBudgetRaw(e.target.value.replace(/\D/g, ''))}
+            onFocus={() => setBudgetFocused(true)}
+            onBlur={() => setBudgetFocused(false)}
           />
         </div>
         <div className="mb-3">

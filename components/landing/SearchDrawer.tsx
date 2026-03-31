@@ -63,6 +63,7 @@ export function SearchDrawer() {
 
   const [selectedCountry, setSelectedCountry] = useState('')
   const [budgetRaw, setBudgetRaw] = useState('')
+  const [budgetFocused, setBudgetFocused] = useState(false)
   const productRef = useRef<HTMLInputElement>(null)
   const brandRef = useRef<HTMLInputElement>(null)
   const cityRef = useRef<HTMLInputElement>(null)
@@ -296,8 +297,10 @@ export function SearchDrawer() {
           label="Presupuesto máximo (opcional)"
           placeholder="ej: 460000, 800, 1500..."
           inputMode="numeric"
-          value={selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
+          value={!budgetFocused && selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
           onChange={(e) => setBudgetRaw(e.target.value.replace(/\D/g, ''))}
+          onFocus={() => setBudgetFocused(true)}
+          onBlur={() => setBudgetFocused(false)}
         />
       </div>
 
