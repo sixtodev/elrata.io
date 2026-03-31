@@ -1,8 +1,23 @@
 import type { SearchResult } from '@/types/search'
 
 /**
+ * International marketplaces that are available everywhere.
+ * Local/country-specific stores are prioritized over these in search results.
+ */
+const GLOBAL_MARKETPLACES = new Set([
+  'amazon', 'ebay', 'aliexpress', 'wish', 'shein', 'temu',
+  'banggood', 'gearbest', 'lightinthebox', 'dhgate', 'joom',
+])
+
+function isGlobalMarketplace(store: string): boolean {
+  const lower = store.toLowerCase()
+  return [...GLOBAL_MARKETPLACES].some((m) => lower.includes(m))
+}
+
+/**
  * Merges results from multiple sources, deduplicates, applies filters,
  * scores by spec match, and sorts by relevance then price.
+ * Local/country stores always appear before global marketplaces.
  */
 export function mergeAndSort(
   results: SearchResult[],
@@ -54,13 +69,25 @@ export function mergeAndSort(
 
   if (specValues.length > 0) {
     filtered.sort((a, b) => {
+      // Local stores before global marketplaces
+      const globalA = isGlobalMarketplace(a.store) ? 1 : 0
+      const globalB = isGlobalMarketplace(b.store) ? 1 : 0
+      if (globalA !== globalB) return globalA - globalB
+      // Within same group: higher spec match first, then cheapest
       const scoreA = specScore(a, specValues)
       const scoreB = specScore(b, specValues)
-      if (scoreB !== scoreA) return scoreB - scoreA  // higher spec match first
-      return extractNumericPrice(a.price) - extractNumericPrice(b.price)  // then cheapest
+      if (scoreB !== scoreA) return scoreB - scoreA
+      return extractNumericPrice(a.price) - extractNumericPrice(b.price)
     })
   } else {
-    filtered.sort((a, b) => extractNumericPrice(a.price) - extractNumericPrice(b.price))
+    filtered.sort((a, b) => {
+      // Local stores before global marketplaces
+      const globalA = isGlobalMarketplace(a.store) ? 1 : 0
+      const globalB = isGlobalMarketplace(b.store) ? 1 : 0
+      if (globalA !== globalB) return globalA - globalB
+      // Within same group: cheapest first
+      return extractNumericPrice(a.price) - extractNumericPrice(b.price)
+    })
   }
 
   return filtered

@@ -65,11 +65,11 @@ async function fetchShopping(
   // Build budget hint for query
   const budgetHint = budget ? ` hasta ${budget}` : ''
 
-  // Multiple query variations for better coverage
+  // Multiple query variations — country first to help Google Shopping prioritize local stores
   const queries = [
-    `comprar ${query}${city ? ` ${city}` : ''} ${country}${budgetHint}`,
-    `${query} venta ${country} precio${budgetHint}`,
-    `${query} tienda online ${country}`,
+    `${query} tienda ${country}${city ? ` ${city}` : ''}${budgetHint}`,
+    `comprar ${query} ${country} precio${budgetHint}`,
+    `${query} venta ${country}`,
   ]
 
   for (const q of queries) {
