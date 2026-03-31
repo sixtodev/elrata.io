@@ -47,12 +47,17 @@ function formatBudgetDisplay(raw: string, country: string): string {
   const config = COUNTRY_CURRENCY[key]
   if (!config) return raw
   try {
-    return new Intl.NumberFormat(config.locale, {
+    const parts = new Intl.NumberFormat(config.locale, {
       style: 'currency',
       currency: config.currency,
       maximumFractionDigits: NO_DECIMAL_CURRENCIES.has(config.currency) ? 0 : 2,
       minimumFractionDigits: 0,
-    }).format(num)
+    }).formatToParts(num)
+    // Always put the currency symbol first so backspace works correctly
+    // (some locales like es-ES put € at the end: "750 €" → we force "€750")
+    const symbol = parts.find(p => p.type === 'currency')?.value ?? ''
+    const number = parts.filter(p => p.type !== 'currency').map(p => p.value).join('').trim()
+    return `${symbol}${number}`
   } catch {
     return raw
   }
@@ -119,7 +124,6 @@ export function DashboardSearch() {
   const cityRef = useRef<HTMLInputElement>(null)
   const [selectedCountry, setSelectedCountry] = useState('')
   const [budgetRaw, setBudgetRaw] = useState('')
-  const [budgetFocused, setBudgetFocused] = useState(false)
   const purposeRef = useRef<HTMLTextAreaElement>(null)
 
   // Load saved URLs when drawer opens
@@ -359,10 +363,8 @@ export function DashboardSearch() {
             label="Presupuesto (opcional)"
             placeholder="ej: 460000, 800, 1500..."
             inputMode="numeric"
-            value={!budgetFocused && selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
+            value={selectedCountry && budgetRaw ? formatBudgetDisplay(budgetRaw, selectedCountry) : budgetRaw}
             onChange={(e) => setBudgetRaw(e.target.value.replace(/\D/g, ''))}
-            onFocus={() => setBudgetFocused(true)}
-            onBlur={() => setBudgetFocused(false)}
           />
         </div>
         <div className="mb-3">
