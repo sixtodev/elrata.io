@@ -60,7 +60,7 @@ lib/
   ai/                 Proveedores de IA y analizador (round-robin)
   search/             Orquestador + motor de búsqueda web
   crawlers/
-    mercadolibre-playwright.ts  ML via Serper shopping+organic
+    mercadolibre-serper.ts      ML via Serper shopping+organic
     amazon.ts                   Amazon via ScraperAPI structured
     generic.ts                  Scraper genérico para URLs custom
   supabase/           Cliente y servidor de Supabase
