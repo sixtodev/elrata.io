@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Bell, Bookmark, Bot, FolderPlus } from 'lucide-react'
+import { Bell, Bookmark, Bot, FolderPlus, Info } from 'lucide-react'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -532,6 +532,16 @@ export function DashboardSearch() {
             </div>
           </div>
 
+          {/* Custom URL coverage note */}
+          {customUrl && results.results.length < 5 && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: 'rgba(196,239,22,0.05)', border: '1px solid rgba(196,239,22,0.15)', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
+              <Info size={15} style={{ color: '#c4ef16', flexShrink: 0, marginTop: '1px' }} />
+              <p style={{ color: '#9ca3af', fontSize: '13px', margin: 0, lineHeight: '1.5' }}>
+                Algunas tiendas muestran pocos resultados por ahora. Seguimos trabajando para mejorar la cobertura — pronto vas a ver muchas más opciones acá.
+              </p>
+            </div>
+          )}
+
           {/* AI Analysis */}
           {analyzingAI && (
             <div style={{ background: '#151518', border: '1px solid rgba(196,239,22,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -618,7 +628,16 @@ export function DashboardSearch() {
       {results && results.results.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px 0', marginBottom: '40px', borderBottom: '1px solid #2a2a2a', paddingBottom: '40px' }}>
           <Image src="/icons/rata.webp" alt="Sin resultados" width={80} height={80} className="mx-auto mb-4 opacity-60" />
-          <p style={{ color: '#6b7280', marginBottom: '16px' }}>No encontramos resultados. Intenta con otro producto.</p>
+          {customUrl ? (
+            <>
+              <p style={{ color: '#fefeff', fontSize: '15px', fontWeight: 500, marginBottom: '8px' }}>No encontramos productos en esta tienda</p>
+              <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '16px', maxWidth: '380px', margin: '0 auto 16px' }}>
+                Algunas tiendas aún no están disponibles para mostrar sus productos desde acá. Seguimos trabajando para sumar más — mientras tanto, probá buscar sin un sitio específico y te mostramos más opciones.
+              </p>
+            </>
+          ) : (
+            <p style={{ color: '#6b7280', marginBottom: '16px' }}>No encontramos resultados. Intenta con otro producto.</p>
+          )}
           <button
             onClick={() => { setResults(null); setDrawerOpen(true); loadSavedUrls() }}
             style={{ background: '#c4ef16', color: '#000', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}

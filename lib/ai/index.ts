@@ -5,7 +5,7 @@ import type { SearchAnalysis } from './analyzer'
  * Search: SOLO scraping, sin IA.
  */
 export async function runSearch(
-  query: SearchQuery & { source?: string }
+  query: SearchQuery & { source?: string; custom_url?: string; budget?: string }
 ): Promise<{ results: SearchResult[]; sources: string[] }> {
   const { orchestrateSearch } = await import('@/lib/search/orchestrator')
   return orchestrateSearch(query)

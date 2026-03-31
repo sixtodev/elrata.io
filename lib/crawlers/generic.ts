@@ -134,6 +134,8 @@ function parseGenericPage(
       '[class*="producto"]', '[class*="card-product"]',
       'article[class*="product"]', '.search-result',
       '[class*="grid-item"]', '[class*="catalog-item"]',
+      // El Corte Inglés
+      '[class*="product_preview"]', '[class*="products_list-item"]',
     ]
 
     for (const selector of productSelectors) {
@@ -200,6 +202,38 @@ function appendPage(searchUrl: string, page: number): string {
   return url.toString()
 }
 
+/** Returns true if the domain has a known search URL pattern */
+export function isKnownStore(url: string): boolean {
+  try {
+    const domain = new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '')
+    return domain in KNOWN_PATTERNS
+  } catch {
+    return false
+  }
+}
+
+const KNOWN_PATTERNS: Record<string, string> = {
+  'falabella.cl': '/falabella-cl/search?Ntt=',
+  'pcfactory.cl': '/buscar?valor=',
+  'paris.cl': '/search?q=',
+  'ripley.com': '/search/',
+  'sodimac.cl': '/search/?Ntt=',
+  'easy.cl': '/search/?Ntt=',
+  'lider.cl': '/search?Ntt=',
+  'hites.com': '/search?q=',
+  'abcdin.cl': '/search?q=',
+  'pccomponentes.com': '/buscar/?query=',
+  'mediamarkt.es': '/es/search.html?query=',
+  'elcorteingles.es': '/search/?s=',
+  'liverpool.com.mx': '/tienda?s=',
+  'coppel.com': '/search?q=',
+  'elektra.com.mx': '/busqueda?q=',
+  'fravega.com': '/l/?keyword=',
+  'musimundo.com': '/search?q=',
+  'garbarino.com': '/q/',
+  'exito.com': '/s?q=',
+}
+
 /**
  * Builds a search URL for a given store domain.
  */
@@ -208,30 +242,9 @@ function buildSearchUrl(baseUrl: string, product: string): string {
   const domain = url.hostname.replace('www.', '')
   const encoded = encodeURIComponent(product)
 
-  const patterns: Record<string, string> = {
-    'pcfactory.cl': `/buscar?valor=${encoded}`,
-    'paris.cl': `/search?q=${encoded}`,
-    'ripley.com': `/search/${encoded}`,
-    'sodimac.cl': `/search/?Ntt=${encoded}`,
-    'easy.cl': `/search/?Ntt=${encoded}`,
-    'lider.cl': `/search?Ntt=${encoded}`,
-    'hites.com': `/search?q=${encoded}`,
-    'abcdin.cl': `/search?q=${encoded}`,
-    'pccomponentes.com': `/buscar/?query=${encoded}`,
-    'mediamarkt.es': `/es/search.html?query=${encoded}`,
-    'elcorteingles.es': `/search/?s=${encoded}`,
-    'liverpool.com.mx': `/tienda?s=${encoded}`,
-    'coppel.com': `/search?q=${encoded}`,
-    'elektra.com.mx': `/busqueda?q=${encoded}`,
-    'fravega.com': `/l/?keyword=${encoded}`,
-    'musimundo.com': `/search?q=${encoded}`,
-    'garbarino.com': `/q/${encoded}`,
-    'exito.com': `/s?q=${encoded}`,
-  }
-
-  const pattern = patterns[domain]
+  const pattern = KNOWN_PATTERNS[domain]
   if (pattern) {
-    return `${url.origin}${pattern}`
+    return `${url.origin}${pattern}${encoded}`
   }
 
   return `${url.origin}/search?q=${encoded}`

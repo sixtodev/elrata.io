@@ -182,6 +182,64 @@ async function fetchOrganic(
   return results
 }
 
+/**
+ * Organic-only search restricted to a specific domain.
+ * Used as Option B for custom URL searches — works for any site Google has indexed.
+ */
+export async function searchSiteSerper(
+  domain: string,
+  query: string,
+  country: string,
+): Promise<SearchResult[]> {
+  const apiKey = process.env.SERPER_API_KEY
+  if (!apiKey) return []
+
+  const gl = getGoogleCountry(country)
+  const currency = getCurrency(gl)
+  const q = `site:${domain} ${query}`
+
+  console.log(`[serper] site: search — "${q}"`)
+
+  try {
+    const res = await fetch(SEARCH_URL, {
+      method: 'POST',
+      headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q, gl, hl: 'es', num: 10 }),
+    })
+    if (!res.ok) return []
+
+    const data = await res.json()
+    const organic = (data.organic || []) as SerperOrganicResult[]
+    const results: SearchResult[] = []
+
+    for (const item of organic) {
+      const link = item.link.toLowerCase()
+      if (link.includes('wikipedia') || link.includes('youtube') || link.includes('reddit')) continue
+
+      const priceMatch = item.snippet?.match(
+        /(?:MX\$|US\$|COP\s*\$?|ARS\s*\$?|\$|€|£|R\$|S\/\.?\s*)\s*\d{1,3}(?:[.,]\d{3})+/
+      )
+      const price = priceMatch ? priceMatch[0].trim() : 'Ver precio'
+
+      results.push({
+        name: item.title,
+        price,
+        currency: price !== 'Ver precio' ? detectCurrencyFromPrice(price, currency) : currency,
+        store: domain,
+        url: item.link,
+        availability: 'unknown',
+        source: 'crawlee',
+        notes: item.snippet?.slice(0, 120),
+      })
+    }
+
+    console.log(`[serper] site:${domain} → ${results.length} results`)
+    return results
+  } catch {
+    return []
+  }
+}
+
 function extractStoreName(url: string): string {
   try {
     return new URL(url).hostname.replace('www.', '').replace('listado.', '')

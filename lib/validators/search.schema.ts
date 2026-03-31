@@ -10,6 +10,7 @@ export const searchSchema = z.object({
   budget: z.string().max(50).optional(),
   source: z.enum(['all', 'mercadolibre', 'web', 'amazon']).optional(),
   specs: z.record(z.string(), z.string()).optional(),
+  custom_url: z.string().optional(),
 })
 
 export type SearchSchemaInput = z.infer<typeof searchSchema>

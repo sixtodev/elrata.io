@@ -58,3 +58,22 @@ export async function searchWeb(
   console.log('[web-search] No providers returned results')
   return []
 }
+
+/**
+ * Search restricted to a specific domain via site: operator.
+ * Option B for custom URL searches — works for any site Google has indexed.
+ */
+export async function searchSite(
+  domain: string,
+  product: string,
+  country: string,
+): Promise<SearchResult[]> {
+  if (process.env.SERPER_API_KEY) {
+    try {
+      const { searchSiteSerper } = await import('./serper')
+      const results = await searchSiteSerper(domain, product, country)
+      if (results.length > 0) return results
+    } catch { /* continue */ }
+  }
+  return []
+}

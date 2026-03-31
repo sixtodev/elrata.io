@@ -44,32 +44,36 @@ export async function orchestrateSearch(
 
   // ── CUSTOM URL → exclusive source, skips all others ──
   if (customUrl) {
-    tasks.push(
-      (async () => {
-        try {
-          const { scrapeGenericUrl } = await import('@/lib/crawlers/generic')
-          const cc = getCountryCode(query.country)
-          const currency = getCurrencyForCountry(cc)
-          const scraperApiKey = process.env.SCRAPERAPI_KEY
-          const results = await scrapeGenericUrl(customUrl, webProduct, currency, scraperApiKey)
-          const label = new URL(customUrl).hostname.replace(/^www\./, '')
-          return { results, name: label }
-        } catch (error) {
-          console.error('[orchestrator] Custom URL failed:', error)
-          return { results: [] as SearchResult[], name: customUrl }
-        }
-      })()
-    )
-    // When a specific site is selected, skip all other sources
-    const settled = await Promise.allSettled(tasks)
-    const allResults: SearchResult[] = []
-    for (const result of settled) {
-      if (result.status === 'fulfilled') {
-        const { results: r, name } = result.value
-        if (r.length > 0) { allResults.push(...r); sources.push(name) }
+    const cc = getCountryCode(query.country)
+    const currency = getCurrencyForCountry(cc)
+    const domain = (() => { try { return new URL(customUrl.startsWith('http') ? customUrl : `https://${customUrl}`).hostname.replace(/^www\./, '') } catch { return customUrl } })()
+    let customResults: SearchResult[] = []
+
+    // Option A: known store → scrape directly
+    try {
+      const { scrapeGenericUrl, isKnownStore } = await import('@/lib/crawlers/generic')
+      if (isKnownStore(customUrl)) {
+        console.log(`[orchestrator] Custom URL — Option A (scrape): ${domain}`)
+        const scraperApiKey = process.env.SCRAPERAPI_KEY
+        customResults = await scrapeGenericUrl(customUrl, webProduct, currency, scraperApiKey)
+      }
+    } catch (error) {
+      console.error('[orchestrator] Custom URL scrape failed:', error)
+    }
+
+    // Option B: unknown store or scraping returned 0 → site: search via Serper
+    if (customResults.length === 0) {
+      try {
+        console.log(`[orchestrator] Custom URL — Option B (site: search): ${domain}`)
+        const { searchSite } = await import('./web')
+        customResults = await searchSite(domain, webProduct, query.country)
+      } catch (error) {
+        console.error('[orchestrator] Custom URL site-search failed:', error)
       }
     }
-    const merged = mergeAndSort(allResults, query.brand || undefined, specs, budget)
+
+    if (customResults.length > 0) sources.push(domain)
+    const merged = mergeAndSort(customResults, query.brand || undefined, specs, budget)
     console.log(`[orchestrator] ✓ ${merged.length} results from [${sources.join(', ')}] (custom URL only)`)
     return { results: merged.slice(0, 20), sources }
   }
