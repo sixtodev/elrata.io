@@ -67,7 +67,7 @@ async function fetchShopping(
 
   // Multiple query variations for better coverage
   const queries = [
-    `comprar ${query} ${city} ${country}${budgetHint}`,
+    `comprar ${query}${city ? ` ${city}` : ''} ${country}${budgetHint}`,
     `${query} venta ${country} precio${budgetHint}`,
     `${query} tienda online ${country}`,
   ]
@@ -132,7 +132,7 @@ async function fetchOrganic(
       method: 'POST',
       headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        q: `${query} venta precio ${city} ${country}${budgetHint}`,
+        q: `${query} venta precio${city ? ` ${city}` : ''} ${country}${budgetHint}`,
         gl,
         hl: 'es',
         num: 10,
@@ -145,9 +145,8 @@ async function fetchOrganic(
     const organic = (data.organic || []) as SerperOrganicResult[]
 
     for (const item of organic) {
-      // Extract price from snippet if present
-      const priceMatch = item.snippet?.match(/\$[\d.,]+/)
-      const price = priceMatch ? priceMatch[0] : 'Ver precio'
+      // Organic snippets don't have reliable structured prices — show Ver precio
+      const price = 'Ver precio'
 
       // Skip results that clearly aren't product pages
       const link = item.link.toLowerCase()

@@ -63,7 +63,7 @@ function SearchHistoryItem({ search }: { search: SearchRecord }) {
             {q.product}{q.brand ? ` (${q.brand})` : ''}
           </div>
           <div style={{ fontSize: '13px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span>{q.city}, {q.country}</span>
+            <span>{q.city ? `${q.city}, ` : ''}{q.country}</span>
             <span style={{ color: '#2a2a2a' }}>|</span>
             <span>{date}</span>
           </div>

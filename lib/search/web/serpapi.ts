@@ -27,7 +27,7 @@ export async function searchSerpAPI(
 
   // Try shopping + regular search
   const queries = [
-    { engine: 'google_shopping', q: `${query} ${city} ${country}` },
+    { engine: 'google_shopping', q: `${query}${city ? ` ${city}` : ''} ${country}` },
     { engine: 'google_shopping', q: `comprar ${query} ${country}` },
   ]
 
@@ -55,7 +55,7 @@ export async function searchSerpAPI(
 
         results.push({
           name: item.title,
-          price: item.price || `$${item.extracted_price || 0}`,
+          price: item.price || (item.extracted_price ? String(item.extracted_price) : 'Ver precio'),
           currency,
           store: item.source || 'Tienda',
           url: item.link,

@@ -42,7 +42,7 @@ export async function searchGoogleCustom(
     const params = new URLSearchParams({
       key: apiKey,
       cx,
-      q: `${query} precio comprar ${city} ${country}`,
+      q: `${query} precio comprar${city ? ` ${city}` : ''} ${country}`,
       gl,
       hl: 'es',
       num: '10',
@@ -64,13 +64,10 @@ export async function searchGoogleCustom(
       let currency = detectCurrency(gl)
 
       if (item.pagemap?.offer?.[0]?.price) {
-        price = `$${item.pagemap.offer[0].price}`
+        price = String(item.pagemap.offer[0].price)
         if (item.pagemap.offer[0].pricecurrency) {
           currency = item.pagemap.offer[0].pricecurrency
         }
-      } else {
-        const priceMatch = item.snippet.match(/\$[\d.,]+/)
-        if (priceMatch) price = priceMatch[0]
       }
 
       const hostname = new URL(item.link).hostname.replace('www.', '')

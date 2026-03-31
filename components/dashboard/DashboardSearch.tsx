@@ -146,7 +146,7 @@ export function DashboardSearch() {
     const product = productRef.current?.value.trim() || ''
     const city = cityRef.current?.value.trim() || ''
     const country = selectedCountry
-    if (!product || !city || !country) return
+    if (!product || !country) return
 
     setLoading(true)
     setError('')
@@ -293,7 +293,7 @@ export function DashboardSearch() {
 
         {/* Location + Budget */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
-          <Input ref={cityRef} label="Ciudad *" placeholder="ej: Santiago, Bogotá..." />
+          <Input ref={cityRef} label="Ciudad (opcional)" placeholder="ej: Santiago, Bogotá..." />
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>País *</label>
             <select
@@ -433,7 +433,7 @@ export function DashboardSearch() {
                 Resultados para &quot;{results.query.product}&quot;
               </h2>
               <p style={{ color: '#6b7280', fontSize: '13px', marginTop: '4px' }}>
-                {results.results.length} productos · {results.query.city}, {results.query.country}
+                {results.results.length} productos · {results.query.city ? `${results.query.city}, ` : ''}{results.query.country}
                 {results.sources_used && <> · <span style={{ color: '#c4ef16' }}>{results.sources_used.join(', ')}</span></>}
               </p>
             </div>
@@ -521,8 +521,7 @@ export function DashboardSearch() {
                   </div>
 
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '18px' }}>{formatPrice(r.price, r.currency)}</div>
-                    <div style={{ color: '#6b7280', fontSize: '11px', marginBottom: '8px' }}>{r.currency}</div>
+                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '18px', marginBottom: '8px' }}>{formatPrice(r.price, r.currency)}</div>
 
                     {r.url && r.url !== '#' && (
                       <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#c4ef16', color: '#000', padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, textDecoration: 'none', marginBottom: '8px' }}>Ver →</a>

@@ -3,7 +3,7 @@ export type AIProvider = 'claude-sonnet-4-6' | 'gpt-4o' | 'gemini-2.5-pro'
 export interface SearchQuery {
   product: string
   brand?: string
-  city: string
+  city?: string
   country: string
   purpose: string
   model?: AIProvider

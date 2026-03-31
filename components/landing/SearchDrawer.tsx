@@ -47,7 +47,7 @@ export function SearchDrawer() {
 
     const newErrors: Record<string, boolean> = {}
     if (!product) newErrors.product = true
-    if (!city) newErrors.city = true
+
     if (!country) newErrors.country = true
 
     if (Object.keys(newErrors).length > 0) {
@@ -219,9 +219,9 @@ export function SearchDrawer() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <Input
           ref={cityRef}
-          label="Ciudad *"
+          label="Ciudad (opcional)"
           placeholder="ej: Santiago, Bogotá, Madrid..."
-          className={errors.city ? 'border-red animate-shake' : ''}
+          className=""
         />
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>

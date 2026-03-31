@@ -254,8 +254,7 @@ export function ResultsSection() {
 
                   {/* Right */}
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '20px' }}>{formatPrice(r.price, r.currency)}</div>
-                    <div style={{ color: '#6b7280', fontSize: '12px', marginBottom: '8px' }}>{r.currency}</div>
+                    <div style={{ color: '#c4ef16', fontWeight: 'bold', fontSize: '20px', marginBottom: '8px' }}>{formatPrice(r.price, r.currency)}</div>
                     {r.url && r.url !== '#' ? (
                       <a href={r.url} target="_blank" rel="noopener noreferrer"
                         style={{ display: 'inline-block', background: '#c4ef16', color: '#000', padding: '6px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
