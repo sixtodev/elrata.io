@@ -72,8 +72,14 @@ export const metadata: Metadata = {
     images: ['/opengraph-image'],
   },
   icons: {
+    icon: [
+      { url: '/icons/rata-icon.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icons/rata-icon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/rata-icon.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: '/icons/rata-icon.png',
     apple: [
-      { url: '/icons/rata.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icons/rata-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
 };
