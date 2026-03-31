@@ -52,23 +52,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-foreground text-lg font-semibold mb-3">¿Quién puede ver tus datos?</h2>
                 <p className="text-muted mb-4">
-                  <strong className="text-foreground">Solo vos.</strong> Usamos Supabase con Row Level Security (RLS) habilitado — cada usuario solo puede leer y escribir sus propios datos. No hay forma de que otro usuario vea tus búsquedas o alertas.
+                  <strong className="text-foreground">Solo tú.</strong> Usamos Supabase con Row Level Security (RLS) habilitado — cada usuario solo puede leer y escribir sus propios datos. No hay forma de que otro usuario vea tus búsquedas o alertas.
                 </p>
                 <p className="text-muted">
                   El equipo técnico (por ahora, una sola persona con demasiado café) tiene acceso a la base para mantenimiento, pero no revisamos búsquedas individuales. No hay negocio en espiarte.
                 </p>
-              </section>
-
-              <div className="border-t border-border" />
-
-              <section>
-                <h2 className="text-foreground text-lg font-semibold mb-3">Lo que NUNCA hacemos</h2>
-                <ul className="text-muted space-y-2 list-none">
-                  <li className="flex items-start gap-2"><span className="text-green mt-1">✗</span> Vender tus datos a terceros</li>
-                  <li className="flex items-start gap-2"><span className="text-green mt-1">✗</span> Compartir tu email con anunciantes</li>
-                  <li className="flex items-start gap-2"><span className="text-green mt-1">✗</span> Usar tus búsquedas para mostrarte publicidad</li>
-                  <li className="flex items-start gap-2"><span className="text-green mt-1">✗</span> Vender la empresa a alguien que sí haga todo lo de arriba (y si eso pasara, te avisamos con tiempo)</li>
-                </ul>
               </section>
 
               <div className="border-t border-border" />
@@ -94,7 +82,7 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-foreground text-lg font-semibold mb-3">¿Querés borrar tu cuenta?</h2>
                 <p className="text-muted">
-                  Escribinos a <strong className="text-foreground">hola@elrata.io</strong> y borramos todo: cuenta, búsquedas, alertas. Sin preguntas, sin formulario de 5 pasos, sin "¿estás seguro?" tres veces.
+                  Escribinos a <strong className="text-foreground">sixtocode@gmail.com</strong> y borramos todo: cuenta, búsquedas, alertas. Sin preguntas, sin formulario de 5 pasos, sin "¿estás seguro?" tres veces.
                 </p>
               </section>
 

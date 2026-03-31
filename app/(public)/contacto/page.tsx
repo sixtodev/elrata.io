@@ -24,38 +24,52 @@ export default function ContactoPage() {
               ¿Trabajamos<br /><span className="text-green">juntos?</span>
             </h1>
             <p className="text-muted text-base mb-12 max-w-lg">
-              Sí, estoy buscando trabajo. Y esta app es la prueba de que no hago las cosas a medias — la hice entera, solo, con IA como copiloto y café como combustible.
+              Sí, estoy buscando trabajo. Esta app la construí solo, con IA como copiloto — pero el que sabe lo que está haciendo soy yo.
             </p>
 
             <div className="space-y-10 text-[15px] leading-relaxed">
 
-              <section className="bg-bg2 border border-border rounded-xl p-7">
-                <h2 className="text-foreground text-lg font-semibold mb-2">
-                  🐀 La oportunidad rata del año
-                </h2>
+              <section>
+                <h2 className="text-foreground text-lg font-semibold mb-2">Un poco de honestidad</h2>
+                <p className="text-muted mb-4">
+                  No voy a decir que soy un senior experto nivel dios — no lo soy y no voy a mentirte. Pero sí tengo los fundamentos sólidos, me importa hacer las cosas bien, y esta app es la prueba: arquitectura limpia, buenas prácticas, seguridad, deploy real. No es un tutorial de YouTube.
+                </p>
+                <p className="text-muted mb-4">
+                  Usé IA para construir esto y lo digo sin vergüenza. La IA es una herramienta, como lo fue Stack Overflow en su momento. La diferencia es que yo entiendo lo que estoy haciendo: sé por qué una decisión de arquitectura es mejor que otra, qué es seguro y qué no. La IA ejecuta, yo dirijo. Y si algo no sé, lo investigo — leo la documentación, busco alternativas, comparo opciones.
+                </p>
                 <p className="text-muted">
-                  Si llegaste hasta acá, ya sabés que sé construir productos. Frontend, backend, IA, deploy, diseño, copy — todo. Si tu equipo necesita alguien así, esta es la señal del universo. No la ignores, el universo no manda dos veces.
+                  Ejemplo concreto: el scraping de esta app. Hay mil servicios de pago para eso, pero yo quería la opción más free y rata posible. Investigué, probé, descarté, volví a probar. El resultado funciona bien — con sus limitaciones, claro. La más memorable: MercadoLibre me baneó la IP del VPS. Literalmente. Me bloqueó el servidor entero. En algún punto eso deja de ser un error y empieza a ser un logro.
                 </p>
               </section>
 
+              <div className="border-t border-border" />
+
               <section>
-                <h2 className="text-foreground text-lg font-semibold mb-4">¿En qué puedo ayudarte?</h2>
+                <h2 className="text-foreground text-lg font-semibold mb-4">Con qué trabajo</h2>
                 <ul className="text-muted space-y-3 list-none">
                   <li className="flex items-start gap-2">
                     <span className="text-green mt-1 shrink-0">→</span>
-                    <span><strong className="text-foreground">Desarrollo fullstack</strong> — Next.js, TypeScript, Node, bases de datos, APIs</span>
+                    <span><strong className="text-foreground">Next.js / Astro / Node.js</strong> — frontend y backend, según lo que necesite el proyecto</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green mt-1 shrink-0">→</span>
-                    <span><strong className="text-foreground">Integraciones con IA</strong> — LLMs, scraping inteligente, automatizaciones</span>
+                    <span><strong className="text-foreground">NestJS</strong> — APIs estructuradas, con arquitectura que escala</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green mt-1 shrink-0">→</span>
+                    <span><strong className="text-foreground">Integraciones con IA</strong> — LLMs, automatizaciones, scraping inteligente</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green mt-1 shrink-0">→</span>
+                    <span><strong className="text-foreground">Shopify</strong> — integraciones, apps, storefronts custom</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green mt-1 shrink-0">→</span>
+                    <span><strong className="text-foreground">Pagos</strong> — Stripe, MercadoPago y similares</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green mt-1 shrink-0">→</span>
                     <span><strong className="text-foreground">Productos desde cero</strong> — de la idea al deploy, sin drama</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green mt-1 shrink-0">→</span>
-                    <span><strong className="text-foreground">Consultoría técnica</strong> — si tu código llora por las noches, podemos hablar</span>
                   </li>
                 </ul>
               </section>
@@ -66,27 +80,16 @@ export default function ContactoPage() {
                 <h2 className="text-foreground text-lg font-semibold mb-5">Escribime</h2>
                 <div className="space-y-3">
                   <a
-                    href="mailto:hola@elrata.io"
+                    href="mailto:sixtocode@gmail.com"
                     className="flex items-center gap-3 text-muted hover:text-foreground transition-colors no-underline group"
                   >
                     <span className="w-10 h-10 rounded-lg bg-bg2 border border-border flex items-center justify-center text-green group-hover:border-green transition-colors">
                       @
                     </span>
-                    <span>hola@elrata.io</span>
+                    <span>sixtocode@gmail.com</span>
                   </a>
                   <a
-                    href="https://linkedin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-muted hover:text-foreground transition-colors no-underline group"
-                  >
-                    <span className="w-10 h-10 rounded-lg bg-bg2 border border-border flex items-center justify-center text-green group-hover:border-green transition-colors text-xs font-bold">
-                      in
-                    </span>
-                    <span>LinkedIn</span>
-                  </a>
-                  <a
-                    href="https://github.com"
+                    href="https://github.com/sixtodev"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-muted hover:text-foreground transition-colors no-underline group"
