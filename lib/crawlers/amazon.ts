@@ -70,9 +70,11 @@ export async function searchAmazon(
     const results: SearchResult[] = items
       .filter((item) => item.name && item.url)
       .filter((item) => {
-        // Use numeric price field directly for budget filtering
-        if (!priceMax || item.price == null) return true
-        return item.price <= priceMax * 1.15
+        // price field is unreliable (ScraperAPI divides by 1000 in some markets)
+        // parse price_string directly for accurate budget comparison
+        if (!priceMax || !item.price_string) return true
+        const num = parseNumericPrice(item.price_string)
+        return isNaN(num) || num <= priceMax * 1.15
       })
       .slice(0, 10)
       .map((item) => {
@@ -116,4 +118,27 @@ function parseBudget(budget: string): number | null {
     ? parseFloat(cleaned.replace(/\./g, ''))
     : parseFloat(cleaned.replace(/,/g, ''))
   return isFinite(num) && num > 0 ? num : null
+}
+
+/** Parse a formatted price string like "$8,124.00" or "MX$17,077" into a number */
+function parseNumericPrice(priceStr: string): number {
+  const cleaned = priceStr.replace(/[^0-9.,]/g, '')
+  if (!cleaned) return NaN
+  const dots = (cleaned.match(/\./g) || []).length
+  const commas = (cleaned.match(/,/g) || []).length
+  // Both separators: determine which is decimal
+  if (dots === 1 && commas === 1) {
+    return cleaned.indexOf('.') < cleaned.indexOf(',')
+      ? parseFloat(cleaned.replace('.', '').replace(',', '.')) // European: 1.234,56
+      : parseFloat(cleaned.replace(',', ''))                   // US: 8,124.00
+  }
+  if (dots > 1) return parseFloat(cleaned.replace(/\./g, ''))  // 1.299.990
+  if (commas > 1) return parseFloat(cleaned.replace(/,/g, '')) // 1,299,990
+  if (commas === 1) {
+    const after = cleaned.split(',')[1] ?? ''
+    return after.length === 3
+      ? parseFloat(cleaned.replace(',', ''))   // thousands: 8,124
+      : parseFloat(cleaned.replace(',', '.'))  // decimal: 8,12
+  }
+  return parseFloat(cleaned)
 }
