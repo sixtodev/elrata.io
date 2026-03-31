@@ -6,11 +6,11 @@
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 const TESTS = [
-  { custom_url: 'https://www.falabella.cl', country: 'chile', label: 'Falabella CL (Option A — known store)' },
-  { custom_url: 'https://www.elcorteingles.es', country: 'espana', label: 'El Corte Inglés (Option A — known store)' },
+  { custom_url: 'https://www.falabella.cl', country: 'chile', product: 'zapatillas running', label: 'Falabella CL — Jina debería funcionar' },
+  { custom_url: 'https://www.elcorteingles.es', country: 'espana', product: 'zapatillas running', label: 'El Corte Inglés — Jina falla, usa Serper' },
 ]
 
-for (const { custom_url, country, label } of TESTS) {
+for (const { custom_url, country, product, label } of TESTS) {
   console.log(`\n━━━ ${label} ━━━`)
   console.log(`custom_url: ${custom_url}`)
 
@@ -18,7 +18,7 @@ for (const { custom_url, country, label } of TESTS) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      product: 'zapatillas running',
+      product,
       country,
       city: '',
       purpose: 'uso diario',

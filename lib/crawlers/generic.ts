@@ -29,25 +29,31 @@ export async function scrapeGenericUrl(
 
   console.log(`[generic] Scraping: ${searchUrl}`)
 
-  // Step 1: Fetch page 1
+  // Strategy 1: Jina AI Reader — free, fast (~1s), returns clean markdown
+  const jinaText = await fetchWithJina(searchUrl)
+  if (jinaText && jinaText.length > 500) {
+    const results = parseJinaMarkdown(jinaText, product, currency, storeName)
+    if (results.length > 0) {
+      console.log(`[generic] ✓ Jina: ${results.length} results from ${storeName}`)
+      return results
+    }
+  }
+
+  // Strategy 2: ScraperAPI with render=true — slower (~30s), uses credits
+  console.log(`[generic] Jina failed, falling back to ScraperAPI for ${storeName}`)
   const firstPageHtml = await fetchPage(searchUrl, scraperApiKey)
   if (!firstPageHtml) return []
 
   const results = parseGenericPage(firstPageHtml, product, currency, storeName, searchUrl, fullUrl)
 
-  // Step 2: If page 1 has enough results, fetch more pages in parallel
   if (results.length >= FETCH_MORE_THRESHOLD) {
     const extraPages = Array.from(
       { length: MAX_PAGES - MIN_PAGES },
       (_, i) => appendPage(searchUrl, i + 2)
     )
-
-    console.log(`[generic] Page 1 had ${results.length} results, fetching ${extraPages.length} more pages`)
-
     const morePages = await Promise.allSettled(
       extraPages.map(pageUrl => fetchPage(pageUrl, scraperApiKey))
     )
-
     for (const page of morePages) {
       if (page.status === 'fulfilled' && page.value) {
         results.push(...parseGenericPage(page.value, product, currency, storeName, searchUrl, fullUrl))
@@ -56,6 +62,81 @@ export async function scrapeGenericUrl(
   }
 
   console.log(`[generic] Found ${results.length} results from ${storeName}`)
+  return results
+}
+
+/** Fetch page via Jina AI Reader — free, no API key, returns clean markdown */
+async function fetchWithJina(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://r.jina.ai/${url}`, {
+      headers: { 'Accept': 'text/plain' },
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!res.ok) return null
+    const text = await res.text()
+    return text.length > 200 ? text : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Parse Jina markdown output into SearchResults.
+ * Jina returns product links as: [BRAND ### Name Rating $Price -Discount%](URL)
+ * Filters by query relevance to exclude unrelated products on the page.
+ */
+function parseJinaMarkdown(
+  text: string,
+  product: string,
+  currency: string,
+  storeName: string
+): SearchResult[] {
+  const results: SearchResult[] = []
+  const queryWords = product.toLowerCase().split(/\s+/).filter(w => w.length > 2)
+
+  // Match markdown links that point to product pages
+  const linkRegex = /\[([^\[\]]{10,200})\]\((https?:\/\/[^\)]+\/(?:product|p\/|producto|item|pid|sku)[^\)]*)\)/g
+  let match
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    const [, linkText, url] = match
+    if (linkText.startsWith('!')) continue // skip images
+
+    // Must contain at least one query word (relevance filter)
+    const textLower = linkText.toLowerCase()
+    const isRelevant = queryWords.some(word => textLower.includes(word))
+    if (!isRelevant) continue
+
+    // Extract price
+    const priceMatch = linkText.match(/[\$€£][\d.,]{3,}|\d{1,3}(?:[.,]\d{3})+/)
+    if (!priceMatch) continue
+
+    // Clean name: remove brand prefix (before ###), price, rating, discount
+    let name = linkText
+    if (name.includes('###')) name = name.split('###')[1] ?? name
+    name = name
+      .replace(/[\$€£][\d.,]+/g, '')
+      .replace(/-\d+%/g, '')
+      .replace(/\b\d+\.\d\b/g, '') // rating like 4.9
+      .replace(/Patrocinado/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (name.length < 5) continue
+
+    results.push({
+      name,
+      price: priceMatch[0],
+      currency,
+      store: storeName,
+      url,
+      availability: 'in_stock' as const,
+      source: 'crawlee' as const,
+      scraper_type: 'jina',
+    })
+
+    if (results.length >= 15) break
+  }
+
   return results
 }
 
