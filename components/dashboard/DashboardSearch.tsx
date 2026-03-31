@@ -108,6 +108,7 @@ export function DashboardSearch() {
   const [editForm, setEditForm] = useState({ name: '', url: '' })
   const [deletingUrlId, setDeletingUrlId] = useState<string | null>(null)
   const [confirmDeleteUrlId, setConfirmDeleteUrlId] = useState<string | null>(null)
+  const [customUrlIsFromChip, setCustomUrlIsFromChip] = useState(false)
 
   // Results state
   const [results, setResults] = useState<SearchResponse | null>(null)
@@ -187,7 +188,9 @@ export function DashboardSearch() {
   }
 
   const handleSelectSavedUrl = (url: string) => {
-    setCustomUrl((prev) => prev === url ? '' : url)
+    const isDeselecting = customUrl === url
+    setCustomUrl(isDeselecting ? '' : url)
+    setCustomUrlIsFromChip(!isDeselecting)
   }
 
   const cat = getCategoryById(category)
@@ -373,19 +376,25 @@ export function DashboardSearch() {
 
         {/* Source */}
         <div style={{ marginBottom: '12px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>Buscar en</label>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {([
-              { id: 'all', label: 'Google Shopping' },
-              { id: 'amazon', label: 'Amazon' },
-              ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : []),
-            ] as { id: SearchSource; label: string }[]).map((s) => (
-              <button key={s.id} onClick={() => setSource(s.id)}
-                style={{ border: source === s.id ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: source === s.id ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: source === s.id ? '#c4ef16' : '#6b7280' }}>
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: customUrl ? '#3a3a3a' : '#6b7280', textTransform: 'uppercase', marginBottom: '6px' }}>Buscar en</label>
+          {customUrl ? (
+            <div style={{ fontSize: '12px', color: '#4a4a4a', padding: '6px 10px', background: '#1a1a1e', border: '1px solid #2a2a2a', borderRadius: '8px', display: 'inline-block' }}>
+              Desactivado — usando sitio específico
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {([
+                { id: 'all', label: 'Google Shopping' },
+                { id: 'amazon', label: 'Amazon' },
+                ...(ML_COUNTRIES.has(selectedCountry) ? [{ id: 'mercadolibre', label: 'Solo MercadoLibre' }] : []),
+              ] as { id: SearchSource; label: string }[]).map((s) => (
+                <button key={s.id} onClick={() => setSource(s.id)}
+                  style={{ border: source === s.id ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', background: source === s.id ? 'rgba(196,239,22,0.1)' : '#1a1a1e', color: source === s.id ? '#c4ef16' : '#6b7280' }}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Custom URL */}
@@ -397,17 +406,20 @@ export function DashboardSearch() {
             Guardá tus tiendas favoritas para búsquedas específicas — aparecen abajo como accesos rápidos.
           </p>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', flex: 1, background: '#1a1a1e', border: customUrl ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', flex: 1, background: '#1a1a1e', border: customUrl && !customUrlIsFromChip ? '1px solid #c4ef16' : '1px solid #2a2a2a', borderRadius: '8px', overflow: 'hidden' }}>
               <span style={{ padding: '6px 0 6px 10px', color: '#6b7280', fontSize: '13px', flexShrink: 0 }}>https://</span>
               <input
                 type="text"
-                value={customUrl}
-                onChange={(e) => setCustomUrl(e.target.value.replace(/^https?:\/\//, ''))}
+                value={customUrlIsFromChip ? '' : customUrl}
+                onChange={(e) => {
+                  setCustomUrl(e.target.value.replace(/^https?:\/\//, ''))
+                  setCustomUrlIsFromChip(false)
+                }}
                 placeholder="elcorteingles.es, liverpool.com.mx, fravega.com..."
                 style={{ flex: 1, background: 'transparent', border: 'none', padding: '8px 10px', fontSize: '13px', color: '#fefeff', outline: 'none' }}
               />
             </div>
-            {customUrl.trim() && (
+            {customUrl.trim() && !customUrlIsFromChip && (
               <button
                 onClick={handleSaveUrl}
                 disabled={savingUrl}
