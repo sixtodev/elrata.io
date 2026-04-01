@@ -4,6 +4,19 @@
 
 Comparador de precios con inteligencia artificial que busca en tiendas reales de +16 países de Latinoamérica y el mundo. Proyecto creado para la hackathon de [midudev](https://midu.dev).
 
+## Probar la app
+
+Podés explorar todas las funcionalidades sin crear una cuenta:
+
+1. Entrá a [elrata.io](https://elrata.io)
+2. Hacé click en **Login** → **"Explorar en modo demo"**
+3. Accedés al dashboard con todas las funciones habilitadas: carpetas, alertas de precio, historial, URLs personalizadas
+4. Si querés guardar tu progreso, registrate con Google o email
+
+> La búsqueda básica también funciona desde la landing sin ningún login.
+
+---
+
 ## Qué es ElRata.io
 
 ElRata.io nace de una idea simple: nadie debería pagar de más por un producto que está más barato en otra tienda. La herramienta busca precios en MercadoLibre, Amazon, Google Shopping y tiendas online que tu puedes agregar en tu perfil de tu país, y luego usa IA para analizar los resultados y recomendarte la mejor opción.
