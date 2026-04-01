@@ -6,9 +6,10 @@ import Link from 'next/link'
 
 interface DashboardNavProps {
   email?: string
+  isAnonymous?: boolean
 }
 
-export function DashboardNav({ email }: DashboardNavProps) {
+export function DashboardNav({ email, isAnonymous = false }: DashboardNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -44,10 +45,24 @@ export function DashboardNav({ email }: DashboardNavProps) {
           Alertas
         </Link>
 
-        {email && (
-          <span className="text-muted text-[13px] border-l border-border pl-4">
-            {email}
-          </span>
+        {isAnonymous ? (
+          <>
+            <span className="text-xs font-semibold text-green border border-green/40 bg-green/10 px-2.5 py-1 rounded-full">
+              Modo demo
+            </span>
+            <Link
+              href="/login"
+              className="text-[13px] font-semibold text-black bg-green px-3.5 py-1.5 rounded-lg no-underline hover:opacity-90 transition-opacity"
+            >
+              Crear cuenta
+            </Link>
+          </>
+        ) : (
+          email && (
+            <span className="text-muted text-[13px] border-l border-border pl-4">
+              {email}
+            </span>
+          )
         )}
 
         <button
@@ -94,8 +109,19 @@ export function DashboardNav({ email }: DashboardNavProps) {
             Alertas
           </Link>
 
-          {email && (
-            <span className="text-muted text-[13px]">{email}</span>
+          {isAnonymous ? (
+            <>
+              <span className="text-xs font-semibold text-green">Modo demo</span>
+              <Link
+                href="/login"
+                className="text-green font-semibold text-sm no-underline min-h-11 flex items-center"
+                onClick={() => setMobileOpen(false)}
+              >
+                Crear cuenta
+              </Link>
+            </>
+          ) : (
+            email && <span className="text-muted text-[13px]">{email}</span>
           )}
 
           <button

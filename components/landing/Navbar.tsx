@@ -46,6 +46,7 @@ export function Navbar() {
     router.push('/')
   }
 
+  const isAnonymous = user?.is_anonymous ?? false
   const userInitial = user?.email?.charAt(0).toUpperCase() ?? '?'
 
   return (
@@ -90,10 +91,10 @@ export function Navbar() {
             <li className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="w-8 h-8 rounded-full bg-green text-black border-none cursor-pointer text-sm font-semibold flex items-center justify-center"
-                title={user.email ?? ''}
+                className={`w-8 h-8 rounded-full border-none cursor-pointer text-sm font-semibold flex items-center justify-center ${isAnonymous ? 'bg-bg3 border border-border text-muted' : 'bg-green text-black'}`}
+                title={isAnonymous ? 'Modo demo' : (user.email ?? '')}
               >
-                {userInitial}
+                {isAnonymous ? '?' : userInitial}
               </button>
               <AnimatePresence>
                 {userMenuOpen && (
@@ -104,9 +105,22 @@ export function Navbar() {
                     transition={{ duration: 0.15 }}
                     className="absolute top-10 right-0 bg-bg2 border border-border rounded-lg py-2 min-w-[200px] z-[200]"
                   >
-                    <div className="px-4 py-2 text-muted text-xs border-b border-border">
-                      {user.email}
+                    <div className="px-4 py-2 border-b border-border">
+                      {isAnonymous ? (
+                        <span className="text-xs font-semibold text-green">Modo demo</span>
+                      ) : (
+                        <span className="text-muted text-xs">{user.email}</span>
+                      )}
                     </div>
+                    {isAnonymous && (
+                      <Link
+                        href="/login"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="block w-full px-4 py-2.5 text-green text-[13px] font-semibold no-underline hover:bg-bg3 transition-colors"
+                      >
+                        Crear cuenta
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="w-full px-4 py-2.5 bg-transparent border-none text-red text-[13px] cursor-pointer text-left hover:bg-bg3 transition-colors"
@@ -176,12 +190,25 @@ export function Navbar() {
                 <Link href="/dashboard" className={`transition-colors no-underline min-h-11 flex items-center hover:text-green ${isActive('/dashboard') ? 'text-green font-semibold' : 'text-foreground'}`}>
                   Dashboard
                 </Link>
-                <div className="flex items-center gap-2.5 text-muted text-[13px]">
-                  <div className="w-7 h-7 rounded-full bg-green text-black flex items-center justify-center text-xs font-semibold shrink-0">
-                    {userInitial}
+                {isAnonymous ? (
+                  <>
+                    <span className="text-xs font-semibold text-green">Modo demo</span>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="text-green font-semibold text-sm no-underline min-h-11 flex items-center"
+                    >
+                      Crear cuenta
+                    </Link>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2.5 text-muted text-[13px]">
+                    <div className="w-7 h-7 rounded-full bg-green text-black flex items-center justify-center text-xs font-semibold shrink-0">
+                      {userInitial}
+                    </div>
+                    {user.email}
                   </div>
-                  {user.email}
-                </div>
+                )}
                 <button
                   onClick={handleLogout}
                   className="bg-transparent border-none text-red cursor-pointer text-left text-sm p-0 min-h-11"

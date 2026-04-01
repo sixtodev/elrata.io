@@ -4,6 +4,7 @@ import { getFolders } from '@/lib/supabase/queries/folders'
 import { getRecentSearches } from '@/lib/supabase/queries/searches'
 import { DashboardNav } from '@/components/dashboard/DashboardNav'
 import { DashboardClient } from '@/components/dashboard/DashboardClient'
+import { AnonymousBanner } from '@/components/dashboard/AnonymousBanner'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
@@ -28,11 +29,15 @@ export default async function DashboardPage() {
     }
   }
 
+  const isAnonymous = user.is_anonymous ?? false
+
   return (
     <div className="min-h-screen bg-background">
-      <DashboardNav email={user.email} />
+      <DashboardNav email={user.email} isAnonymous={isAnonymous} />
 
       <main className="max-w-[1100px] mx-auto px-6 pt-[100px] pb-[60px]">
+        {isAnonymous && <AnonymousBanner />}
+
         <h1 className="font-title text-[32px] text-foreground mb-8 font-normal">
           Mi <span className="text-green">Rata</span> Dashboard
         </h1>

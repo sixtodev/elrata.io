@@ -59,6 +59,19 @@ export default function LoginPage() {
     }
   }
 
+  const handleAnonymousLogin = async () => {
+    setError(null)
+    setLoading(true)
+    const supabase = createClient()
+    const { error: anonError } = await supabase.auth.signInAnonymously()
+    if (anonError) {
+      setError(anonError.message)
+      setLoading(false)
+    } else {
+      router.push('/dashboard')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-[420px]">
@@ -187,6 +200,25 @@ export default function LoginPage() {
             >
               {isRegister ? 'Iniciar sesión' : 'Crear cuenta'}
             </button>
+          </p>
+        </div>
+
+        {/* Anonymous demo */}
+        <div className="mt-4 bg-bg2 border border-border rounded-2xl p-5 text-center">
+          <p className="text-muted text-[13px] mb-3">
+            ¿Querés probar todas las funciones sin registrarte?
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            onClick={handleAnonymousLogin}
+            disabled={loading}
+          >
+            Explorar en modo demo
+          </Button>
+          <p className="text-muted text-xs mt-2.5">
+            Carpetas, alertas y búsquedas habilitadas — sin cuenta
           </p>
         </div>
 
